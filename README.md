@@ -2,7 +2,7 @@
 
 ### Work In Progress !!!
 
-This algorithm is used in fossil and there it has been implemented in C-99. I needed it in my
+This algorithm is used in [fossil](https://fossil-scm.org) and there it has been implemented in C-99. I needed it in my
 Rust projects and here is reimplementation in Rust.
 
 Once it is ported it will expose two public functions:
@@ -26,3 +26,6 @@ you can use `deltainv(b, d)` to get the previous value. If you keep all consequt
 you can use `deltainv` multiple times to get any of the earlier text versions.
 
 The Delta value calculated between two utf-8 encoded strings is itself utf-8 encoded string.
+
+The algorithm is described very well
+[here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
