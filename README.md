@@ -31,4 +31,4 @@ The algorithm is described very well
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
 
 The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
-containing the code is in a single outline file: [blob/master/fossil-delta-ref.leo].
+containing the code is in a single outline file: [fossil-delta-ref.leo](fossil-delta-ref.leo).
