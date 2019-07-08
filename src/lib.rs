@@ -86,9 +86,7 @@ fn checksum(z_in:&[u8]) -> u32 {
   }
   s
 }
-/// Create a new delta.
-///
-/// This function writes the delta in provided mutable string reference
+/// Generate new delta in given mutable string reference
 ///
 /// Output Format:
 ///
@@ -141,7 +139,7 @@ fn checksum(z_in:&[u8]) -> u32 {
 /// do not match or which can not be encoded efficiently using copy
 /// commands.
 ///
-fn delta_create(
+pub fn generate_delta(
   z_src_t:&str /* The source text */,
   z_out_t:&str /* The target text */,
   z_delta:&mut String /* A string to hold the resulting delta */) {
@@ -197,9 +195,9 @@ fn delta_create(
   let mut h = Hash::new();
   for i in 0..n_hash {
     h.init(&z_src[(NHASH * i)..]);
-    let hv = h.as_usize() % n_hash;
-    collide[i] = collide[n_hash + hv];
-    collide[n_hash + hv] = i as u32;
+    let hv = h.as_usize() % n_hash + n_hash;
+    collide[i] = collide[hv];
+    collide[hv] = i as u32;
   }
   let mut base = 0usize;
   while base + NHASH < z_out.len() {
@@ -209,7 +207,7 @@ fn delta_create(
     let mut best_offset  = 0;
     let mut best_lit_size = 0;
     loop {
-      let mut hv = h.as_usize() % n_hash;
+      let hv = h.as_usize() % n_hash;
       let mut i_block = collide[n_hash + hv];
       let mut limit = 250;
       while i_block != 0xffff_ffff && limit > 0 {
@@ -242,7 +240,6 @@ fn delta_create(
         z_delta.push('@');
         z_delta.push_str(&b64str(best_offset as u32));
         z_delta.push(',');
-        best_count = 0;
         break;
       } else if base + i + NHASH >= z_out.len() {
         z_delta.push_str(&b64str((z_out.len() - base) as u32));
@@ -264,6 +261,13 @@ fn delta_create(
   z_delta.push_str(&b64str(checksum(z_out)));
   z_delta.push(';');
 }
+/// Creates delta and returns it as a String
+/// see [`generate_delta`]
+pub fn delta(a:&str, b:&str) -> String {
+  let mut d = String::with_capacity(b.len() + 60);
+  generate_delta(a, b, &mut d);
+  d
+}
 /// Return the size (in bytes) of the output from applying
 /// a delta.
 ///
@@ -272,10 +276,8 @@ fn delta_create(
 /// for the output and hence allocate nor more space that is really
 /// needed.
 ///
-fn delta_output_size(z_delta:&str) -> usize { b64int(z_delta) as usize }
+pub fn delta_output_size(z_delta:&str) -> usize { b64int(z_delta) as usize }
 const NHASH_1:usize = NHASH - 1;
-const NHASHU8:u8 = NHASH as u8;
-const NHASHU16:u16 = NHASH as u16;
 const NHASHI32:i32 = NHASH as i32;
 struct Hash {
   a: u16,
@@ -309,8 +311,6 @@ impl Hash {
     self.a = (a & 0xffff) as u16;
     self.b = (b & 0xffff) as u16;
   }
-  /// Return a 32-bit hash value
-  fn as_u32(&self) -> u32 { (self.a as u32) | ((self.b as u32) << 16) }
   /// Return a usize hash value
   fn as_usize(&self) -> usize { (self.a as usize) | ((self.b as usize) << 16)}
 }
@@ -327,29 +327,22 @@ mod tests {
     }
   }
   #[test]
-  fn test_overflow(){
-    let a:u16 = 65535;
-    let b:u8 = 255;
-    let c:u16 = a.overflowing_add(b as u16).0;
-    assert_eq!(c, 254);
-  }
-  #[test]
-  fn test_hash_update(){
-    let mut h = Hash::new();
-    h.init(b"0123456789ABCDEFFEDCBA9876543210");
-    assert_eq!(h.as_u32(), 0x1cbb03a2);
-    let mut h2 = Hash::new();
-    h2.init(b"123456789ABCDEFFEDCBA9876543210");
-    h.update(b'F');
-    assert_eq!(h.as_u32(), h2.as_u32())
-  }
-  #[test]
   fn delta_gen() {
     let old = include_str!("test-data/file-a.txt");
     let cur = include_str!("test-data/file-b.txt");
     let d1 = include_str!("test-data/file-delta.txt");
     let mut d = String::new();
-    delta_create(old, cur, &mut d);
+    generate_delta(old, cur, &mut d);
     assert_eq!(d, d1);
+  }
+  #[test]
+  fn test_hash_update(){
+    let mut h = Hash::new();
+    h.init(b"0123456789ABCDEFFEDCBA9876543210");
+    assert_eq!(h.as_usize(), 0x1cbb03a2);
+    let mut h2 = Hash::new();
+    h2.init(b"123456789ABCDEFFEDCBA9876543210");
+    h.update(b'F');
+    assert_eq!(h.as_usize(), h2.as_usize())
   }
 }

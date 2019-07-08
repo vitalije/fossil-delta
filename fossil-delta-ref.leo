@@ -17,8 +17,8 @@
 <v t="vitalije.20190708080758.2"><vh>constants ...</vh></v>
 <v t="vitalije.20190708090600.1"><vh>digit_count</vh></v>
 <v t="vitalije.20190708091311.1"><vh>checksum</vh></v>
-<v t="vitalije.20190708102546.1"><vh>delta_create</vh>
-<v t="vitalije.20190708103528.1"><vh>delta_create - implementation</vh>
+<v t="vitalije.20190708102546.1"><vh>generate_delta</vh>
+<v t="vitalije.20190708103528.1"><vh>generate_delta - implementation</vh>
 <v t="vitalije.20190708130411.1"><vh>0 - some utilities</vh>
 <v t="vitalije.20190708131459.1"><vh>mb_backward</vh></v>
 <v t="vitalije.20190708131503.1"><vh>mb_forward</vh></v>
@@ -31,11 +31,14 @@
 <v t="vitalije.20190708135156.1"><vh>6 - checksum record</vh></v>
 </v>
 </v>
+<v t="vitalije.20190708180426.1"><vh>delta</vh></v>
 <v t="vitalije.20190708102914.1"><vh>delta_output_size</vh></v>
 </v>
 <v t="vitalije.20190708083136.1"><vh>Hash</vh></v>
 <v t="vitalije.20190708081957.1"><vh>LIBRARY TESTS</vh>
 <v t="vitalije.20190708082017.1"><vh>b64_works</vh></v>
+<v t="vitalije.20190708175831.1"><vh>delta_gen</vh></v>
+<v t="vitalije.20190708175842.1"><vh>test_hash_update</vh></v>
 </v>
 </v>
 </vnodes>
@@ -95,6 +98,9 @@ The Delta value calculated between two utf-8 encoded strings is itself utf-8 enc
 
 The algorithm is described very well
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
+
+The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
+containing the code is in a single outline file: [fossil-delta-ref.leo].
 </t>
 <t tx="vitalije.20190708080758.1">/// converts integer to String in base 64
 pub fn b64str(n:u32) -&gt; String {
@@ -156,32 +162,6 @@ const B64VALUES:[u8; 128] = [
 mod tests {
   use super::*;
   @others
-  #[test]
-  fn test_overflow(){
-    let a:u16 = 65535;
-    let b:u8 = 255;
-    let c:u16 = a.overflowing_add(b as u16).0;
-    assert_eq!(c, 254);
-  }
-  #[test]
-  fn test_hash_update(){
-    let mut h = Hash::new();
-    h.init(b"0123456789ABCDEFFEDCBA9876543210");
-    assert_eq!(h.as_u32(), 0x1cbb03a2);
-    let mut h2 = Hash::new();
-    h2.init(b"123456789ABCDEFFEDCBA9876543210");
-    h.update(b'F');
-    assert_eq!(h.as_u32(), h2.as_u32())
-  }
-  #[test]
-  fn delta_gen() {
-    let old = include_str!("test-data/file-a.txt");
-    let cur = include_str!("test-data/file-b.txt");
-    let d1 = include_str!("test-data/file-delta.txt");
-    let mut d = String::new();
-    delta_create(old, cur, &amp;mut d);
-    assert_eq!(d, d1);
-  }
 }</t>
 <t tx="vitalije.20190708082017.1">#[test]
 fn b64_works() {
@@ -193,8 +173,6 @@ fn b64_works() {
   }
 }</t>
 <t tx="vitalije.20190708083136.1">const NHASH_1:usize = NHASH - 1;
-const NHASHU8:u8 = NHASH as u8;
-const NHASHU16:u16 = NHASH as u16;
 const NHASHI32:i32 = NHASH as i32;
 struct Hash {
   a: u16,
@@ -228,8 +206,6 @@ impl Hash {
     self.a = (a &amp; 0xffff) as u16;
     self.b = (b &amp; 0xffff) as u16;
   }
-  /// Return a 32-bit hash value
-  fn as_u32(&amp;self) -&gt; u32 { (self.a as u32) | ((self.b as u32) &lt;&lt; 16) }
   /// Return a usize hash value
   fn as_usize(&amp;self) -&gt; usize { (self.a as usize) | ((self.b as usize) &lt;&lt; 16)}
 }
@@ -266,9 +242,7 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
   }
   s
 }</t>
-<t tx="vitalije.20190708102546.1">/// Create a new delta.
-///
-/// This function writes the delta in provided mutable string reference
+<t tx="vitalije.20190708102546.1">/// Generate new delta in given mutable string reference
 ///
 /// Output Format:
 ///
@@ -330,8 +304,8 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
 /// for the output and hence allocate nor more space that is really
 /// needed.
 ///
-fn delta_output_size(z_delta:&amp;str) -&gt; usize { b64int(z_delta) as usize }</t>
-<t tx="vitalije.20190708103528.1">fn delta_create(
+pub fn delta_output_size(z_delta:&amp;str) -&gt; usize { b64int(z_delta) as usize }</t>
+<t tx="vitalije.20190708103528.1">pub fn generate_delta(
   z_src_t:&amp;str /* The source text */,
   z_out_t:&amp;str /* The target text */,
   z_delta:&amp;mut String /* A string to hold the resulting delta */) {
@@ -363,9 +337,9 @@ let mut collide = vec![0xffff_ffff_u32; 2 * n_hash];
 let mut h = Hash::new();
 for i in 0..n_hash {
   h.init(&amp;z_src[(NHASH * i)..]);
-  let hv = h.as_usize() % n_hash;
-  collide[i] = collide[n_hash + hv];
-  collide[n_hash + hv] = i as u32;
+  let hv = h.as_usize() % n_hash + n_hash;
+  collide[i] = collide[hv];
+  collide[hv] = i as u32;
 }</t>
 <t tx="vitalije.20190708123712.1">let mut base = 0usize;
 while base + NHASH &lt; z_out.len() {
@@ -375,7 +349,7 @@ while base + NHASH &lt; z_out.len() {
   let mut best_offset  = 0;
   let mut best_lit_size = 0;
   loop {
-    let mut hv = h.as_usize() % n_hash;
+    let hv = h.as_usize() % n_hash;
     let mut i_block = collide[n_hash + hv];
     let mut limit = 250;
     while i_block != 0xffff_ffff &amp;&amp; limit &gt; 0 {
@@ -408,7 +382,6 @@ while base + NHASH &lt; z_out.len() {
       z_delta.push('@');
       z_delta.push_str(&amp;b64str(best_offset as u32));
       z_delta.push(',');
-      best_count = 0;
       break;
     } else if base + i + NHASH &gt;= z_out.len() {
       z_delta.push_str(&amp;b64str((z_out.len() - base) as u32));
@@ -458,5 +431,31 @@ let mb_forward = |i, j| {
 </t>
 <t tx="vitalije.20190708135156.1">z_delta.push_str(&amp;b64str(checksum(z_out)));
 z_delta.push(';');</t>
+<t tx="vitalije.20190708175831.1">#[test]
+fn delta_gen() {
+  let old = include_str!("test-data/file-a.txt");
+  let cur = include_str!("test-data/file-b.txt");
+  let d1 = include_str!("test-data/file-delta.txt");
+  let mut d = String::new();
+  generate_delta(old, cur, &amp;mut d);
+  assert_eq!(d, d1);
+}</t>
+<t tx="vitalije.20190708175842.1">#[test]
+fn test_hash_update(){
+  let mut h = Hash::new();
+  h.init(b"0123456789ABCDEFFEDCBA9876543210");
+  assert_eq!(h.as_usize(), 0x1cbb03a2);
+  let mut h2 = Hash::new();
+  h2.init(b"123456789ABCDEFFEDCBA9876543210");
+  h.update(b'F');
+  assert_eq!(h.as_usize(), h2.as_usize())
+}</t>
+<t tx="vitalije.20190708180426.1">/// Creates delta and returns it as a String
+/// see [`generate_delta`]
+pub fn delta(a:&amp;str, b:&amp;str) -&gt; String {
+  let mut d = String::with_capacity(b.len() + 60);
+  generate_delta(a, b, &amp;mut d);
+  d
+}</t>
 </tnodes>
 </leo_file>

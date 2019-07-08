@@ -29,3 +29,6 @@ The Delta value calculated between two utf-8 encoded strings is itself utf-8 enc
 
 The algorithm is described very well
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
+
+The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
+containing the code is in a single outline file: [fossil-delta-ref.leo].
