@@ -56,7 +56,7 @@ c.fileCommands.save_ref()</t>
 <t tx="vitalije.20190708073324.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@nocolor
 [package]
 name = "fossil-delta"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -76,14 +76,11 @@ const NHASH:usize = 16;
 </t>
 <t tx="vitalije.20190708073913.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e"># A Delta algorithm ported to Rust
 
-### Work In Progress !!!
 
-This algorithm is used in [fossil](https://fossil-scm.org) and there it has been implemented in C-99.
-I needed it in my Rust projects and here is reimplementation in Rust.
+This algorithm is used in [fossil](https://fossil-scm.org) where it has been implemented in C-99.
+This crate contains the same algorithm implemented in Rust.
 
-Once it is ported it will expose two public functions:
-    - delta:  fn(a:&amp;str, b:&amp;str) -&gt; String
-    - deltainv:  fn(a:&amp;str, d:&amp;str) -&gt; String
+It exports two functions: `delta(a:&amp;str, b:&amp;str) -&gt; String` and `deltainv(b:&amp;str, d:&amp;str) -&gt; String`.
 
 ```
 // creating delta between a and its next version b
@@ -95,15 +92,15 @@ let s = deltainv(b, d);
 assert_eq!(s, a);
 ```
 
-Therefore if you have some text value `a`, and user changes that text to value `b`, using
-`delta` function you can get a compressed delta value `d` that you can store and keep it
-along with the new text value `b`. If later user wants to see the previous version of text,
-you can use `deltainv(b, d)` to get the previous value. If you keep all consequtive deltas
-you can use `deltainv` multiple times to get any of the earlier text versions.
+Suppose we have some text value `a`, and user has changed it to value `b`. Using `delta`
+function we can get a compressed delta value `d` that we can store and keep it along with
+the new text value `b`. If later user wants to see the previous version of text,
+we can use `deltainv(b, d)` to get the previous value `a`. If we keep all consequtive deltas
+we can use `deltainv` multiple times to get any of the earlier text versions.
 
-The Delta value calculated between two utf-8 encoded strings is itself utf-8 encoded string.
+The delta value calculated between two utf-8 encoded strings is itself utf-8 encoded string.
 
-The algorithm is described very well
+The algorithm is very well described
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
 
 The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
