@@ -56,7 +56,7 @@ c.fileCommands.save_ref()</t>
 <t tx="vitalije.20190708073324.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@nocolor
 [package]
 name = "fossil-delta"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -71,6 +71,37 @@ categories = ["algorithms", "compression", "encoding", "text-processing"]
 </t>
 <t tx="vitalije.20190708073438.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@language rust
 @tabwidth -2
+/// Implementation of the delta algorithm used by fossil version control system.
+///
+/// ```rust
+/// use fossil_delta::{delta, deltainv};
+/// let a = r#"line 1
+///   yet another (a bit longer) line 2
+///   yet another (a bit longer) line 3
+///   yet another (a bit longer) line 4
+///   yet another (a bit longer) line 5
+///   yet another (a bit longer) line 6
+///   yet another (a bit longer) line 7
+///   yet another (a bit longer) line 8
+///   yet another (a bit longer) line 9
+///   yet another (a bit longer) line 10"#;
+/// let b = r#"line 1
+///   yet another (a bit longer) line 2
+///   yet another (a bit longer) line 3
+///   yet another (a bit longer) line 4
+///   yet another (a bit longer) line 5
+///   yet another (a bit longer) line 6
+///   yet another (a bit longer) line 6 1/2
+///   yet another (a bit longer) line 7
+///   yet another (a bit longer) line 8
+///   yet another (a bit longer) line 9
+///   and finally last line 10"#;
+/// let d = delta(a, b);
+/// let s = deltainv(b, &amp;d);
+/// assert_eq!(&amp;s, a);
+/// assert_eq!(d.len(), 43);
+/// ```
+
 const NHASH:usize = 16;
 @others
 </t>
@@ -310,8 +341,8 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
 ///
 pub fn delta_output_size(z_delta:&amp;str) -&gt; usize { b64int(z_delta) as usize }</t>
 <t tx="vitalije.20190708103528.1">pub fn generate_delta(
-  z_src_t:&amp;str /* The source text */,
   z_out_t:&amp;str /* The target text */,
+  z_src_t:&amp;str /* The source text */,
   z_delta:&amp;mut String /* A string to hold the resulting delta */) {
   z_delta.clear();
   let z_src = z_src_t.as_bytes();
@@ -443,6 +474,37 @@ fn delta_gen() {
   let mut d = String::new();
   generate_delta(old, cur, &amp;mut d);
   assert_eq!(d, d1);
+}
+#[test]
+fn round_trip_test() {
+  let a = r#"line 1
+    yet another (a bit longer) line 2
+    yet another (a bit longer) line 3
+    yet another (a bit longer) line 4
+    yet another (a bit longer) line 5
+    yet another (a bit longer) line 6
+    yet another (a bit longer) line 7
+    yet another (a bit longer) line 8
+    yet another (a bit longer) line 9
+    yet another (a bit longer) line 10"#;
+
+  let b = r#"line 1
+    yet another (a bit longer) line 2
+    yet another (a bit longer) line 3
+    yet another (a bit longer) line 4
+    yet another (a bit longer) line 5
+    yet another (a bit longer) line 6
+    yet another (a bit longer) line 6 1/2
+    yet another (a bit longer) line 7
+    yet another (a bit longer) line 8
+    yet another (a bit longer) line 9
+    and finally last line 10"#;
+
+  let d = delta(a, b);
+  println!("delta:{:?}", &amp;d);
+  let s = deltainv(b, &amp;d);
+  assert_eq!(&amp;s, a);
+  assert_eq!(d.len(), 43);
 }</t>
 <t tx="vitalije.20190708175842.1">#[test]
 fn test_hash_update(){
