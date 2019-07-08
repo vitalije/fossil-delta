@@ -1,34 +1,34 @@
-/// Implementation of the delta algorithm used by fossil version control system.
-///
-/// ```rust
-/// use fossil_delta::{delta, deltainv};
-/// let a = r#"line 1
-///   yet another (a bit longer) line 2
-///   yet another (a bit longer) line 3
-///   yet another (a bit longer) line 4
-///   yet another (a bit longer) line 5
-///   yet another (a bit longer) line 6
-///   yet another (a bit longer) line 7
-///   yet another (a bit longer) line 8
-///   yet another (a bit longer) line 9
-///   yet another (a bit longer) line 10"#;
-/// let b = r#"line 1
-///   yet another (a bit longer) line 2
-///   yet another (a bit longer) line 3
-///   yet another (a bit longer) line 4
-///   yet another (a bit longer) line 5
-///   yet another (a bit longer) line 6
-///   yet another (a bit longer) line 6 1/2
-///   yet another (a bit longer) line 7
-///   yet another (a bit longer) line 8
-///   yet another (a bit longer) line 9
-///   and finally last line 10"#;
-/// let d = delta(a, b);
-/// let s = deltainv(b, &d);
-/// assert_eq!(&s, a);
-/// assert_eq!(d.len(), 43);
-/// ```
+/*! Implementation of the delta algorithm used by fossil version control system.
 
+```rust
+use fossil_delta::{delta, deltainv};
+let a = r#"line 1
+  yet another (a bit longer) line 2
+  yet another (a bit longer) line 3
+  yet another (a bit longer) line 4
+  yet another (a bit longer) line 5
+  yet another (a bit longer) line 6
+  yet another (a bit longer) line 7
+  yet another (a bit longer) line 8
+  yet another (a bit longer) line 9
+  yet another (a bit longer) line 10"#;
+let b = r#"line 1
+  yet another (a bit longer) line 2
+  yet another (a bit longer) line 3
+  yet another (a bit longer) line 4
+  yet another (a bit longer) line 5
+  yet another (a bit longer) line 6
+  yet another (a bit longer) line 6 1/2
+  yet another (a bit longer) line 7
+  yet another (a bit longer) line 8
+  yet another (a bit longer) line 9
+  and finally last line 10"#;
+let d = delta(a, b);
+let s = deltainv(b, &d);
+assert_eq!(&s, a);
+assert_eq!(d.len(), 43);
+```
+*/
 const NHASH:usize = 16;
 /// converts integer to String in base 64
 pub fn b64str(n:u32) -> String {
@@ -410,7 +410,7 @@ mod tests {
     let cur = include_str!("test-data/file-b.txt");
     let d1 = include_str!("test-data/file-delta.txt");
     let mut d = String::new();
-    generate_delta(old, cur, &mut d);
+    generate_delta(cur, old, &mut d);
     assert_eq!(d, d1);
   }
   #[test]
