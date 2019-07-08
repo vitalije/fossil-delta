@@ -300,7 +300,16 @@ pub fn deltainv(b_txt:&str, d_txt:&str) -> String {
         d_src = &d1_src[(1 + cnt)..];
       },
       b';' => return a_res,
-      _ => panic!(format!("error in applying delta\n{:?}\n{:?}\n{}", b_txt, d_txt, d_txt.len() - d1_src.len()))
+      _ => {
+        let msg = format!(r#"Error in applying delta
+        txt: {}
+        -----------------------------
+        delta: {}
+        =============================
+        index: {}
+        "#, b_txt, d_txt, d_txt.len() - d1_src.len());
+        panic!(msg)
+      }
     }
   }
   a_res
