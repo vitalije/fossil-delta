@@ -59,7 +59,13 @@ name = "fossil-delta"
 version = "0.1.0"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
-
+description = "Provides functions for calculating differences between strings and applying calculated deltas"
+repository = "https://github.com/vitalije/fossil-delta.git"
+readme = "README.md"
+license = "MIT"
+license-file = "LICENSE"
+keywords = ["diff", "text", "delta", "fossil", "VCS"]
+categories = ["algorithms", "compression", "encoding", "text-processing"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
