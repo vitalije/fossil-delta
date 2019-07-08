@@ -17,6 +17,7 @@
 <v t="vitalije.20190708080758.2"><vh>constants ...</vh></v>
 <v t="vitalije.20190708090600.1"><vh>digit_count</vh></v>
 <v t="vitalije.20190708091311.1"><vh>checksum</vh></v>
+</v>
 <v t="vitalije.20190708102546.1"><vh>generate_delta</vh>
 <v t="vitalije.20190708103528.1"><vh>generate_delta - implementation</vh>
 <v t="vitalije.20190708130411.1"><vh>0 - some utilities</vh>
@@ -34,7 +35,6 @@
 <v t="vitalije.20190708180426.1"><vh>delta</vh></v>
 <v t="vitalije.20190708102914.1"><vh>delta_output_size</vh></v>
 <v t="vitalije.20190708183210.1"><vh>deltainv</vh></v>
-</v>
 <v t="vitalije.20190708083136.1"><vh>Hash</vh></v>
 <v t="vitalije.20190708081957.1"><vh>LIBRARY TESTS</vh>
 <v t="vitalije.20190708082017.1"><vh>b64_works</vh></v>
@@ -248,7 +248,7 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
 }</t>
 <t tx="vitalije.20190708102546.1">/// Generate new delta in given mutable string reference
 ///
-/// Output Format:
+/// ## Output Format:
 ///
 /// The delta begins with a base64 number followed by a newline.  This
 /// number is the number of bytes in the TARGET file.  Thus, given a
@@ -281,7 +281,7 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
 /// Pure text files generate a pure text delta.  Binary files generate a
 /// delta that may contain some binary data.
 ///
-/// Algorithm:
+/// ## Algorithm:
 ///
 /// The encoder first builds a hash table to help it find matching
 /// patterns in the source file.  16-byte chunks of the source file

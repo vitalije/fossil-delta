@@ -88,7 +88,7 @@ fn checksum(z_in:&[u8]) -> u32 {
 }
 /// Generate new delta in given mutable string reference
 ///
-/// Output Format:
+/// ## Output Format:
 ///
 /// The delta begins with a base64 number followed by a newline.  This
 /// number is the number of bytes in the TARGET file.  Thus, given a
@@ -121,7 +121,7 @@ fn checksum(z_in:&[u8]) -> u32 {
 /// Pure text files generate a pure text delta.  Binary files generate a
 /// delta that may contain some binary data.
 ///
-/// Algorithm:
+/// ## Algorithm:
 ///
 /// The encoder first builds a hash table to help it find matching
 /// patterns in the source file.  16-byte chunks of the source file
