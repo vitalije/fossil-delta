@@ -15,16 +15,16 @@ pub fn b64str(n:u32) -> String {
 }
 
 /// converts base 64 str to u32
-pub fn b64int(a:&str) -> u32 { b64int_read(a).0 }
+pub fn b64int(a:&str) -> u32 { b64int_read(a.as_bytes()).0 as u32}
 
-pub fn b64int_read(a:&str) -> (u32, &str) {
-  let mut res = 0_u32;
-  for (j, i) in a.bytes().enumerate() {
+pub fn b64int_read(a:&[u8]) -> (usize, &[u8]) {
+  let mut res = 0_usize;
+  for (j, i) in a.iter().enumerate() {
     let k = B64VALUES[(i & 127) as usize];
     if k == 255 { return (res, &a[j..]); }
-    res = (res << 6) + (k as u32);
+    res = (res << 6) + (k as usize);
   }
-  (res, "")
+  (res, b"")
 }
 const B64DIGITS:[char;64] = [
   '0', '1', '2', '3', '4', '5', '6', '7',
@@ -277,6 +277,34 @@ pub fn delta(a:&str, b:&str) -> String {
 /// needed.
 ///
 pub fn delta_output_size(z_delta:&str) -> usize { b64int(z_delta) as usize }
+/// Given the current version of text value `b_txt` and delta value as `d_txt`
+/// this function returns the previous version of text b_txt.
+pub fn deltainv(b_txt:&str, d_txt:&str) -> String {
+
+  let (total_length, mut d_src) = b64int_read(d_txt.as_bytes());
+
+  let mut a_res = String::with_capacity(total_length);
+
+  d_src = &d_src[1..];
+  while d_src.len() > 0 {
+    let (cnt, d1_src) = b64int_read(&d_src);
+    match d1_src[0] {
+      b'@' => {
+        let (ofst, d1_src) = b64int_read(&d1_src[1..]);
+        a_res.push_str(&b_txt[ofst..(ofst + cnt)]);
+        d_src = &d1_src[1..];
+      },
+      b':' => {
+        let i = d_txt.len() - d1_src.len() + 1;
+        a_res.push_str(&d_txt[i..(cnt + i)]);
+        d_src = &d1_src[(1 + cnt)..];
+      },
+      b';' => return a_res,
+      _ => panic!(format!("error in applying delta\n{:?}\n{:?}\n{}", b_txt, d_txt, d_txt.len() - d1_src.len()))
+    }
+  }
+  a_res
+}
 const NHASH_1:usize = NHASH - 1;
 const NHASHI32:i32 = NHASH as i32;
 struct Hash {
@@ -327,6 +355,16 @@ mod tests {
     }
   }
   #[test]
+  fn test_hash_update(){
+    let mut h = Hash::new();
+    h.init(b"0123456789ABCDEFFEDCBA9876543210");
+    assert_eq!(h.as_usize(), 0x1cbb03a2);
+    let mut h2 = Hash::new();
+    h2.init(b"123456789ABCDEFFEDCBA9876543210");
+    h.update(b'F');
+    assert_eq!(h.as_usize(), h2.as_usize())
+  }
+  #[test]
   fn delta_gen() {
     let old = include_str!("test-data/file-a.txt");
     let cur = include_str!("test-data/file-b.txt");
@@ -336,13 +374,11 @@ mod tests {
     assert_eq!(d, d1);
   }
   #[test]
-  fn test_hash_update(){
-    let mut h = Hash::new();
-    h.init(b"0123456789ABCDEFFEDCBA9876543210");
-    assert_eq!(h.as_usize(), 0x1cbb03a2);
-    let mut h2 = Hash::new();
-    h2.init(b"123456789ABCDEFFEDCBA9876543210");
-    h.update(b'F');
-    assert_eq!(h.as_usize(), h2.as_usize())
+  fn test_deltainv() {
+    let old = include_str!("test-data/file-a.txt");
+    let cur = include_str!("test-data/file-b.txt");
+    let d1 = include_str!("test-data/file-delta.txt");
+    let res = deltainv(cur, d1);
+    assert_eq!(&res[..30], &old[..30]);
   }
 }

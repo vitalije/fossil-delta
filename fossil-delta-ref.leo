@@ -33,12 +33,14 @@
 </v>
 <v t="vitalije.20190708180426.1"><vh>delta</vh></v>
 <v t="vitalije.20190708102914.1"><vh>delta_output_size</vh></v>
+<v t="vitalije.20190708183210.1"><vh>deltainv</vh></v>
 </v>
 <v t="vitalije.20190708083136.1"><vh>Hash</vh></v>
 <v t="vitalije.20190708081957.1"><vh>LIBRARY TESTS</vh>
 <v t="vitalije.20190708082017.1"><vh>b64_works</vh></v>
-<v t="vitalije.20190708175831.1"><vh>delta_gen</vh></v>
 <v t="vitalije.20190708175842.1"><vh>test_hash_update</vh></v>
+<v t="vitalije.20190708175831.1"><vh>delta_gen</vh></v>
+<v t="vitalije.20190708190730.1"><vh>test_deltainv</vh></v>
 </v>
 </v>
 </vnodes>
@@ -100,7 +102,7 @@ The algorithm is described very well
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
 
 The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
-containing the code is in a single outline file: [blob/master/fossil-delta-ref.leo].
+containing the code is in a single outline file: [fossil-delta-ref.leo](fossil-delta-ref.leo).
 </t>
 <t tx="vitalije.20190708080758.1">/// converts integer to String in base 64
 pub fn b64str(n:u32) -&gt; String {
@@ -118,16 +120,16 @@ pub fn b64str(n:u32) -&gt; String {
 }
 
 /// converts base 64 str to u32
-pub fn b64int(a:&amp;str) -&gt; u32 { b64int_read(a).0 }
+pub fn b64int(a:&amp;str) -&gt; u32 { b64int_read(a.as_bytes()).0 as u32}
 
-pub fn b64int_read(a:&amp;str) -&gt; (u32, &amp;str) {
-  let mut res = 0_u32;
-  for (j, i) in a.bytes().enumerate() {
+pub fn b64int_read(a:&amp;[u8]) -&gt; (usize, &amp;[u8]) {
+  let mut res = 0_usize;
+  for (j, i) in a.iter().enumerate() {
     let k = B64VALUES[(i &amp; 127) as usize];
     if k == 255 { return (res, &amp;a[j..]); }
-    res = (res &lt;&lt; 6) + (k as u32);
+    res = (res &lt;&lt; 6) + (k as usize);
   }
-  (res, "")
+  (res, b"")
 }
 </t>
 <t tx="vitalije.20190708080758.2">const B64DIGITS:[char;64] = [
@@ -456,6 +458,43 @@ pub fn delta(a:&amp;str, b:&amp;str) -&gt; String {
   let mut d = String::with_capacity(b.len() + 60);
   generate_delta(a, b, &amp;mut d);
   d
+}</t>
+<t tx="vitalije.20190708183210.1">/// Given the current version of text value `b_txt` and delta value as `d_txt`
+/// this function returns the previous version of text b_txt.
+pub fn deltainv(b_txt:&amp;str, d_txt:&amp;str) -&gt; String {
+
+  let (total_length, mut d_src) = b64int_read(d_txt.as_bytes());
+
+  let mut a_res = String::with_capacity(total_length);
+
+  d_src = &amp;d_src[1..];
+  while d_src.len() &gt; 0 {
+    let (cnt, d1_src) = b64int_read(&amp;d_src);
+    match d1_src[0] {
+      b'@' =&gt; {
+        let (ofst, d1_src) = b64int_read(&amp;d1_src[1..]);
+        a_res.push_str(&amp;b_txt[ofst..(ofst + cnt)]);
+        d_src = &amp;d1_src[1..];
+      },
+      b':' =&gt; {
+        let i = d_txt.len() - d1_src.len() + 1;
+        a_res.push_str(&amp;d_txt[i..(cnt + i)]);
+        d_src = &amp;d1_src[(1 + cnt)..];
+      },
+      b';' =&gt; return a_res,
+      _ =&gt; panic!(format!("error in applying delta\n{:?}\n{:?}\n{}", b_txt, d_txt, d_txt.len() - d1_src.len()))
+    }
+  }
+  a_res
+}
+</t>
+<t tx="vitalije.20190708190730.1">#[test]
+fn test_deltainv() {
+  let old = include_str!("test-data/file-a.txt");
+  let cur = include_str!("test-data/file-b.txt");
+  let d1 = include_str!("test-data/file-delta.txt");
+  let res = deltainv(cur, d1);
+  assert_eq!(&amp;res[..30], &amp;old[..30]);
 }</t>
 </tnodes>
 </leo_file>
