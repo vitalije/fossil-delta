@@ -63,7 +63,6 @@ description = "Provides functions for calculating differences between strings an
 repository = "https://github.com/vitalije/fossil-delta.git"
 readme = "README.md"
 license = "MIT"
-license-file = "LICENSE"
 keywords = ["diff", "text", "delta", "fossil", "VCS"]
 categories = ["algorithms", "compression", "encoding", "text-processing"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
