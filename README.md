@@ -2,8 +2,8 @@
 
 ### Work In Progress !!!
 
-This algorithm is used in [fossil](https://fossil-scm.org) and there it has been implemented in C-99. I needed it in my
-Rust projects and here is reimplementation in Rust.
+This algorithm is used in [fossil](https://fossil-scm.org) and there it has been implemented in C-99.
+I needed it in my Rust projects and here is reimplementation in Rust.
 
 Once it is ported it will expose two public functions:
     - delta:  fn(a:&str, b:&str) -> String
