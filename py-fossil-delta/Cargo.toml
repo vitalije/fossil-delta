@@ -3,6 +3,12 @@ name = "py-fossil-delta"
 version = "0.1.0"
 authors = ["vitalije <vitalije@kviziracija.net>"]
 edition = "2018"
+description = "Provides functions for calculating differences between strings and applying calculated deltas"
+repository = "https://github.com/vitalije/fossil-delta.git"
+readme = "python-extension-fossil-delta.md"
+license = "MIT"
+keywords = ["python", "python-extension", "diff", "text", "delta", "fossil", "VCS"]
+categories = ["algorithms", "compression", "encoding", "text-processing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -13,7 +19,7 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta" }
+fossil-delta = { path="../fossil-delta", version="0.1.4"}
 
 [dependencies.pyo3]
 version = "0.7.0"

@@ -16,6 +16,7 @@
 <v t="vitalije.20190708073324.1"><vh>@clean fossil-delta/Cargo.toml</vh></v>
 </v>
 <v t="vitalije.20190709083222.1"><vh>@clean py-fossil-delta/Cargo.toml</vh></v>
+<v t="vitalije.20190709091253.1"><vh>@clean py-fossil-delta/python-extension-fossil-delta.md</vh></v>
 <v t="vitalije.20190709083254.1"><vh>@clean py-fossil-delta/src/lib.rs</vh></v>
 <v t="vitalije.20190708073438.1"><vh>@clean fossil-delta/src/lib.rs</vh>
 <v t="vitalije.20190708080758.1"><vh>b64 ints</vh>
@@ -586,6 +587,12 @@ name = "py-fossil-delta"
 version = "0.1.0"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
+description = "Provides functions for calculating differences between strings and applying calculated deltas"
+repository = "https://github.com/vitalije/fossil-delta.git"
+readme = "python-extension-fossil-delta.md"
+license = "MIT"
+keywords = ["python", "python-extension", "diff", "text", "delta", "fossil", "VCS"]
+categories = ["algorithms", "compression", "encoding", "text-processing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -596,7 +603,7 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta" }
+fossil-delta = { path="../fossil-delta", version="0.1.4"}
 
 [dependencies.pyo3]
 version = "0.7.0"
@@ -633,5 +640,51 @@ fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
     }
     Ok(())
 }</t>
+<t tx="vitalije.20190709091253.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e"># fossil_delta a Python extension
+
+This crate exports functions `fossil_delta::delta` and `fossil_delta::deltainv` to
+Python interepreter. The resulting library built with:
+
+```
+cargo build --release
+```
+on Linux is named `libfossil_delta.so`. Before using in Python it has to be renamed
+to `fossil_delta.so`. On Windows it should be probably renamed to `fossil_delta.pyd`
+or `fossil_delta.dll`.
+
+# Usage:
+
+```
+&gt;&gt;&gt; import fossil_delta
+&gt;&gt;&gt; a = """line 1
+... yet another (a bit longer) line 2
+... yet another (a bit longer) line 3
+... yet another (a bit longer) line 4
+... yet another (a bit longer) line 5
+... yet another (a bit longer) line 6
+... yet another (a bit longer) line 7
+... yet another (a bit longer) line 8
+... yet another (a bit longer) line 9
+... yet another (a bit longer) line 10"""
+... 
+&gt;&gt;&gt; b = """line 1
+... yet another (a bit longer) line 2
+... yet another (a bit longer) line 3
+... yet another (a bit longer) line 4
+... yet another (a bit longer) line 5
+... yet another (a bit longer) line 6
+... yet another (a bit longer) line 7
+... yet another (a bit longer) line 8
+... and finally last line 10
+... yet another (a bit longer) line 9
+... yet another (a bit longer) line 10"""
+...
+&gt;&gt;&gt; d = fossil_delta.delta(a, b)
+&gt;&gt;&gt; s = fossil_delta.deltainv(b, d)
+&gt;&gt;&gt; s == a
+True
+&gt;&gt;&gt;
+```
+</t>
 </tnodes>
 </leo_file>
