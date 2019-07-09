@@ -2,5 +2,6 @@
 
 members = [
     "fossil-delta",
-    "py-fossil-delta"
+    "py-fossil-delta",
+    "ver-serv"
 ]

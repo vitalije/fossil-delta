@@ -182,7 +182,8 @@ pub fn generate_delta(
     if i == 0 || j <= n {return 0}
     let mut k = i - 1;
     let mut m = j - 1;
-    while k > 0 && m >= n {
+    let n_1 = if n == 0 {0} else {n - 1};
+    while k > 0 && m > n_1 {
       if z_src[k] != z_out[m] { return i - k - 1; }
       k -= 1;
       m -= 1;
@@ -199,9 +200,9 @@ pub fn generate_delta(
       m += 1;
     }
     if z_src.len() - i < z_out.len() - j {
-      z_src.len() - i
+      z_src.len() - i - 1
     } else {
-      z_out.len() - j
+      z_out.len() - j - 1
     }
   };
   z_delta.push_str(&b64str(z_out.len() as u32));
@@ -443,6 +444,16 @@ mod tests {
     let s = deltainv(b, &d);
     assert_eq!(&s, a);
     assert_eq!(d.len(), 43);
+  }
+  #[test]
+  fn round_trip_test2() {
+    let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+    let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+    println!("a.len={}, b.len={}, b64={}", a.len(), b.len(), &b64str(a.len() as u32));
+    let d = delta(b, a);
+    println!("delta:{:?}", &d);
+    let s = deltainv(a, &d);
+    assert_eq!(&s, b);
   }
   #[test]
   fn test_deltainv() {

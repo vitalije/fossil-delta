@@ -13,11 +13,14 @@
 </v>
 <v t="vitalije.20190708073246.1"><vh>@button n-save @key=Ctrl-s</vh></v>
 <v t="vitalije.20190708073146.1"><vh>@clean .gitignore</vh></v>
-<v t="vitalije.20190708073324.1"><vh>@clean fossil-delta/Cargo.toml</vh></v>
 </v>
+<v t="vitalije.20190709160200.1"><vh>py-fossil-delta</vh>
 <v t="vitalije.20190709083222.1"><vh>@clean py-fossil-delta/Cargo.toml</vh></v>
 <v t="vitalije.20190709091253.1"><vh>@clean py-fossil-delta/python-extension-fossil-delta.md</vh></v>
 <v t="vitalije.20190709083254.1"><vh>@clean py-fossil-delta/src/lib.rs</vh></v>
+</v>
+<v t="vitalije.20190709160215.1"><vh>fossil-delta</vh>
+<v t="vitalije.20190708073324.1"><vh>@clean fossil-delta/Cargo.toml</vh></v>
 <v t="vitalije.20190708073438.1"><vh>@clean fossil-delta/src/lib.rs</vh>
 <v t="vitalije.20190708080758.1"><vh>b64 ints</vh>
 <v t="vitalije.20190708080758.2"><vh>constants ...</vh></v>
@@ -46,8 +49,15 @@
 <v t="vitalije.20190708082017.1"><vh>b64_works</vh></v>
 <v t="vitalije.20190708175842.1"><vh>test_hash_update</vh></v>
 <v t="vitalije.20190708175831.1"><vh>delta_gen</vh></v>
+<v t="vitalije.20190709214611.1"><vh>round_trip_test</vh></v>
+<v t="vitalije.20190709214622.1"><vh>round_trip_test2</vh></v>
 <v t="vitalije.20190708190730.1"><vh>test_deltainv</vh></v>
 </v>
+</v>
+</v>
+<v t="vitalije.20190709160731.1"><vh>ver-serv</vh>
+<v t="vitalije.20190709160748.1"><vh>@clean ver-serv/src/main.rs</vh></v>
+<v t="vitalije.20190709160800.1"><vh>@clean ver-serv/Cargo.toml</vh></v>
 </v>
 </vnodes>
 <tnodes>
@@ -62,7 +72,7 @@ c.fileCommands.save_ref()</t>
 <t tx="vitalije.20190708073324.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@nocolor
 [package]
 name = "fossil-delta"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -442,7 +452,8 @@ let mb_backward = |i, j, n| {
   if i == 0 || j &lt;= n {return 0}
   let mut k = i - 1;
   let mut m = j - 1;
-  while k &gt; 0 &amp;&amp; m &gt;= n {
+  let n_1 = if n == 0 {0} else {n - 1};
+  while k &gt; 0 &amp;&amp; m &gt; n_1 {
     if z_src[k] != z_out[m] { return i - k - 1; }
     k -= 1;
     m -= 1;
@@ -459,9 +470,9 @@ let mb_forward = |i, j| {
     m += 1;
   }
   if z_src.len() - i &lt; z_out.len() - j {
-    z_src.len() - i
+    z_src.len() - i - 1
   } else {
-    z_out.len() - j
+    z_out.len() - j - 1
   }
 };</t>
 <t tx="vitalije.20190708134856.1">if  base &lt; z_out.len() {
@@ -481,37 +492,7 @@ fn delta_gen() {
   generate_delta(cur, old, &amp;mut d);
   assert_eq!(d, d1);
 }
-#[test]
-fn round_trip_test() {
-  let a = r#"line 1
-    yet another (a bit longer) line 2
-    yet another (a bit longer) line 3
-    yet another (a bit longer) line 4
-    yet another (a bit longer) line 5
-    yet another (a bit longer) line 6
-    yet another (a bit longer) line 7
-    yet another (a bit longer) line 8
-    yet another (a bit longer) line 9
-    yet another (a bit longer) line 10"#;
-
-  let b = r#"line 1
-    yet another (a bit longer) line 2
-    yet another (a bit longer) line 3
-    yet another (a bit longer) line 4
-    yet another (a bit longer) line 5
-    yet another (a bit longer) line 6
-    yet another (a bit longer) line 6 1/2
-    yet another (a bit longer) line 7
-    yet another (a bit longer) line 8
-    yet another (a bit longer) line 9
-    and finally last line 10"#;
-
-  let d = delta(a, b);
-  println!("delta:{:?}", &amp;d);
-  let s = deltainv(b, &amp;d);
-  assert_eq!(&amp;s, a);
-  assert_eq!(d.len(), 43);
-}</t>
+</t>
 <t tx="vitalije.20190708175842.1">#[test]
 fn test_hash_update(){
   let mut h = Hash::new();
@@ -580,7 +561,8 @@ fn test_deltainv() {
 
 members = [
     "fossil-delta",
-    "py-fossil-delta"
+    "py-fossil-delta",
+    "ver-serv"
 ]</t>
 <t tx="vitalije.20190709083222.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">[package]
 name = "py-fossil-delta"
@@ -603,7 +585,7 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta", version="0.1.4"}
+fossil-delta = { path="../fossil-delta", version="0.1.5"}
 
 [dependencies.pyo3]
 version = "0.7.0"
@@ -686,5 +668,78 @@ True
 &gt;&gt;&gt;
 ```
 </t>
+<t tx="vitalije.20190709160200.1"></t>
+<t tx="vitalije.20190709160215.1"></t>
+<t tx="vitalije.20190709160731.1"></t>
+<t tx="vitalije.20190709160748.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">fn main() {
+    let ctx = zmq::Context::new();
+
+    let mut socket = ctx.socket(zmq::REP).unwrap();
+    socket.bind("tcp://127.0.0.1:1234").unwrap();
+    loop {
+        match socket.recv_string(0).expect("not received error") {
+            Ok(msg) =&gt; socket.send("ok", 0).unwrap(),
+            Err(buf) =&gt; {
+                println!("Received binary buffer of size: {}", buf.len());
+                socket.send("Hello stranger", 0).unwrap();
+            }
+        }
+    }
+}
+</t>
+<t tx="vitalije.20190709160800.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">[package]
+name = "ver-serv"
+version = "0.1.0"
+authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+zmq = "0.9.1"
+
+[features]
+vendored-zmq = ["zmq/vendored"]</t>
+<t tx="vitalije.20190709214611.1">#[test]
+fn round_trip_test() {
+  let a = r#"line 1
+    yet another (a bit longer) line 2
+    yet another (a bit longer) line 3
+    yet another (a bit longer) line 4
+    yet another (a bit longer) line 5
+    yet another (a bit longer) line 6
+    yet another (a bit longer) line 7
+    yet another (a bit longer) line 8
+    yet another (a bit longer) line 9
+    yet another (a bit longer) line 10"#;
+
+  let b = r#"line 1
+    yet another (a bit longer) line 2
+    yet another (a bit longer) line 3
+    yet another (a bit longer) line 4
+    yet another (a bit longer) line 5
+    yet another (a bit longer) line 6
+    yet another (a bit longer) line 6 1/2
+    yet another (a bit longer) line 7
+    yet another (a bit longer) line 8
+    yet another (a bit longer) line 9
+    and finally last line 10"#;
+
+  let d = delta(a, b);
+  println!("delta:{:?}", &amp;d);
+  let s = deltainv(b, &amp;d);
+  assert_eq!(&amp;s, a);
+  assert_eq!(d.len(), 43);
+}</t>
+<t tx="vitalije.20190709214622.1">#[test]
+fn round_trip_test2() {
+  let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+  let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+  println!("a.len={}, b.len={}, b64={}", a.len(), b.len(), &amp;b64str(a.len() as u32));
+  let d = delta(b, a);
+  println!("delta:{:?}", &amp;d);
+  let s = deltainv(a, &amp;d);
+  assert_eq!(&amp;s, b);
+}</t>
 </tnodes>
 </leo_file>

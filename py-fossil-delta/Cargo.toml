@@ -19,7 +19,7 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta", version="0.1.4"}
+fossil-delta = { path="../fossil-delta", version="0.1.5"}
 
 [dependencies.pyo3]
 version = "0.7.0"
