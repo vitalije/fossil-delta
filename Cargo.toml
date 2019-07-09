@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "fossil-delta",
+    "py-fossil-delta"
+]
