@@ -5,5 +5,16 @@ authors = ["vitalije <vitalije@kviziracija.net>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "fossil_delta"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+cbindgen = "0.5.2"
 
 [dependencies]
+fossil-delta = { path="../fossil-delta" }
+
+[dependencies.pyo3]
+version = "0.7.0"
+features = ["extension-module"]

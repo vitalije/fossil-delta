@@ -588,19 +588,50 @@ authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "fossil_delta"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+cbindgen = "0.5.2"
 
 [dependencies]
+fossil-delta = { path="../fossil-delta" }
+
+[dependencies.pyo3]
+version = "0.7.0"
+features = ["extension-module"]
 </t>
-<t tx="vitalije.20190709083254.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">pub fn add_one(x:u64) -&gt; u64 {
-    x + 1
-}
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+<t tx="vitalije.20190709083254.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">
+use pyo3::prelude::*;
+
+use fossil_delta::{delta, deltainv};
+
+#[pymodule]
+fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
+    /// Calculates delta between two given strings a and b
+    ///
+    /// &gt;&gt;&gt; d = fossil_delta.delta(a, b)
+    /// &gt;&gt;&gt; s = fossil_delta.deltainv(b, d)
+    /// &gt;&gt;&gt; assert s == a
+    ///
+    #[pyfn(m, "delta")]
+    fn py_delta(_py: Python, a:&amp;str, b:&amp;str) -&gt; PyResult&lt;String&gt; {
+        let res = delta(a, b);
+        Ok(res)
     }
-}
-</t>
+    /// Applies delta tp given text and returns changed text
+    ///
+    /// &gt;&gt;&gt; d = fossil_delta.delta(a, b)
+    /// &gt;&gt;&gt; s = fossil_delta.deltainv(b, d)
+    /// &gt;&gt;&gt; assert s == a
+    ///
+    #[pyfn(m, "deltainv")]
+    fn py_deltainv(_py: Python, b:&amp;str, d:&amp;str) -&gt; PyResult&lt;String&gt; {
+        let res = deltainv(b, d);
+        Ok(res)
+    }
+    Ok(())
+}</t>
 </tnodes>
 </leo_file>
