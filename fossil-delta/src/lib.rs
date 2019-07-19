@@ -456,11 +456,40 @@ mod tests {
     assert_eq!(&s, b);
   }
   #[test]
+  fn empty_txt() {
+    let a = "";
+    let b = r#"line 1
+      yet another (a bit longer) line 2
+      yet another (a bit longer) line 3
+      yet another (a bit longer) line 4
+      yet another (a bit longer) line 5
+      yet another (a bit longer) line 6
+      yet another (a bit longer) line 6 1/2
+      yet another (a bit longer) line 7
+      yet another (a bit longer) line 8
+      yet another (a bit longer) line 9
+      and finally last line 10"#;
+    let d = delta(b, a);
+    println!("empty delta:{:?}", &d);
+    let s = deltainv(a, &d);
+    assert_eq!(b, &s);
+  }
+  #[test]
   fn test_deltainv() {
     let old = include_str!("test-data/file-a.txt");
     let cur = include_str!("test-data/file-b.txt");
     let d1 = include_str!("test-data/file-delta.txt");
     let res = deltainv(cur, d1);
     assert_eq!(&res[..30], &old[..30]);
+  }
+  #[test]
+  fn test_bug_001() {
+  let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+  let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+  let d="3a\n1S@0,29@1T,31_Pqh;";
+  let d1 = delta(a, b);
+  assert_eq!(&d1, d);
+  let s = deltainv(b, &d1);
+  assert_eq!(&s, a);
   }
 }

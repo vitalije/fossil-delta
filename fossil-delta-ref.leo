@@ -51,25 +51,38 @@
 <v t="vitalije.20190708175831.1"><vh>delta_gen</vh></v>
 <v t="vitalije.20190709214611.1"><vh>round_trip_test</vh></v>
 <v t="vitalije.20190709214622.1"><vh>round_trip_test2</vh></v>
+<v t="vitalije.20190711104435.1"><vh>empty_txt</vh></v>
 <v t="vitalije.20190708190730.1"><vh>test_deltainv</vh></v>
+<v t="vitalije.20190711122248.1"><vh>test_bug_001</vh></v>
 </v>
 </v>
 </v>
 <v t="vitalije.20190709160731.1"><vh>ver-serv</vh>
+<v t="vitalije.20190711064623.1"><vh>PLAN</vh></v>
 <v t="vitalije.20190709160748.1"><vh>@clean ver-serv/src/main.rs</vh></v>
 <v t="vitalije.20190709160800.1"><vh>@clean ver-serv/Cargo.toml</vh></v>
 </v>
 </vnodes>
 <tnodes>
-<t tx="vitalije.20190708073146.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@nocolor
+<t tx="vitalije.20190708073146.1">@nocolor
 /target
 **/*.rs.bk
 Cargo.lock
 fossil-delta.leo</t>
 <t tx="vitalije.20190708073246.1">c.save()
-c.fileCommands.save_ref()</t>
+for v in c.fileCommands.gnxDict.values():
+    if not hasattr(v, 'unknownAttributes'): continue
+    if not v:
+        del v.unknownAttributes
+        continue
+    if tuple(v.u.keys()) == ('icons',):
+        del v.unknownAttributes
+        continue
+c.fileCommands.save_ref()
+c.frame.tree.declutter_update = True
+</t>
 <t tx="vitalije.20190708073255.1"></t>
-<t tx="vitalije.20190708073324.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@nocolor
+<t tx="vitalije.20190708073324.1">@nocolor
 [package]
 name = "fossil-delta"
 version = "0.1.5"
@@ -85,7 +98,7 @@ categories = ["algorithms", "compression", "encoding", "text-processing"]
 
 [dependencies]
 </t>
-<t tx="vitalije.20190708073438.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">@language rust
+<t tx="vitalije.20190708073438.1">@language rust
 @tabwidth -2
 /*! Implementation of the delta algorithm used by fossil version control system.
 
@@ -121,7 +134,7 @@ assert_eq!(d.len(), 43);
 const NHASH:usize = 16;
 @others
 </t>
-<t tx="vitalije.20190708073913.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e"># A Delta algorithm ported to Rust
+<t tx="vitalije.20190708073913.1"># A Delta algorithm ported to Rust
 
 
 This algorithm is used in [fossil](https://fossil-scm.org) where it has been implemented in C-99.
@@ -213,7 +226,8 @@ const B64VALUES:[u8; 128] = [
 mod tests {
   use super::*;
   @others
-}</t>
+}
+</t>
 <t tx="vitalije.20190708082017.1">#[test]
 fn b64_works() {
   for i in 0..1000 {
@@ -557,14 +571,14 @@ fn test_deltainv() {
   assert_eq!(&amp;res[..30], &amp;old[..30]);
 }</t>
 <t tx="vitalije.20190709081959.1"></t>
-<t tx="vitalije.20190709082121.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">[workspace]
+<t tx="vitalije.20190709082121.1">[workspace]
 
 members = [
     "fossil-delta",
     "py-fossil-delta",
     "ver-serv"
 ]</t>
-<t tx="vitalije.20190709083222.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">[package]
+<t tx="vitalije.20190709083222.1">[package]
 name = "py-fossil-delta"
 version = "0.1.1"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
@@ -591,7 +605,7 @@ fossil-delta = { path="../fossil-delta", version="0.1.5"}
 version = "0.7.0"
 features = ["extension-module"]
 </t>
-<t tx="vitalije.20190709083254.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">
+<t tx="vitalije.20190709083254.1">
 use pyo3::prelude::*;
 
 use fossil_delta::{delta, deltainv};
@@ -622,7 +636,7 @@ fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
     }
     Ok(())
 }</t>
-<t tx="vitalije.20190709091253.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e"># fossil_delta a Python extension
+<t tx="vitalije.20190709091253.1"># fossil_delta a Python extension
 
 This crate exports functions `fossil_delta::delta` and `fossil_delta::deltainv` to
 Python interepreter. The resulting library built with:
@@ -671,7 +685,7 @@ True
 <t tx="vitalije.20190709160200.1"></t>
 <t tx="vitalije.20190709160215.1"></t>
 <t tx="vitalije.20190709160731.1"></t>
-<t tx="vitalije.20190709160748.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">fn main() {
+<t tx="vitalije.20190709160748.1">fn main() {
     let ctx = zmq::Context::new();
 
     let mut socket = ctx.socket(zmq::REP).unwrap();
@@ -687,7 +701,7 @@ True
     }
 }
 </t>
-<t tx="vitalije.20190709160800.1" icons="5d71007d7101285804000000747970657102580400000066696c657103680358620000002f6d656469612f766974616c696a652f686f6d6531312f766974616c696a652f70726f6772616d692f6c656f2d656469746f722f7472756e6b2d6769742f6c656f2f49636f6e732f66696c655f69636f6e732f66696c655f636c65616e322e706e677104580700000072656c506174687105581a00000066696c655f69636f6e732f66696c655f636c65616e322e706e677106580500000077686572657107580e0000006265666f7265486561646c696e6571085807000000796f666673657471094b005807000000786f6666736574710a4b02580400000078706164710b4b0158020000006f6e710c5805000000766e6f6465710d580a00000076697375616c49636f6e710e580100000031710f75612e">[package]
+<t tx="vitalije.20190709160800.1">[package]
 name = "ver-serv"
 version = "0.1.0"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
@@ -740,6 +754,97 @@ fn round_trip_test2() {
   println!("delta:{:?}", &amp;d);
   let s = deltainv(a, &amp;d);
   assert_eq!(&amp;s, b);
+}
+</t>
+<t tx="vitalije.20190711064623.1">Leo should generate snapshot in the following format:
+
+abspath, \n, outline, an empty line, nodes...
+
+outline consists of lines (Level-letter, gnx) for each node in the outline order.
+
+nodes consists of block of nodes each in the following form:
+
+length space gnx space headline \n body
+where length is length of node record in bytes.
+
+after generating this snapshot, Leo should send it through the zmq socket to ver-serv.
+
+VER-SERV will open zmq socket for listening and wait for messages
+
+it should store data in sqlite3 db in following tables:
+
+create table present(
+    gnx text primary key,
+    h_b,
+    is_deleted
+);
+
+create table changes(
+    t, -- timestamp
+    gnx,
+    d, -- delta
+    primary key (t, gnx)
+);
+
+create index on changes(gnx);
+
+the outline definition will be stored in present('__outline__', outline, False)
+
+on new message ver-serv will:
+
+1. open sqlite3 connection to appropriate db
+2. create an empty hashmap&lt;gnx, h_b&gt;
+3. extract outline and put it in the map["__outline__"]
+4. extract all nodes one by one and put them in the map
+5. create a pair of empty vectors (a, b) = (Vec&lt;(gnx, d)&gt;, Vec&lt;(gnx, h_b)&gt;)
+6. for each row in 'select gnx, h_b, is_deleted from present;'
+      if gnx in map and is_deleted:
+          a.push((gnx, delta("", h_b)))
+          b.push((gnx, h_b, false))
+      elif gnx not in map: 
+          a.push((gnx, delta(h_b, "")))
+          b.push((gnx, "", true))
+      elif h_b != map[gnx]:
+          a.push((gnx, delta(h_b, map[gnx])))
+          b.push((gnx, map[gnx], false))
+      map.pop(gnx)
+
+7. for each gnx, h_b in map:
+    a.push((gnx, delta("", h_b)))
+    b.push((gnx, h_b, false))
+8. for x, y in a
+      db.execute("insert into changes(t, gnx, d) values(current_timestamp, ?, ?)", x, y)
+9. for x, y, z in b:
+      db.execute("insert or replace into present(gnx, h_b, is_deleted) values(?, ?, ?)", x, y, z)
+</t>
+<t tx="vitalije.20190711104435.1">#[test]
+fn empty_txt() {
+  let a = "";
+  let b = r#"line 1
+    yet another (a bit longer) line 2
+    yet another (a bit longer) line 3
+    yet another (a bit longer) line 4
+    yet another (a bit longer) line 5
+    yet another (a bit longer) line 6
+    yet another (a bit longer) line 6 1/2
+    yet another (a bit longer) line 7
+    yet another (a bit longer) line 8
+    yet another (a bit longer) line 9
+    and finally last line 10"#;
+  let d = delta(b, a);
+  println!("empty delta:{:?}", &amp;d);
+  let s = deltainv(a, &amp;d);
+  assert_eq!(b, &amp;s);
+}</t>
+<t tx="vitalije.20190711122248.1">#[test]
+fn test_bug_001() {
+let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+let d="3a\n1S@0,29@1T,31_Pqh;";
+let d1 = delta(a, b);
+assert_eq!(&amp;d1, d);
+let s = deltainv(b, &amp;d1);
+assert_eq!(&amp;s, a);
 }</t>
 </tnodes>
 </leo_file>
