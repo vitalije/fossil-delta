@@ -871,6 +871,12 @@ name = "leo-ver-serv"
 version = "0.1.0"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
+description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
+repository = "https://github.com/vitalije/fossil-delta.git"
+readme = "../README.md"
+license = "MIT"
+keywords = ["web", "delta", "fossil", "VCS", "Leo"]
+categories = ["tools", "version-control", "web", "text-processing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
