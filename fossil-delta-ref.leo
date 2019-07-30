@@ -8,10 +8,21 @@
 <vnodes>
 <v t="vitalije.20190708073913.1"><vh>@clean README.md</vh></v>
 <v t="vitalije.20190708073255.1"><vh>project settings</vh>
+<v t="vitalije.20190720151151.1"><vh>@settings</vh>
+<v t="vitalije.20190720151217.1"><vh>@data extract-patterns</vh></v>
+</v>
 <v t="vitalije.20190709081959.1"><vh>Workspace</vh>
 <v t="vitalije.20190709082121.1"><vh>@clean Cargo.toml</vh></v>
 </v>
-<v t="vitalije.20190708073246.1"><vh>@button n-save @key=Ctrl-s</vh></v>
+<v t="vitalije.20190708073246.1"><vh>@button n-save @key=Ctrl-s</vh>
+<v t="vitalije.20190722085236.1"><vh>clean_uas_and_save_ref</vh></v>
+<v t="vitalije.20190722085141.2"><vh>genbulma</vh></v>
+<v t="vitalije.20190722085141.3"><vh>genpug</vh></v>
+<v t="vitalije.20190722085141.4"><vh>process_one</vh></v>
+<v t="vitalije.20190722085141.5"><vh>genvendor</vh></v>
+<v t="vitalije.20190722085141.6"><vh>gencoffee</vh></v>
+<v t="vitalije.20190722085656.1"><vh>ensure_target_web</vh></v>
+</v>
 <v t="vitalije.20190708073146.1"><vh>@clean .gitignore</vh></v>
 </v>
 <v t="vitalije.20190709160200.1"><vh>py-fossil-delta</vh>
@@ -57,10 +68,83 @@
 </v>
 </v>
 </v>
-<v t="vitalije.20190709160731.1"><vh>ver-serv</vh>
-<v t="vitalije.20190711064623.1"><vh>PLAN</vh></v>
-<v t="vitalije.20190709160748.1"><vh>@clean ver-serv/src/main.rs</vh></v>
-<v t="vitalije.20190709160800.1"><vh>@clean ver-serv/Cargo.toml</vh></v>
+<v t="vitalije.20190709160731.1"><vh>leo-ver-serv</vh>
+<v t="vitalije.20190722085734.1"><vh>web leo-ver-serv</vh>
+<v t="vitalije.20190722085928.1"><vh>get vendors</vh>
+<v t="vitalije.20190722094440.1"><vh>extract_codemirror</vh></v>
+</v>
+<v t="vitalije.20190722085820.1"><vh>@vendor js/vendors.js</vh></v>
+<v t="vitalije.20190722085751.1"><vh>@coffee js/app.js</vh>
+<v t="vitalije.20190729154326.1"><vh>wait</vh></v>
+<v t="vitalije.20190729173544.1"><vh>partition</vh></v>
+<v t="vitalije.20190722130051.1"><vh>EVENTS</vh></v>
+<v t="vitalije.20190722130334.1"><vh>dispatch...</vh></v>
+<v t="vitalije.20190722122040.1"><vh>appstate</vh>
+<v t="vitalije.20190722135155.1"><vh>currentIndex</vh></v>
+<v t="vitalije.20190729173243.1"><vh>currentGnx</vh></v>
+<v t="vitalije.20190722124355.1"><vh>range</vh></v>
+<v t="vitalije.20190722130737.1"><vh>rev</vh></v>
+<v t="vitalije.20190722124223.1"><vh>leoFiles</vh></v>
+<v t="vitalije.20190722131709.1"><vh>outline</vh></v>
+<v t="vitalije.20190722132007.1"><vh>topIndex</vh></v>
+<v t="vitalije.20190722124256.1"><vh>currentFile</vh></v>
+<v t="vitalije.20190722132321.1"><vh>topNode</vh></v>
+</v>
+<v t="vitalije.20190722130905.1"><vh>get_rev_count</vh></v>
+<v t="vitalije.20190722130908.1"><vh>get_leo_files</vh>
+<v t="vitalije.20190722141838.1"><vh>partition</vh></v>
+</v>
+<v t="vitalije.20190722151421.1"><vh>set_outline</vh></v>
+<v t="vitalije.20190722151416.1"><vh>get_outline_rev</vh></v>
+<v t="vitalije.20190722135552.1"><vh>drawTree</vh>
+<v t="vitalije.20190722153239.1"><vh>visible_nodes</vh></v>
+</v>
+<v t="vitalije.20190722171734.1"><vh>get_body</vh></v>
+<v t="vitalije.20190729171345.1"><vh>get_body_rev</vh></v>
+<v t="vitalije.20190729172726.1"><vh>connect_outline_revisions</vh></v>
+<v t="vitalije.20190729172738.1"><vh>connect_node_revisions</vh></v>
+<v t="vitalije.20190722172447.1"><vh>start_app</vh></v>
+</v>
+<v t="vitalije.20190722085839.1"><vh>@bulma css/app.css</vh>
+<v t="vitalije.20190722101835.1"><vh>.app-flex</vh></v>
+<v t="vitalije.20190722102031.1"><vh>.no-show</vh></v>
+</v>
+<v t="vitalije.20190722085852.1"><vh>@pug index.html</vh>
+<v t="vitalije.20190722090008.1"><vh>&lt;&lt;mixins&gt;&gt;</vh></v>
+</v>
+</v>
+<v t="vitalije.20190709160748.1"><vh>@clean leo-ver-serv/src/main.rs</vh>
+<v t="vitalije.20190720151032.1"><vh>st_file</vh></v>
+<v t="vitalije.20190722072026.1"><vh>ensure_connection</vh>
+<v t="vitalije.20190722071704.1"><vh>dbname</vh></v>
+<v t="vitalije.20190722071708.1"><vh>make_connection</vh></v>
+</v>
+<v t="vitalije.20190720152015.1"><vh>post_snapshot</vh></v>
+<v t="vitalije.20190729152204.1"><vh>post_init</vh></v>
+<v t="vitalije.20190722080218.1"><vh>post_node_at</vh></v>
+<v t="vitalije.20190722080236.1"><vh>post_node_rev</vh></v>
+<v t="vitalije.20190722081531.1"><vh>post_snapshot_rev</vh></v>
+<v t="vitalije.20190722080629.1"><vh>post_node_rev_count</vh></v>
+<v t="vitalije.20190722080222.1"><vh>post_snapshot_at</vh></v>
+<v t="vitalije.20190720152022.1"><vh>index</vh></v>
+<v t="vitalije.20190720152025.1"><vh>favicon</vh></v>
+<v t="vitalije.20190722124627.1"><vh>get_leo_files</vh></v>
+</v>
+<v t="vitalije.20190720114956.1"><vh>@clean leo-ver-serv/src/db-sqlite.rs</vh>
+<v t="vitalije.20190720144355.1"><vh>partition, rpartition</vh></v>
+<v t="vitalije.20190721152644.1"><vh>decode_snapshot</vh></v>
+<v t="vitalije.20190721154502.1"><vh>process_snapshot</vh></v>
+<v t="vitalije.20190721154018.1"><vh>add_snapshot</vh></v>
+<v t="vitalije.20190721200842.1"><vh>get_all_at</vh></v>
+<v t="vitalije.20190721210558.1"><vh>get_all_revision</vh></v>
+<v t="vitalije.20190721205405.1"><vh>get_node_at</vh></v>
+<v t="vitalije.20190721210327.1"><vh>get_node_revision</vh></v>
+<v t="vitalije.20190721203545.1"><vh>get_node_rev_count</vh></v>
+<v t="vitalije.20190721154013.1"><vh>connect</vh></v>
+<v t="vitalije.20190721154022.1"><vh>create_tables</vh></v>
+<v t="vitalije.20190729151722.1"><vh>init</vh></v>
+</v>
+<v t="vitalije.20190709160800.1"><vh>@clean leo-ver-serv/Cargo.toml</vh></v>
 </v>
 </vnodes>
 <tnodes>
@@ -69,19 +153,27 @@
 **/*.rs.bk
 Cargo.lock
 fossil-delta.leo</t>
-<t tx="vitalije.20190708073246.1">c.save()
-for v in c.fileCommands.gnxDict.values():
-    if not hasattr(v, 'unknownAttributes'): continue
-    if not v:
-        del v.unknownAttributes
-        continue
-    if tuple(v.u.keys()) == ('icons',):
-        del v.unknownAttributes
-        continue
-c.fileCommands.save_ref()
-c.frame.tree.declutter_update = True
+<t tx="vitalije.20190708073246.1">import requests
+import json
+import re
+import os
+at = c.atFileCommands
+@others
+c.save()
+clean_uas_and_save_ref()
+ensure_target_web()
+for p in c.allNodes_iter():
+    if p.h.startswith(('@bulma ', )):
+        process_one(p, genbulma)
+    elif p.h.startswith('@pug '):
+        process_one(p, genpug)
+    elif p.h.startswith('@vendor '):
+        process_one(p, genvendor)
+    elif p.h.startswith('@coffee '):
+        process_one(p, gencoffee)
 </t>
-<t tx="vitalije.20190708073255.1"></t>
+<t tx="vitalije.20190708073255.1">g.es(c.config.getData('extract-patterns')[-1])
+</t>
 <t tx="vitalije.20190708073324.1">@nocolor
 [package]
 name = "fossil-delta"
@@ -165,6 +257,15 @@ The algorithm is very well described
 
 The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
 containing the code is in a single outline file: [fossil-delta-ref.leo](fossil-delta-ref.leo).
+
+This repository contains two more Rust crates, `py-fossil-delta` which exports fossil-delta
+functions to Python as an extension module.
+
+The third crate is `leo-ver-serv` which is a binary (executable) web server which accepts
+snapshots from Leo, calculates the delta form the previous snapshot and stores all deltas
+in a database. On the other side, this server serves a small web application which allows
+user to browse history of known Leo files.
+
 </t>
 <t tx="vitalije.20190708080758.1">/// converts integer to String in base 64
 pub fn b64str(n:u32) -&gt; String {
@@ -576,7 +677,7 @@ fn test_deltainv() {
 members = [
     "fossil-delta",
     "py-fossil-delta",
-    "ver-serv"
+    "leo-ver-serv"
 ]</t>
 <t tx="vitalije.20190709083222.1">[package]
 name = "py-fossil-delta"
@@ -685,24 +786,88 @@ True
 <t tx="vitalije.20190709160200.1"></t>
 <t tx="vitalije.20190709160215.1"></t>
 <t tx="vitalije.20190709160731.1"></t>
-<t tx="vitalije.20190709160748.1">fn main() {
-    let ctx = zmq::Context::new();
+<t tx="vitalije.20190709160748.1">@language rust
+@tabwidth -2
+#[path="db-sqlite.rs"]
+mod db;
+use actix_web::{web, App, HttpResponse, HttpRequest, HttpServer, Responder};
+#[cfg(debug_assertions)]
+use actix_web::Result;
+#[cfg(debug_assertions)]
+use actix_files::NamedFile;
+#[cfg(debug_assertions)]
+use std::path::PathBuf;
+use std::collections::HashMap;
+use std::cell::RefCell;
+use chrono::NaiveDateTime;
+use db::{partition};
+use serde::{Serialize};
+use std::{env};
+use std::io::{Read};
+use std::fs::File;
+@others
+type ConMap = HashMap&lt;String, db::Connection&gt;;
 
-    let mut socket = ctx.socket(zmq::REP).unwrap();
-    socket.bind("tcp://127.0.0.1:1234").unwrap();
-    loop {
-        match socket.recv_string(0).expect("not received error") {
-            Ok(msg) =&gt; socket.send("ok", 0).unwrap(),
-            Err(buf) =&gt; {
-                println!("Received binary buffer of size: {}", buf.len());
-                socket.send("Hello stranger", 0).unwrap();
-            }
-        }
+struct AppState {
+  m: RefCell&lt;ConMap&gt;,
+  valid_names: String,
+}
+impl AppState {
+  fn new() -&gt; Self {
+    let mut args = env::args();
+    let valid_names = load_valid_names(&amp;args.nth(1).unwrap());
+    AppState {
+      m:RefCell::new(HashMap::new()),
+      valid_names
     }
+  }
+}
+fn load_file(fname:&amp;str) -&gt; std::io::Result&lt;String&gt; {
+  let mut content = String::new();
+  let mut file = File::open(fname)?;
+  file.read_to_string(&amp;mut content)?;
+  Ok(content)
+}
+fn load_valid_names(fname:&amp;str) -&gt; String {
+  match load_file(fname) {
+    Ok(s) =&gt; s,
+    Err(e) =&gt; {
+      println!("Can't load valid file names: {:?}", e);
+      String::new()
+    }
+  }
+}
+fn main() {
+  let mut args = env::args();
+  if args.len() &lt; 2 {
+    println!("Usage:  ver-serv &lt;valid-filenames&gt; &lt;port&gt;");
+  } else {
+    let port = args.nth(2).unwrap_or(String::from("8088"));
+    HttpServer::new(|| {
+      App::new()
+        .data(AppState::new())
+        .route("/", web::get().to(index))
+        .route("/public/{filename:.*}", web::get().to(st_file))
+        .route("/favicon.ico", web::get().to(favicon))
+        .route("/add-snapshot", web::post().to(post_snapshot))
+        .route("/snapshot-at", web::post().to(post_snapshot_at))
+        .route("/node-at", web::post().to(post_node_at))
+        .route("/node-rev", web::post().to(post_node_rev))
+        .route("/node-rev-count", web::post().to(post_node_rev_count))
+        .route("/snapshot-rev", web::post().to(post_snapshot_rev))
+        .route("/leo-files", web::get().to(get_leo_files))
+        .route("/init", web::post().to(post_init))
+    })
+    .
+    bind(format!("127.0.0.1:{}", port))
+    .unwrap()
+    .run()
+    .unwrap();
+  }
 }
 </t>
 <t tx="vitalije.20190709160800.1">[package]
-name = "ver-serv"
+name = "leo-ver-serv"
 version = "0.1.0"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
@@ -710,10 +875,16 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-zmq = "0.9.1"
+actix-web = "1.0"
+actix-files = "0.1.3"
+chrono = "0.4.7"
+fossil-delta = {version="0.1.5", path="../fossil-delta"}
+serde = "1.0.97"
+serde_json = "1.0.40"
 
-[features]
-vendored-zmq = ["zmq/vendored"]</t>
+[dependencies.rusqlite]
+version = "0.19.0"
+features = ["bundled"]</t>
 <t tx="vitalije.20190709214611.1">#[test]
 fn round_trip_test() {
   let a = r#"line 1
@@ -756,67 +927,6 @@ fn round_trip_test2() {
   assert_eq!(&amp;s, b);
 }
 </t>
-<t tx="vitalije.20190711064623.1">Leo should generate snapshot in the following format:
-
-abspath, \n, outline, an empty line, nodes...
-
-outline consists of lines (Level-letter, gnx) for each node in the outline order.
-
-nodes consists of block of nodes each in the following form:
-
-length space gnx space headline \n body
-where length is length of node record in bytes.
-
-after generating this snapshot, Leo should send it through the zmq socket to ver-serv.
-
-VER-SERV will open zmq socket for listening and wait for messages
-
-it should store data in sqlite3 db in following tables:
-
-create table present(
-    gnx text primary key,
-    h_b,
-    is_deleted
-);
-
-create table changes(
-    t, -- timestamp
-    gnx,
-    d, -- delta
-    primary key (t, gnx)
-);
-
-create index on changes(gnx);
-
-the outline definition will be stored in present('__outline__', outline, False)
-
-on new message ver-serv will:
-
-1. open sqlite3 connection to appropriate db
-2. create an empty hashmap&lt;gnx, h_b&gt;
-3. extract outline and put it in the map["__outline__"]
-4. extract all nodes one by one and put them in the map
-5. create a pair of empty vectors (a, b) = (Vec&lt;(gnx, d)&gt;, Vec&lt;(gnx, h_b)&gt;)
-6. for each row in 'select gnx, h_b, is_deleted from present;'
-      if gnx in map and is_deleted:
-          a.push((gnx, delta("", h_b)))
-          b.push((gnx, h_b, false))
-      elif gnx not in map: 
-          a.push((gnx, delta(h_b, "")))
-          b.push((gnx, "", true))
-      elif h_b != map[gnx]:
-          a.push((gnx, delta(h_b, map[gnx])))
-          b.push((gnx, map[gnx], false))
-      map.pop(gnx)
-
-7. for each gnx, h_b in map:
-    a.push((gnx, delta("", h_b)))
-    b.push((gnx, h_b, false))
-8. for x, y in a
-      db.execute("insert into changes(t, gnx, d) values(current_timestamp, ?, ?)", x, y)
-9. for x, y, z in b:
-      db.execute("insert or replace into present(gnx, h_b, is_deleted) values(?, ?, ?)", x, y, z)
-</t>
 <t tx="vitalije.20190711104435.1">#[test]
 fn empty_txt() {
   let a = "";
@@ -846,5 +956,1014 @@ assert_eq!(&amp;d1, d);
 let s = deltainv(b, &amp;d1);
 assert_eq!(&amp;s, a);
 }</t>
+<t tx="vitalije.20190720114956.1">@language rust
+@tabwidth -2
+//use rusqlite::types::ToSql;
+pub use rusqlite::{params, Connection, Result, NO_PARAMS, Statement, Transaction};
+use std::collections::HashMap;
+use chrono::{NaiveDateTime};
+use fossil_delta::{delta, deltainv};
+@others
+</t>
+<t tx="vitalije.20190720144355.1">/* pub fn rpartition&lt;'a&gt;(input:&amp;'a str, sep:&amp;str) -&gt; (&amp;'a str, &amp;'a str, &amp;'a str) {
+  match input.rfind(sep) {
+    Some(i) =&gt; {
+      let j = i + sep.len();
+      (&amp;input[..i], &amp;input[i..j], &amp;input[j..])
+    },
+    None =&gt; {
+      (&amp;input, "", "")
+    }
+  }
+}
+*/
+pub fn partition&lt;'a&gt;(input:&amp;'a str, sep:&amp;str) -&gt; (&amp;'a str, &amp;'a str, &amp;'a str) {
+  match input.find(sep) {
+    Some(i) =&gt; {
+      let j = i + sep.len();
+      (&amp;input[..i], &amp;input[i..j], &amp;input[j..])
+    },
+    None =&gt; {
+      (&amp;input, "", "")
+    }
+  }
+}</t>
+<t tx="vitalije.20190720151032.1">#[cfg(debug_assertions)]
+fn st_file(req: HttpRequest) -&gt; Result&lt;NamedFile&gt; {
+  let path: PathBuf = req.match_info().query("filename").parse().unwrap();
+  let rpath = PathBuf::from("target/web/").join(path);
+  let file = NamedFile::open(rpath)?;
+  Ok(file.use_last_modified(true).use_etag(true))
+}
+#[cfg(not(debug_assertions))]
+static APPJS:&amp;str = include_str!("../../target/web/js/app.js");
+
+#[cfg(not(debug_assertions))]
+static VENDORSJS:&amp;str = include_str!("../../target/web/js/vendors.js");
+
+#[cfg(not(debug_assertions))]
+static APPCSS:&amp;str = include_str!("../../target/web/css/app.css");
+
+#[cfg(not(debug_assertions))]
+static INDEXHTML:&amp;str = include_str!("../../target/web/index.html");
+
+#[cfg(not(debug_assertions))]
+fn st_file(req: HttpRequest) -&gt; impl Responder {
+  match req.match_info().query("filename") {
+    "js/app.js" =&gt; HttpResponse::Ok().content_type("application/javascript").body(APPJS),
+    "js/vendors.js" =&gt; HttpResponse::Ok().content_type("application/javascript").body(VENDORSJS),
+    "css/app.css" =&gt; HttpResponse::Ok().content_type("text/css").body(APPCSS),
+    "index.html" =&gt; HttpResponse::Ok().content_type("text/html").body(INDEXHTML),
+    _ =&gt; HttpResponse::NotFound().finish()
+  }
+}</t>
+<t tx="vitalije.20190720151151.1"></t>
+<t tx="vitalije.20190720151217.1">^\s*(?:pub\s+)?fn\s+(\w+)\s*[(]
+^\s*(?:pub\s+)?struct\s+(\w+)\s*[{]
+^\s*(?:pub\s+)?impl\s+(\w+\s+for\s+\w+)\s*[{]
+^\s*let\s+(?:mut\s+)?(\w+)\s*=\s*[|][^|]*[|]\s*(?:-&gt;|[{])</t>
+<t tx="vitalije.20190720152015.1">fn post_snapshot(data:web::Data&lt;AppState&gt;, text:String) -&gt; &amp;'static str {
+  let (fname, _, rest) = partition(&amp;text, "\n");
+  let (t, sep, snapdata) = partition(rest, "\n");
+  let ok = sep.len() &gt; 0;
+  let ok = ok &amp;&amp; NaiveDateTime::parse_from_str(t, "%Y-%m-%dT%H:%M:%S%.f").is_ok();
+  let ok = ok &amp;&amp; {
+    let mut hmap = data.m.borrow_mut();
+    ensure_connection(&amp;mut hmap, fname);
+    let ok = match db::add_snapshot(hmap.get_mut(fname).unwrap(), t, snapdata) {
+      Ok(a) =&gt; a,
+      Err(e) =&gt; {println!("post_snapshot:{:?}", e); false}
+    };
+    ok
+  };
+  println!("post snapshot {} bytes at {}", snapdata.len(), t);
+  if ok {"Ok"} else {"Err"}
+}
+</t>
+<t tx="vitalije.20190720152022.1">fn index() -&gt; impl Responder {
+  HttpResponse::Ok().body("Hello world!")
+}</t>
+<t tx="vitalije.20190720152025.1">static FICON:&amp;[u8] = include_bytes!("../favicon.ico");
+fn favicon() -&gt; impl Responder {
+  HttpResponse::Ok().content_type("image/vnd.microsoft.icon").body(FICON)
+}</t>
+<t tx="vitalije.20190721152644.1">fn decode_snapshot(txt:&amp;str) -&gt; HashMap&lt;String, String&gt; {
+  let (outline, _, rest) = partition(txt, "\n\n");
+  let mut nodes = HashMap::new();
+  nodes.insert(String::from("__outline__"), String::from(outline));
+  let mut i = 0;
+  let nrest = rest.len();
+  while i &lt; nrest {
+    let (n, _, x) = partition(&amp;rest[i..], " ");
+    i += n.len() + 1;
+    let n:usize = n.parse().unwrap();
+    let (gnx, _, hb) = partition(&amp;x[..n], "\n");
+    i += n;
+    nodes.insert(String::from(gnx), String::from(hb));
+  }
+  nodes
+}</t>
+<t tx="vitalije.20190721154013.1">pub fn connect(pth:&amp;str) -&gt; Result&lt;Connection&gt; {
+  let conn = Connection::open(pth)?;
+  create_tables(&amp;conn)?;
+  Ok(conn)
+}</t>
+<t tx="vitalije.20190721154018.1">pub fn add_snapshot(conn:&amp;mut Connection, tstamp:&amp;str, data:&amp;str) -&gt; Result&lt;bool&gt; {
+  match NaiveDateTime::parse_from_str(tstamp, "%Y-%m-%dT%H:%M:%S%.f") {
+    Ok(_) =&gt; {
+      let tx = conn.transaction()?;
+      // it used to be useful to keep all snapshots in case history needs to be rebuilt
+      // but in production it would consume too much space to keep all raw snapshots in db
+      // {
+      //   let mut stmt = tx.prepare("replace into snapshots(t, data) values(?, ?)")?;
+      //   stmt.execute(params![tstamp, data])?;
+      // }
+      process_snapshot(&amp;tx, tstamp, data)?;
+      tx.commit()?;
+      Ok(true)
+    },
+    _ =&gt; Ok(false)
+  }
+}
+</t>
+<t tx="vitalije.20190721154022.1">fn create_tables(conn:&amp;Connection) -&gt; Result&lt;()&gt; {
+  conn.execute("create table if not exists snapshots(t primary key, data)", params![])?;
+  conn.execute("create table if not exists present(gnx primary key, hb, x)", params![])?;
+  conn.execute("create table if not exists changes(t, gnx, d, primary key (t, gnx))", params![])?;
+  conn.execute("create index if not exists gnx_changes on changes(gnx)", params![])?;
+  Ok(())
+}</t>
+<t tx="vitalije.20190721154502.1">fn process_snapshot(tx:&amp;Transaction, tstamp:&amp;str, txt:&amp;str) -&gt; Result&lt;()&gt; {
+  let mut nodes = decode_snapshot(txt);
+  let mut a = Vec::new();
+  let mut b = Vec::new();
+  let mut stmt = tx.prepare("select gnx, hb from present")?;
+  let mut rows = stmt.query(NO_PARAMS)?;
+  while let Ok(Some(row)) = rows.next() {
+    let gnx:String = row.get(0).unwrap();
+    let hb:String = row.get(1).unwrap();
+    match nodes.remove(&amp;gnx) {
+      Some(s) =&gt; {
+        if hb != s {
+          a.push((tstamp, gnx.clone(), delta(&amp;hb, &amp;s)));
+          b.push((gnx, s, false));
+        }
+      },
+      None =&gt; {
+        // this node is deleted
+        if hb.len() &gt; 0 {
+          a.push((tstamp, gnx.clone(), delta(&amp;hb, "")));
+        }
+        b.push((gnx, String::new(), true));
+      }
+    }
+  }
+  for (gnx, hb) in nodes.drain() {
+    // these nodes are new
+    a.push((tstamp, gnx.clone(), delta("", &amp;hb)));
+    b.push((gnx, hb, false));
+  }
+  let mut stmt = tx.prepare("insert or replace into present(gnx, hb, x) values (?, ?, ?)")?;
+  for (x, y, z) in b {
+    stmt.execute(params![x, y, z])?;
+  }
+  let mut stmt = tx.prepare("insert into changes(t, gnx, d) values (?, ?, ?)")?;
+  for (x, y, z) in a {
+    stmt.execute(params![x, y, z])?;
+  }
+  Ok(())
+}</t>
+<t tx="vitalije.20190721200842.1">pub fn get_all_at(conn:&amp;Connection, tstamp:&amp;str) -&gt; Result&lt;String&gt; {
+  let mut nodes = HashMap::new();
+  {
+    let mut stmt = conn.prepare("select gnx, hb from present where not x")?;
+    let mut rows = stmt.query(NO_PARAMS)?;
+    while let Some(row) = rows.next()? {
+      let gnx:String = row.get(0)?;
+      let hb:String = row.get(1)?;
+      nodes.insert(gnx, hb);
+    }
+  }
+  {
+    let mut stmt = conn.prepare("select gnx, d from changes where t &gt;= ? order by t desc")?;
+    let mut rows = stmt.query(params![tstamp])?;
+    while let Some(row) = rows.next()? {
+      let gnx:String = row.get(0)?;
+      let d:String = row.get(1)?;
+      if let Some(b) = nodes.get_mut(&amp;gnx){
+        *b = deltainv(b, &amp;d);
+      }
+    }
+  }
+  let mut o = nodes.remove("__outline__").unwrap();
+  o.push('\n');
+  o.push('\n');
+  for (gnx, hb) in nodes.iter() {
+      let n = gnx.len() + hb.len() + 1;
+      o.push_str(&amp;format!("{} {}\n{}", n, &amp;gnx, &amp;hb));
+  }
+  Ok(o)
+}
+</t>
+<t tx="vitalije.20190721203545.1">pub fn get_node_rev_count(conn:&amp;Connection, gnx:&amp;str) -&gt; Result&lt;(String, String, u32)&gt; {
+  let mut stmt = conn.prepare("select min(t), max(t), count(t) from changes where gnx=?")?;
+  let mut rows = stmt.query(params![gnx])?;
+  if let Some(row) = rows.next()? {
+    let t1:String = row.get(0)?;
+    let t2:String = row.get(1)?;
+    let n:u32 = row.get(2)?;
+    Ok((t1, t2, n))
+  } else {
+    Ok((String::new(), String::new(), 0))
+  }
+}</t>
+<t tx="vitalije.20190721205405.1">pub fn get_node_at(conn:&amp;Connection, gnx:&amp;str, tstamp:&amp;str) -&gt; Result&lt;String&gt; {
+  let mut stmt = conn.prepare("select hb from present where gnx = ?")?;
+  let mut rows = stmt.query(params![gnx])?;
+  let mut hb = if let Some(row) = rows.next()? {
+    row.get(0)?
+  } else { String::new() };
+  let mut stmt = conn.prepare("select t, d from changes where gnx=? order by t desc")?;
+  let mut rows = stmt.query(params![gnx])?;
+  while let Some(row) = rows.next()? {
+    let t:String = row.get(0)?;
+    if t.as_str() &lt; tstamp {
+      return Ok(hb);
+    }
+    let d:String = row.get(1)?;
+    hb = deltainv(&amp;hb, &amp;d);
+  }
+  Ok(hb)
+}
+</t>
+<t tx="vitalije.20190721210327.1">pub fn get_node_revision(conn:&amp;Connection, gnx:&amp;str, num:usize) -&gt; Result&lt;String&gt; {
+  let mut stmt = conn.prepare("select hb, datetime('now', 'localtime') from present where gnx = ?")?;
+  let mut rows = stmt.query(params![gnx])?;
+  let mut tstamp = String::new();
+  let mut hb = match rows.next()? {
+    Some(row) =&gt; {
+      let t:String = row.get(1)?;
+      tstamp.push_str(&amp;t[..10]);
+      tstamp.push('T');
+      tstamp.push_str(&amp;t[11..]);
+      tstamp.push_str(".000000");
+      row.get(0)?
+    },
+    _ =&gt; String::new()
+  };
+  if num  == 0 {
+    tstamp.push('\n');
+    tstamp.push_str(&amp;hb);
+    return Ok(tstamp);
+  }
+  let mut stmt = conn.prepare("select d,t from changes where gnx=? order by t desc")?;
+  let mut rows = stmt.query(params![gnx])?;
+
+  let mut i = num;
+  while let Some(row) = rows.next()? {
+    let d:String = row.get(0)?;
+    hb = deltainv(&amp;hb, &amp;d);
+    i -= 1;
+    if i == 0 {
+      tstamp = row.get(1)?;
+      break;
+    }
+  }
+  tstamp.push('\n');
+  tstamp.push_str(&amp;hb);
+  Ok(tstamp)
+}</t>
+<t tx="vitalije.20190721210558.1">pub fn get_all_revision(conn:&amp;Connection, rev:usize) -&gt; Result&lt;String&gt; {
+  let mut nodes = HashMap::new();
+  {
+    let mut stmt = conn.prepare("select gnx, hb from present where not x")?;
+    let mut rows = stmt.query(NO_PARAMS)?;
+    while let Some(row) = rows.next()? {
+      let gnx:String = row.get(0)?;
+      let hb:String = row.get(1)?;
+      nodes.insert(gnx, hb);
+    }
+  }
+  let mut tstamp = String::new();
+  if rev &gt; 0 {
+    let mut stmt = conn.prepare("select gnx, d, t from changes order by t desc")?;
+    let mut rows = stmt.query(NO_PARAMS)?;
+    let mut i = 0;
+    while let Some(row) = rows.next()? {
+      let gnx:String = row.get(0)?;
+      let d:String = row.get(1)?;
+      if let Some(b) = nodes.get_mut(&amp;gnx){
+        *b = deltainv(b, &amp;d);
+      }
+      i += 1;
+      if i == rev {
+        tstamp = row.get(2)?;
+        break;
+      }
+    }
+  }
+  let mut o = nodes.remove("__outline__").unwrap();
+  o.insert(0, '\n');
+  o.insert_str(0, &amp;tstamp);
+  o.push('\n');
+  o.push('\n');
+  for (gnx, hb) in nodes.iter() {
+      let n = gnx.len() + hb.len() + 1;
+      o.push_str(&amp;format!("{} {}\n{}", n, &amp;gnx, &amp;hb));
+  }
+  Ok(o)
+}
+</t>
+<t tx="vitalije.20190722071704.1">fn dbname(a:&amp;str) -&gt; String {
+  let mut res = String::from(a);
+  res.push_str(".history");
+  res
+}</t>
+<t tx="vitalije.20190722071708.1">fn make_connection(fname:&amp;str) -&gt; db::Connection {
+  db::connect(&amp;dbname(fname)).unwrap()
+}</t>
+<t tx="vitalije.20190722072026.1">fn ensure_connection(hmap:&amp;mut ConMap, fname:&amp;str) {
+  if !hmap.contains_key(fname) {
+    let conn = make_connection(fname);
+    hmap.insert(String::from(fname), conn);
+  }
+}</t>
+<t tx="vitalije.20190722080218.1">fn post_node_at(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
+  let (fname, _, rest) = partition(&amp;text, "\n");
+  let (gnx, _, tstamp) = partition(rest, " ");
+  let mut hmap = data.m.borrow_mut();
+
+  if data.valid_names.lines().all(|x| x != fname) {
+    println!("Unknown file:[{}]", fname);
+    return HttpResponse::NotFound()
+      .header("x-err", format!("Unknown file:[{}]", fname))
+      .finish();
+  }
+  ensure_connection(&amp;mut hmap, fname);
+  match db::get_node_at(hmap.get_mut(fname).unwrap(), gnx, tstamp) {
+    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+    Err(e) =&gt; {
+      println!("Failed node {}\n{} at {}\n {:?}", fname, gnx, tstamp, e);
+      HttpResponse::NotFound().header("x-err", format!("Error: {:?}", e))
+      .finish()
+    }
+  }
+}</t>
+<t tx="vitalije.20190722080222.1">fn post_snapshot_at(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
+  let (fname, _, tstamp) = partition(&amp;text, "\n");
+  let mut hmap = data.m.borrow_mut();
+  if data.valid_names.lines().all(|x| x != fname) {
+    return HttpResponse::NotFound().body("Unknown file");
+  }
+  ensure_connection(&amp;mut hmap, fname);
+  match db::get_all_at(hmap.get_mut(fname).unwrap(), tstamp) {
+    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+    Err(e) =&gt; {
+      println!("Failed snapshot {} at {}\n {:?}", fname, tstamp, e);
+      HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+    }
+  }
+}</t>
+<t tx="vitalije.20190722080236.1">fn post_node_rev(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
+  let (fname, _, rest) = partition(&amp;text, "\n");
+  let (gnx, _, num) = partition(rest, " ");
+  let num:usize = match num.trim().parse() {
+    Ok(i) =&gt; i, _ =&gt; return HttpResponse::BadRequest()
+    .body(format!("Bad request: {:?}", num))
+  };
+  let mut hmap = data.m.borrow_mut();
+  if data.valid_names.lines().all(|x| x != fname) {
+    return HttpResponse::NotFound()
+      .header("x-err", format!("Unknown file:[{}]", fname))
+      .finish();
+  }
+  ensure_connection(&amp;mut hmap, fname);
+  match db::get_node_revision(hmap.get_mut(fname).unwrap(), gnx, num) {
+    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+    Err(e) =&gt; {
+      println!("Failed node {}\n{} rev {}\n {:?}", fname, gnx, num, e);
+      HttpResponse::NotFound().header("x-err", format!("Error: {:?}", e))
+      .finish()
+    }
+  }
+}</t>
+<t tx="vitalije.20190722080629.1">#[derive(Serialize)]
+struct RevCount {
+  tmin:String,
+  tmax:String,
+  n:u32,
+}
+fn post_node_rev_count(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
+  let (fname, _, gnx) = partition(&amp;text, "\n");
+  let mut hmap = data.m.borrow_mut();
+  if data.valid_names.lines().all(|x| x != fname) {
+    return HttpResponse::NotFound().body("Unknown file");
+  }
+  ensure_connection(&amp;mut hmap, fname);
+  match db::get_node_rev_count(hmap.get_mut(fname).unwrap(), gnx) {
+    Ok((tmin, tmax, n)) =&gt;
+      HttpResponse::Ok().json(RevCount {tmin, tmax, n}),
+    Err(e) =&gt; {
+      println!("Failed node rev count {}\n{}\n {:?}", fname, gnx, e);
+      HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+    }
+  }
+}</t>
+<t tx="vitalije.20190722081531.1">fn post_snapshot_rev(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
+  let (fname, _, rest) = partition(&amp;text, "\n");
+  let num:usize = match rest.trim().parse() {
+    Ok(i) =&gt; i, _ =&gt; return HttpResponse::BadRequest().body("Bad request")
+  };
+  let mut hmap = data.m.borrow_mut();
+  if data.valid_names.lines().all(|x| x != fname) {
+    return HttpResponse::NotFound().body("Unknown file");
+  }
+  ensure_connection(&amp;mut hmap, fname);
+  match db::get_all_revision(hmap.get_mut(fname).unwrap(), num) {
+    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+    Err(e) =&gt; {
+      println!("Failed snapshot {} rev {}\n {:?}", fname, num, e);
+      HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+    }
+  }
+}</t>
+<t tx="vitalije.20190722085141.2">def genbulma(x):
+    ob = {}
+    ob['data'] = x
+    ob['outputStyle'] = 'compressed'
+    resp = requests.post('http://localhost:8011/bulma/sass/', json.dumps(ob).encode('utf8'))
+    if resp.status_code == 200:
+        return resp.text
+    else:
+        g.es('bulma error\n', resp.text)</t>
+<t tx="vitalije.20190722085141.3">def genpug(x):
+    ob = {}
+    ob['data'] = x
+    ob['env'] = {}
+    ob['files'] = {}
+    resp = requests.post('http://localhost:8011/pug/', json.dumps(ob).encode('utf8'))
+    if resp.status_code == 200:
+        return resp.text
+    else:
+        g.es('pug error\n', resp.text)</t>
+<t tx="vitalije.20190722085141.4">def process_one(p, gen):
+    gnx = p.gnx
+    x = at.stringToString(p, p.b, sentinels=False)
+    if c.user_dict.get(gnx) == x:
+        g.es('unchaned', p.h)
+        return
+    fromdb = lambda x:c.db[x.group(1)]
+    x = re.sub('__from_db__([^_]+)__', fromdb, x)
+    y = gen(x)
+    if y:
+        c.user_dict[gnx] = x
+        fname = g.os_path_join(c.getNodePath(p), p.h.split(' ', 1)[1].strip())
+        with open(fname, 'wt', encoding='utf8') as out:
+            out.write(y)
+            g.es('%s generated %d bytes'%(p.h, len(y.encode('utf8'))))</t>
+<t tx="vitalije.20190722085141.5">def genvendor(x):
+    b = []
+    for line in x.split('\n'):
+        s = line.strip()
+        if not s:continue
+        b.append(c.db[s])
+    return '\n'.join(b)</t>
+<t tx="vitalije.20190722085141.6">def gencoffee(x):
+    r = requests.post('http://localhost:8011/coffee/', x.encode('utf8'))
+    if r.status_code == 200:
+        n = int(r.headers.get('js-length'))
+        return r._content[:n].decode('utf8')
+    else:
+        g.es('coffee error\n', r.text)</t>
+<t tx="vitalije.20190722085236.1">def clean_uas_and_save_ref():
+    for v in c.fileCommands.gnxDict.values():
+        if not hasattr(v, 'unknownAttributes'): continue
+        if not v:
+            del v.unknownAttributes
+            continue
+        if tuple(v.u.keys()) == ('icons',):
+            del v.unknownAttributes
+            continue
+    c.fileCommands.save_ref()
+    c.frame.tree.declutter_update = True</t>
+<t tx="vitalije.20190722085656.1">def ensure_target_web():
+    if os.path.exists('target/web'): return
+    os.makedirs('target/web/js')
+    os.makedirs('target/web/css/img')</t>
+<t tx="vitalije.20190722085734.1">@path target/web
+g.os.chdir(c.openDirectory)
+g.es(g.os.getcwd())
+for p1 in p.children():
+    g.es(c.getNodePath(p1))
+</t>
+<t tx="vitalije.20190722085751.1">@language coffeescript
+@tabwidth -2
+$el = (_id) -&gt; document.getElementById(_id)
+$q = (q) -&gt; document.querySelector(q)
+$qall = (q) -&gt; document.querySelectorAll(q)
+@others
+
+window.addEventListener 'load', start_app
+</t>
+<t tx="vitalije.20190722085820.1">kefir-prod
+codemirror-js
+codemirror-mode-simple
+codemirror-mode-python
+codemirror-mode-coffeescript
+codemirror-mode-rust</t>
+<t tx="vitalije.20190722085839.1">/* @import "bulma.sass"; */
+@others
+/* __from_db__bulma-tooltip__ */
+__from_db__codemirror-css__
+__from_db__codemirror-theme-abcdef__
+body {
+    margin:0;padding:0;
+}
+#progress {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+}
+
+span.icon &gt; svg.svgicon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align:-.125em;
+}
+#app {
+    display:flex;
+    flex-direction: column;
+    flex-grow:1;
+    flex:auto;
+}
+#toolbar {
+    width:100%;
+    flex-grow:0;
+    height:64px;
+    background:#ccccbb;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+}
+#toolbar label {
+    width: 10em;
+    text-align: right;
+}
+#toolbar input[type=range] {
+    width: 400px;
+    margin-right: 20px;
+}
+#tree {width: 400px;height:100%}
+.CodeMirror { height: 100%;}</t>
+<t tx="vitalije.20190722085852.1">@tabwidth -2
+&lt;&lt;mixins&gt;&gt;
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport",content="width=device-width, initial-scale=1")
+    title Leo history browser
+    link(rel='stylesheet', href='css/app.css')
+    link(rel='Shortcut Icon', href='/favicon.ico')
+  body
+    #toolbar
+      label
+        | Outline version[
+        span#orev latest
+        | ]:
+      input#outline-revs(type="range", min="0", max="100", value="100")
+      label
+        | Node version[
+        span#nrev latest
+        | ]:
+      input#node-revs(type="range", min="0", max="100", value="100")
+    .app-flex
+      canvas#tree
+      #app
+        textarea#body
+    #mytemplates(style='display:none')
+      @others
+    progress#progress.progress.is-primary.no-show(value="100", max="100") 100%
+    script(type="text/javascript", src="js/vendors.js")
+    script(type="text/javascript", src="js/app.js")
+
+</t>
+<t tx="vitalije.20190722085928.1">import requests
+import io
+import zipfile
+@others
+@
+s = requests.get('https://kefirjs.github.io/kefir/dist/kefir.js').text
+c.db['kefir-dev'] = s
+s = requests.get('https://kefirjs.github.io/kefir/dist/kefir.min.js').text
+c.db['kefir-prod'] = s
+s = requests.get('https://use.fontawesome.com/releases/v5.3.1/js/all.js').text
+c.db['fontawesome'] = s
+s = requests.get('https://pixijs.download/release/pixi.min.js').text
+c.db['pixi'] = s
+s = requests.get('https://github.com/pixijs/pixi-filters/releases/download/v2.7.1/pixi-filters.js').text
+c.db['pixi-filters'] = s
+s = requests.get('https://raw.githubusercontent.com/Wikiki/bulma-tooltip/master/dist/css/bulma-tooltip.min.css').text
+c.db['bulma-tooltip'] = s
+s = requests.get('https://codemirror.net/codemirror.zip').content
+c.db['codemirrorzip'] = s
+@c
+extract_codemirror()
+g.es('ok')
+</t>
+<t tx="vitalije.20190722090008.1"></t>
+<t tx="vitalije.20190722094440.1">def extract_codemirror():
+    s = c.db['codemirrorzip']
+    zf = zipfile.ZipFile(io.BytesIO(s), 'r')
+    nlist = zf.namelist()
+    cmfiles = {
+        'lib/codemirror.css': 'codemirror-css',
+        'lib/codemirror.js': 'codemirror-js',
+        'theme/abcdef.css': 'codemirror-theme-abcdef',
+        'mode/python/python.js': 'codemirror-mode-python',
+        'mode/rust/rust.js': 'codemirror-mode-rust',
+        'mode/coffeescript/coffeescript.js': 'codemirror-mode-coffeescript',
+        'addon/mode/simple.js': 'codemirror-mode-simple'
+    }
+    ew = tuple(cmfiles.keys())
+    for n in nlist:
+        if n.endswith(ew):
+            for k in ew:
+                if n.endswith(k):
+                    v = cmfiles[k]
+                    c.db[v] = zf.read(n).decode('utf8')
+                    break</t>
+<t tx="vitalije.20190722101835.1">.app-flex {
+    display:flex;
+    flex-direction:row;
+    flex-wrap:1;
+}</t>
+<t tx="vitalije.20190722102031.1">.no-show { display: none !important;}</t>
+<t tx="vitalije.20190722122040.1">appstate = {
+}
+do -&gt;
+  ss = {
+    fi: 0
+    leoFiles:[]
+    range: {
+      tmin:'0',
+      tmax:'0',
+      n: 0,
+      i: 0
+    }
+    nodeRange: {
+      tmin:'0',
+      tmax:'0',
+      n: 0,
+      i: 0
+    }
+    outline:[]
+    topIndex: 0
+    currentIndex:-1
+  }
+  Object.defineProperties appstate,
+    @others
+
+window._state = appstate</t>
+<t tx="vitalije.20190722124223.1">leoFiles:
+  get: -&gt; ss.leoFiles
+  set: (v) -&gt;
+    ss.leoFiles.splice(0, ss.leoFiles.length, ...v)
+    docdispatch EVENTS.LEOFILES_CHANGED, v
+</t>
+<t tx="vitalije.20190722124256.1">currentFile:
+  get: -&gt; ss.leoFiles[ss.fi]
+  set: (v) -&gt;
+    ss.fi = ss.leoFiles.indexOf(v)
+    docdispatch EVENTS.LEOFILES_CHANGED, v</t>
+<t tx="vitalije.20190722124355.1">range:
+  get: -&gt; {...ss.range}
+  set: (v) -&gt;
+    ss.range.tmin = v.tmin
+    ss.range.tmax = v.tmax
+    ss.range.n = v.n
+    if v.n &lt; ss.range.i
+      ss.range.i = v.n
+    v.i = ss.range.i
+    docdispatch EVENTS.RANGE_CHANGED, v
+nodeRange:
+  get: -&gt; {...ss.nodeRange}
+  set: (v) -&gt;
+    ss.nodeRange.tmin = v.tmin
+    ss.nodeRange.tmax = v.tmax
+    ss.nodeRange.n = v.n
+    if v.n &lt; ss.range.i
+      ss.nodeRange.i = v.n
+    v.i = ss.nodeRange.i
+    docdispatch EVENTS.NODE_RANGE_CHANGED, v
+</t>
+<t tx="vitalije.20190722124627.1">fn get_leo_files(data:web::Data&lt;AppState&gt;) -&gt; String {
+  data.valid_names.clone()
+}</t>
+<t tx="vitalije.20190722130051.1">EVENTS =
+  GNX_SELECTED: 'gnxselected'
+  LEOFILES_CHANGED: 'leofileschanged'
+  NODE_RANGE_CHANGED: 'noderangechanged'
+  NODE_REV_CHANGED: 'noderevchanged'
+  OUTLINE_CHANGED: 'outlinechanged'
+  RANGE_CHANGED: 'rangechanged'
+  REV_CHANGED: 'revchanged'
+  TOPINDEX_CHANGED: 'topindexchanged'
+</t>
+<t tx="vitalije.20190722130334.1">docdispatch = (kind, data) -&gt;
+  e = new CustomEvent(kind, detail: data)
+  document.dispatchEvent e
+
+eldispatch = (el, kind, data) -&gt;
+  el.dispatchEvent(new CustomEvent(kind, detail: data))</t>
+<t tx="vitalije.20190722130737.1">rev:
+  get: -&gt; ss.range.i
+  set: (x) -&gt;
+    ss.range.i = Math.min(ss.range.n, x)
+    docdispatch EVENTS.REV_CHANGED, ss.range.i
+
+nodeRev:
+  get: -&gt; ss.nodeRange.i
+  set: (x) -&gt;
+    ss.nodeRange.i = Math.min(ss.nodeRange.n, x)
+    docdispatch EVENTS.NODE_REV_CHANGED, ss.nodeRange.i</t>
+<t tx="vitalije.20190722130905.1">get_rev_count = (gnx) -&gt;
+  fname = appstate.currentFile
+  rq =
+    method: 'POST'
+    body: "#{fname}\n#{gnx}"
+  fetch('/node-rev-count', rq).then((x) -&gt; x.json()).then (x) -&gt;
+    if gnx == '__outline__'
+      appstate.range = x
+    else
+      appstate.nodeRange = x
+</t>
+<t tx="vitalije.20190722130908.1">get_leo_files = -&gt;
+  fetch '/leo-files'
+  .then (x) -&gt; x.text()
+  .then (x) -&gt;
+    appstate.leoFiles = x.split('\n')
+</t>
+<t tx="vitalije.20190722131709.1">outline:
+  get: -&gt; ss.outline
+  set: (v) -&gt;
+    ss.outline.splice(0, ss.outline.length, ...v)
+    if ss.topIndex &gt; v.length - 30
+      ss.topIndex = Math.max(0, v.length - 30)
+    docdispatch EVENTS.OUTLINE_CHANGED, v</t>
+<t tx="vitalije.20190722132007.1">topIndex:
+  get: -&gt; ss.topIndex
+  set: (v) -&gt;
+    ss.topIndex = v
+    docdispatch EVENTS.TOPINDEX_CHANGED, v</t>
+<t tx="vitalije.20190722132321.1">topNode:
+  get: -&gt; ss.outline[ss.topIndex]</t>
+<t tx="vitalije.20190722135155.1">currentIndex:
+  get: -&gt; ss.currentIndex
+  set: (v) -&gt;
+    ss.currentIndex = v
+    docdispatch EVENTS.GNX_SELECTED, ss.outline[v]?.gnx
+
+</t>
+<t tx="vitalije.20190722135552.1">drawTree = -&gt;
+  canv = $el('tree')
+  w = canv.width; h = canv.height
+  ctx = canv.getContext('2d')
+  ctx.fillStyle = '#336699'
+  ctx.fillRect(0, 0, w, h)
+  ctx.font = '20px sans'
+  HR = 24
+  NR =  Math.floor(h / HR)
+  i = appstate.topIndex
+  vnodes = visible_nodes().slice(i, i + NR)
+  selIndex = appstate.currentIndex
+  inv = -&gt;
+    ctx.fillStyle = '#ffffce'
+    ctx.fillRect(0, y-20, w, HR)
+    ctx.fillStyle = '#336699'
+  ctx.fillStyle = '#ffffce'
+  y = HR
+  vnodes.forEach (vn, j) -&gt;
+    if selIndex == vn.i
+      inv()
+    if vn.pref
+      ctx.fillText(vn.pref, vn.x - 20, y)
+    ctx.fillText(vn.h, vn.x, y)
+    ctx.fillStyle = '#ffffce' if selIndex == vn.i
+    y += HR
+  ctx = null</t>
+<t tx="vitalije.20190722141838.1">partition = (s, t) -&gt;
+  i = s.indexOf(t)
+  if i &gt; -1
+    [s.slice(0, i), t, s.slice(i + t.length)]
+  else
+    [s, '', '']</t>
+<t tx="vitalije.20190722151416.1">get_outline_rev = (rev) -&gt;
+  fname = appstate.currentFile
+  body = fname + '\n__outline__ ' + rev
+  fetch '/node-rev',
+    method: 'POST'
+    body: body
+  .then (x) -&gt; x.text()
+  .then set_outline</t>
+<t tx="vitalije.20190722151421.1">set_outline = (data) -&gt;
+  outline = appstate.outline.splice(0)
+  lines = data.split('\n')
+  appstate.outlineTime = lines.shift()
+  lines.shift()
+  outline.splice lines.length
+  lines.forEach (line, i) -&gt;
+    node = outline[i]
+    node ?=
+      gnx:''
+      lev: 0
+      exp: false
+      h: ''
+      old: false
+    [lev, sep, rest] = partition line, ' '
+    [gnx, sep, h] = partition rest, ' '
+    node.gnx = gnx
+    node.lev = parseInt(lev) - 1
+    node.h = h
+    unless node.old
+      node.old = true
+      node.exp = node.lev &lt; 3
+    outline[i] = node
+  _visible_nodes._ver++
+  appstate.outline = outline</t>
+<t tx="vitalije.20190722153239.1">_visible_nodes =
+  _ver: 0
+  _last_ver: -1
+  nodes: []
+visible_nodes = -&gt;
+  if _visible_nodes._last_ver == _visible_nodes._ver
+    return _visible_nodes.nodes
+  _visible_nodes._last_ver = _visible_nodes._ver
+  nodes = []
+  outline = appstate.outline
+  i = 0
+  N = outline.length
+  while i &lt; N
+    n = outline[i]
+    n2 = outline[i + 1]
+    hasChildren = n2 and n2.lev &gt; n.lev
+    if hasChildren
+      pref = if n.exp then  '▼' else '▶'
+    else
+      pref = false
+    nodes.push
+      i: i
+      gnx: n.gnx
+      h: n.h
+      pref: pref
+      x: n.lev * 36 + 28
+    i += 1
+    if hasChildren and not n.exp
+      while n2 and n2.lev &gt; n.lev
+        i += 1
+        n2 = outline[i]
+  _visible_nodes.nodes = nodes
+  nodes</t>
+<t tx="vitalije.20190722171734.1">get_body = (e) -&gt;
+  gnx = e.detail
+  rq =
+    method: 'POST'
+    body: appstate.currentFile + '\n' + gnx + ' ' + appstate.outlineTime
+  fetch '/node-at', rq
+  .then (x) -&gt; x.text()
+  .then (x) -&gt;
+    _cm.setValue(x)
+    get_rev_count(gnx)
+
+</t>
+<t tx="vitalije.20190722172447.1">start_app = -&gt;
+  h = window.innerHeight - $el('toolbar').getBoundingClientRect().height
+  $q('.app-flex').style.height = "#{h}px"
+  window._cm = CodeMirror.fromTextArea $el('body'),
+    lineNumbers: true
+    theme: 'abcdef'
+  canv = $el('tree')
+  canv.height = h
+  canv.width = 400
+  ctx = canv.getContext('2d')
+  ctx.fillStyle = '#336699'
+  ctx.fillRect(0, 0, 400, h)
+  console.log 'started'
+  get_leo_files().then -&gt;
+    get_rev_count('__outline__')
+    document.addEventListener EVENTS.GNX_SELECTED, get_body
+  Kefir.fromEvents(canv, 'mousedown').onValue (e) -&gt;
+    HR = 24
+    r = canv.getBoundingClientRect()
+    x = e.x - r.left
+    y = e.y - r.top
+    vnodes = visible_nodes().slice(appstate.topIndex)
+    vn = vnodes[Math.floor(y / HR)]
+    if x &lt; vn.x and vn.pref
+      node = appstate.outline[vn.i]
+      node.exp = not node.exp
+      _visible_nodes._ver++
+    appstate.currentIndex = vn.i
+  connect_outline_revisions()
+  connect_node_revisions()
+  document.addEventListener EVENTS.OUTLINE_CHANGED, drawTree
+  document.addEventListener EVENTS.TOPINDEX_CHANGED, drawTree
+  document.addEventListener EVENTS.TOPINDEX_CHANGED, drawTree
+  document.addEventListener EVENTS.GNX_SELECTED, drawTree
+  document.addEventListener EVENTS.REV_CHANGED, (ev) -&gt; get_outline_rev(ev.detail)
+  document.addEventListener EVENTS.NODE_REV_CHANGED, (ev) -&gt;
+    gnx = appstate.currentGnx
+    get_body_rev(gnx, ev.detail)
+  wait(20).then -&gt;
+    appstate.rev = 0</t>
+<t tx="vitalije.20190729151722.1">pub fn init(conn:&amp;mut Connection) -&gt; Result&lt;bool&gt; {
+  conn.execute_batch("delete from changes;delete from present;")?;
+  let tx = conn.transaction()?;
+  let mut ss = Vec::new();
+  {
+    let mut stmt = tx.prepare("select t, data from snapshots")?;
+    let mut rows = stmt.query(NO_PARAMS)?;
+    while let Some(row) = rows.next()? {
+      let t:String = row.get(0)?;
+      let d:String = row.get(1)?;
+      ss.push((t, d));
+    }
+  }
+  for (t, d) in ss {
+    process_snapshot(&amp;tx, &amp;t, &amp;d)?;
+  }
+  tx.commit()?;
+  Ok(true)
+}</t>
+<t tx="vitalije.20190729152204.1">fn post_init(data:web::Data&lt;AppState&gt;, fname:String) -&gt; &amp;'static str {
+  let mut hmap = data.m.borrow_mut();
+  ensure_connection(&amp;mut hmap, &amp;fname);
+  let ok = match db::init(hmap.get_mut(&amp;fname).unwrap()) {
+    Ok(a) =&gt; a,
+    Err(e) =&gt; {println!("post_init:{:?}", e); false}
+  };
+  println!("post init {}", fname);
+  if ok {"Ok"} else {"Err"}
+}
+</t>
+<t tx="vitalije.20190729154326.1">wait = (t) -&gt;
+  new Promise (res, rej) -&gt;
+    setTimeout res, t</t>
+<t tx="vitalije.20190729171345.1">get_body_rev = (gnx, rev) -&gt;
+  rq =
+    method: 'POST'
+    body: appstate.currentFile + '\n' + gnx + ' ' + appstate.nodeRev
+  fetch '/node-rev', rq
+  .then (x) -&gt; x.text()
+  .then (x) -&gt;
+    x = partition(x, '\n')[2]
+    _cm.setValue(x)</t>
+<t tx="vitalije.20190729172726.1">connect_outline_revisions = -&gt;
+  orevinp = $el('outline-revs')
+  orevspan = $el('orev')
+  Kefir.fromEvents(orevinp, 'input').onValue -&gt;
+    v = parseInt(orevinp.value)
+    n = appstate.range.n
+    if v == n
+      orevspan.innerText = 'latest'
+    else
+      orevspan.innerText = (v - n).toString()
+    i = n - v
+    appstate.rev = i
+  document.addEventListener EVENTS.RANGE_CHANGED, (e) -&gt;
+    r = e.detail
+    orevinp.max = r.n
+    orevinp.value = r.n - r.i
+    appstate.rev = r.i</t>
+<t tx="vitalije.20190729172738.1">connect_node_revisions = -&gt;
+  nrevinp = $el('node-revs')
+  nrevspan = $el('nrev')
+  Kefir.fromEvents(nrevinp, 'input').onValue -&gt;
+    v = parseInt(nrevinp.value)
+    r = appstate.nodeRange
+    n = r.n
+    if v == n
+      nrevspan.innerText = 'latest'
+    else
+      nrevspan.innerText = (v - n).toString()
+    i = n - v
+    appstate.nodeRev = i
+  document.addEventListener EVENTS.NODE_RANGE_CHANGED, (e) -&gt;
+    r = e.detail
+    nrevinp.max = r.n
+    nrevinp.value = r.n - r.i
+    appstate.nodeRev = r.i</t>
+<t tx="vitalije.20190729173243.1">currentGnx:
+  get: -&gt;
+    i = ss.currentIndex
+    ss.outline[i]?.gnx</t>
+<t tx="vitalije.20190729173544.1">partition = (s, sep) -&gt;
+  i = s.indexOf(sep)
+  if i &lt; 0
+    return [s, '', '']
+  [s.slice(0, i), sep, s.slice(i + sep.length)]
+</t>
 </tnodes>
 </leo_file>

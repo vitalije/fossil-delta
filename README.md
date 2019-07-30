@@ -29,3 +29,12 @@ The algorithm is very well described
 
 The code of this repository is best viewed in [Leo editor](https://leoeditor.com). The outline
 containing the code is in a single outline file: [fossil-delta-ref.leo](fossil-delta-ref.leo).
+
+This repository contains two more Rust crates, `py-fossil-delta` which exports fossil-delta
+functions to Python as an extension module.
+
+The third crate is `leo-ver-serv` which is a binary (executable) web server which accepts
+snapshots from Leo, calculates the delta form the previous snapshot and stores all deltas
+in a database. On the other side, this server serves a small web application which allows
+user to browse history of known Leo files.
+
