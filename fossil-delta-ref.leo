@@ -145,6 +145,7 @@
 <v t="vitalije.20190729151722.1"><vh>init</vh></v>
 </v>
 <v t="vitalije.20190709160800.1"><vh>@clean leo-ver-serv/Cargo.toml</vh></v>
+<v t="vitalije.20190730145718.1"><vh>@clean leo-ver-serv/README.md</vh></v>
 </v>
 </vnodes>
 <tnodes>
@@ -868,12 +869,12 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
 repository = "https://github.com/vitalije/fossil-delta.git"
-readme = "../README.md"
+readme = "README.md"
 license = "MIT"
 keywords = ["web", "delta", "fossil", "VCS", "Leo"]
 categories = ["command-line-utilities", "compression", "web-programming::http-server", "text-processing"]
@@ -1970,6 +1971,20 @@ visible_nodes = -&gt;
   if i &lt; 0
     return [s, '', '']
   [s.slice(0, i), sep, s.slice(i + sep.length)]
+</t>
+<t tx="vitalije.20190730145718.1"># Leo version server
+
+`leo-ver-serv` is a web server which accepts POST requests from Leo. Leo sends snapshots
+of its current state, server calculates delta between the previous version of snapshot and
+the current one, and stores delta in a database. Server also serves a small web application
+which allows user to browse history of known Leo files.
+
+It requires one or two arguments. The first one is a file containing known Leo files, and
+the second argument optionally is a port number on which server should listen.
+
+```
+leo-ver-serv ~/.leo/.leoRecentFiles.txt 8088
+```
 </t>
 </tnodes>
 </leo_file>
