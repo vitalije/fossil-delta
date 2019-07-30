@@ -876,7 +876,7 @@ repository = "https://github.com/vitalije/fossil-delta.git"
 readme = "../README.md"
 license = "MIT"
 keywords = ["web", "delta", "fossil", "VCS", "Leo"]
-categories = ["tools", "version-control", "web", "text-processing"]
+categories = ["command-line-utilities", "compression", "web-programming::http-server", "text-processing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
