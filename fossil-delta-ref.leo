@@ -65,6 +65,8 @@
 <v t="vitalije.20190711104435.1"><vh>empty_txt</vh></v>
 <v t="vitalije.20190708190730.1"><vh>test_deltainv</vh></v>
 <v t="vitalije.20190711122248.1"><vh>test_bug_001</vh></v>
+<v t="vitalije.20190920132731.1"><vh>test_bug_002</vh></v>
+<v t="vitalije.20190920125620.1"><vh>&lt;&lt;strings&gt;&gt;</vh></v>
 </v>
 </v>
 </v>
@@ -178,7 +180,7 @@ for p in c.allNodes_iter():
 <t tx="vitalije.20190708073324.1">@nocolor
 [package]
 name = "fossil-delta"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -323,12 +325,13 @@ const B64VALUES:[u8; 128] = [
    44u8,  45u8,  46u8,  47u8,  48u8,  49u8,  50u8,  51u8,
    52u8,  53u8,  54u8,  55u8,  56u8,  57u8,  58u8,  59u8,
    60u8,  61u8,  62u8, 255u8, 255u8, 255u8,  63u8, 255u8
-];</t>
+];
+</t>
 <t tx="vitalije.20190708081957.1">#[cfg(test)]
 mod tests {
   use super::*;
   @others
-}
+&lt;&lt;strings&gt;&gt;
 </t>
 <t tx="vitalije.20190708082017.1">#[test]
 fn b64_works() {
@@ -338,7 +341,8 @@ fn b64_works() {
     assert_eq!(i, b64int(&amp;s));
     assert_eq!(i, b64int(&amp;s1) - 0x1_00_0000);
   }
-}</t>
+}
+</t>
 <t tx="vitalije.20190708083136.1">const NHASH_1:usize = NHASH - 1;
 const NHASHI32:i32 = NHASH as i32;
 struct Hash {
@@ -385,7 +389,8 @@ pub fn digit_count(v:usize) -&gt; usize {
     x = x &lt;&lt; 6;
   }
   11
-}</t>
+}
+</t>
 <t tx="vitalije.20190708091311.1">
 /// Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
 /// buffer is not a multiple of 4 bytes length, compute the sum that would
@@ -408,7 +413,8 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
     s = s.overflowing_add(a).0;
   }
   s
-}</t>
+}
+</t>
 <t tx="vitalije.20190708102546.1">/// Generate new delta in given mutable string reference
 ///
 /// ## Output Format:
@@ -471,28 +477,31 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
 /// for the output and hence allocate nor more space that is really
 /// needed.
 ///
-pub fn delta_output_size(z_delta:&amp;str) -&gt; usize { b64int(z_delta) as usize }</t>
+pub fn delta_output_size(z_delta:&amp;str) -&gt; usize { b64int(z_delta) as usize }
+</t>
 <t tx="vitalije.20190708103528.1">pub fn generate_delta(
   z_out_t:&amp;str /* The target text */,
   z_src_t:&amp;str /* The source text */,
-  z_delta:&amp;mut String /* A string to hold the resulting delta */) {
+  z_delta:&amp;mut Vec&lt;u8&gt; /* A string to hold the resulting delta */) {
   z_delta.clear();
   let z_src = z_src_t.as_bytes();
   let z_out = z_out_t.as_bytes();
   @others
-}</t>
-<t tx="vitalije.20190708105710.1">z_delta.push_str(&amp;b64str(z_out.len() as u32));
-z_delta.push('\n');</t>
+}
+</t>
+<t tx="vitalije.20190708105710.1">z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+z_delta.push(b'\n');
+</t>
 <t tx="vitalije.20190708105810.1">/* If the source file is very small, it means that we have no
 ** chance of ever doing a copy command.  Just output a single
 ** literal segment for the entire target and exit.
 */
 if  z_src.len() &lt;= NHASH {
-  z_delta.push_str(&amp;b64str(z_out.len() as u32));
-  z_delta.push(':');
-  z_delta.push_str(&amp;z_out_t);
-  z_delta.push_str(&amp;b64str(checksum(&amp;z_out)));
-  z_delta.push(';');
+  z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+  z_delta.push(b':');
+  z_delta.extend_from_slice(z_out);
+  z_delta.extend_from_slice(b64str(checksum(&amp;z_out)).as_bytes());
+  z_delta.push(b';');
   return
 }
 </t>
@@ -507,7 +516,8 @@ for i in 0..n_hash {
   let hv = h.as_usize() % n_hash + n_hash;
   collide[i] = collide[hv];
   collide[hv] = i as u32;
-}</t>
+}
+</t>
 <t tx="vitalije.20190708123712.1">let mut base = 0usize;
 while base + NHASH &lt; z_out.len() {
   let mut i = 0;
@@ -539,21 +549,21 @@ while base + NHASH &lt; z_out.len() {
     }
     if best_count &gt; 0 {
       if best_lit_size &gt; 0 {
-        z_delta.push_str(&amp;b64str(best_lit_size as u32));
-        z_delta.push(':');
-        z_delta.push_str(&amp;z_out_t[base..(base + best_lit_size)]);
+        z_delta.extend_from_slice(b64str(best_lit_size as u32).as_bytes());
+        z_delta.push(b':');
+        z_delta.extend_from_slice(&amp;z_out[base..(base + best_lit_size)]);
         base += best_lit_size;
       }
       base += best_count;
-      z_delta.push_str(&amp;b64str(best_count as u32));
-      z_delta.push('@');
-      z_delta.push_str(&amp;b64str(best_offset as u32));
-      z_delta.push(',');
+      z_delta.extend_from_slice(b64str(best_count as u32).as_bytes());
+      z_delta.push(b'@');
+      z_delta.extend_from_slice(b64str(best_offset as u32).as_bytes());
+      z_delta.push(b',');
       break;
     } else if base + i + NHASH &gt;= z_out.len() {
-      z_delta.push_str(&amp;b64str((z_out.len() - base) as u32));
-      z_delta.push(':');
-      z_delta.push_str(&amp;z_out_t[base..]);
+      z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+      z_delta.push(b':');
+      z_delta.extend_from_slice(&amp;z_out[base..]);
       base = z_out.len();
       break;
     } else {
@@ -561,7 +571,8 @@ while base + NHASH &lt; z_out.len() {
       i += 1;
     }
   }
-}</t>
+}
+</t>
 <t tx="vitalije.20190708130411.1"></t>
 <t tx="vitalije.20190708131459.1">// match block backward
 let mb_backward = |i, j, n| {
@@ -575,7 +586,8 @@ let mb_backward = |i, j, n| {
     m -= 1;
   }
   i - k - 1
-};</t>
+};
+</t>
 <t tx="vitalije.20190708131503.1">// match block forward
 let mb_forward = |i, j| {
   let mut k = i + 1;
@@ -590,23 +602,25 @@ let mb_forward = |i, j| {
   } else {
     z_out.len() - j - 1
   }
-};</t>
+};
+</t>
 <t tx="vitalije.20190708134856.1">if  base &lt; z_out.len() {
-    z_delta.push_str(&amp;b64str((z_out.len() - base) as u32));
-    z_delta.push(':');
-    z_delta.push_str(&amp;z_out_t[base..]);
+    z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+    z_delta.push(b':');
+    z_delta.extend_from_slice(&amp;z_out[base..]);
 }
 </t>
-<t tx="vitalije.20190708135156.1">z_delta.push_str(&amp;b64str(checksum(z_out)));
-z_delta.push(';');</t>
+<t tx="vitalije.20190708135156.1">z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
+z_delta.push(b';');
+</t>
 <t tx="vitalije.20190708175831.1">#[test]
 fn delta_gen() {
   let old = include_str!("test-data/file-a.txt");
   let cur = include_str!("test-data/file-b.txt");
-  let d1 = include_str!("test-data/file-delta.txt");
-  let mut d = String::new();
+  let d1:&amp;[u8] = include_bytes!("test-data/file-delta.txt");
+  let mut d = Vec::new();
   generate_delta(cur, old, &amp;mut d);
-  assert_eq!(d, d1);
+  assert_eq!(d.as_slice(), d1);
 }
 </t>
 <t tx="vitalije.20190708175842.1">#[test]
@@ -618,42 +632,44 @@ fn test_hash_update(){
   h2.init(b"123456789ABCDEFFEDCBA9876543210");
   h.update(b'F');
   assert_eq!(h.as_usize(), h2.as_usize())
-}</t>
+}
+</t>
 <t tx="vitalije.20190708180426.1">/// Creates delta and returns it as a String
 /// see [`generate_delta`]
-pub fn delta(a:&amp;str, b:&amp;str) -&gt; String {
-  let mut d = String::with_capacity(b.len() + 60);
+pub fn delta(a:&amp;str, b:&amp;str) -&gt; Vec&lt;u8&gt; {
+  let mut d = Vec::with_capacity(b.len() + 60);
   generate_delta(a, b, &amp;mut d);
   d
-}</t>
+}
+</t>
 <t tx="vitalije.20190708183210.1">/// Given the current version of text value `b_txt` and delta value as `d_txt`
 /// this function returns the previous version of text b_txt.
-pub fn deltainv(b_txt:&amp;str, d_txt:&amp;str) -&gt; String {
+pub fn deltainv(b_txt:&amp;str, d_txt:&amp;[u8]) -&gt; String {
 
-  let (total_length, mut d_src) = b64int_read(d_txt.as_bytes());
+  let (total_length, mut d_src) = b64int_read(d_txt);
 
-  let mut a_res = String::with_capacity(total_length);
-
+  let mut a_res = Vec::with_capacity(total_length);
+  let b_bytes = b_txt.as_bytes();
   d_src = &amp;d_src[1..];
   while d_src.len() &gt; 0 {
     let (cnt, d1_src) = b64int_read(&amp;d_src);
     match d1_src[0] {
       b'@' =&gt; {
         let (ofst, d1_src) = b64int_read(&amp;d1_src[1..]);
-        a_res.push_str(&amp;b_txt[ofst..(ofst + cnt)]);
+        a_res.extend_from_slice(&amp;b_bytes[ofst..(ofst + cnt)]);
         d_src = &amp;d1_src[1..];
       },
       b':' =&gt; {
         let i = d_txt.len() - d1_src.len() + 1;
-        a_res.push_str(&amp;d_txt[i..(cnt + i)]);
+        a_res.extend_from_slice(&amp;d_txt[i..(cnt + i)]);
         d_src = &amp;d1_src[(1 + cnt)..];
       },
-      b';' =&gt; return a_res,
+      b';' =&gt; return String::from_utf8(a_res).unwrap(),
       _ =&gt; {
         let msg = format!(r#"Error in applying delta
         txt: {}
         -----------------------------
-        delta: {}
+        delta: {:?}
         =============================
         index: {}
         "#, b_txt, d_txt, d_txt.len() - d1_src.len());
@@ -661,17 +677,18 @@ pub fn deltainv(b_txt:&amp;str, d_txt:&amp;str) -&gt; String {
       }
     }
   }
-  a_res
+  String::from_utf8(a_res).unwrap()
 }
 </t>
 <t tx="vitalije.20190708190730.1">#[test]
 fn test_deltainv() {
   let old = include_str!("test-data/file-a.txt");
   let cur = include_str!("test-data/file-b.txt");
-  let d1 = include_str!("test-data/file-delta.txt");
+  let d1:&amp;[u8] = include_bytes!("test-data/file-delta.txt");
   let res = deltainv(cur, d1);
   assert_eq!(&amp;res[..30], &amp;old[..30]);
-}</t>
+}
+</t>
 <t tx="vitalije.20190709081959.1"></t>
 <t tx="vitalije.20190709082121.1">[workspace]
 
@@ -682,7 +699,7 @@ members = [
 ]</t>
 <t tx="vitalije.20190709083222.1">[package]
 name = "py-fossil-delta"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -701,7 +718,7 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta", version="0.1.5"}
+fossil-delta = { path="../fossil-delta", version="0.1.6"}
 
 [dependencies.pyo3]
 version = "0.7.0"
@@ -709,7 +726,6 @@ features = ["extension-module"]
 </t>
 <t tx="vitalije.20190709083254.1">
 use pyo3::prelude::*;
-
 use fossil_delta::{delta, deltainv};
 
 #[pymodule]
@@ -721,9 +737,9 @@ fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
     /// &gt;&gt;&gt; assert s == a
     ///
     #[pyfn(m, "delta")]
-    fn py_delta(_py: Python, a:&amp;str, b:&amp;str) -&gt; PyResult&lt;String&gt; {
+    fn py_delta(py: Python, a:&amp;str, b:&amp;str) -&gt; PyResult&lt;PyObject&gt; {
         let res = delta(a, b);
-        Ok(res)
+        Ok(res.to_object(py))
     }
     /// Applies delta tp given text and returns changed text
     ///
@@ -732,8 +748,9 @@ fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
     /// &gt;&gt;&gt; assert s == a
     ///
     #[pyfn(m, "deltainv")]
-    fn py_deltainv(_py: Python, b:&amp;str, d:&amp;str) -&gt; PyResult&lt;String&gt; {
-        let res = deltainv(b, d);
+    fn py_deltainv(py: Python, b:&amp;str, d:PyObject) -&gt; PyResult&lt;String&gt; {
+        let dv:Vec&lt;u8&gt; = d.extract(py).unwrap();
+        let res = deltainv(b, &amp;dv);
         Ok(res)
     }
     Ok(())
@@ -885,7 +902,7 @@ categories = ["command-line-utilities", "compression", "web-programming::http-se
 actix-web = "1.0"
 actix-files = "0.1.3"
 chrono = "0.4.7"
-fossil-delta = {version="0.1.5", path="../fossil-delta"}
+fossil-delta = {version="0.1.6", path="../fossil-delta"}
 serde = "1.0.97"
 serde_json = "1.0.40"
 
@@ -922,7 +939,8 @@ fn round_trip_test() {
   let s = deltainv(b, &amp;d);
   assert_eq!(&amp;s, a);
   assert_eq!(d.len(), 43);
-}</t>
+}
+</t>
 <t tx="vitalije.20190709214622.1">#[test]
 fn round_trip_test2() {
   let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
@@ -952,17 +970,20 @@ fn empty_txt() {
   println!("empty delta:{:?}", &amp;d);
   let s = deltainv(a, &amp;d);
   assert_eq!(b, &amp;s);
-}</t>
+}
+</t>
 <t tx="vitalije.20190711122248.1">#[test]
 fn test_bug_001() {
 let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
 let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-let d="3a\n1S@0,29@1T,31_Pqh;";
+let d=b"3a\n1S@0,29@1T,31_Pqh;";
 let d1 = delta(a, b);
-assert_eq!(&amp;d1, d);
+assert_eq!(&amp;d1, &amp;d);
 let s = deltainv(b, &amp;d1);
 assert_eq!(&amp;s, a);
-}</t>
+}
+}
+</t>
 <t tx="vitalije.20190720114956.1">@language rust
 @tabwidth -2
 //use rusqlite::types::ToSql;
@@ -1156,7 +1177,7 @@ fn favicon() -&gt; impl Responder {
     let mut rows = stmt.query(params![tstamp])?;
     while let Some(row) = rows.next()? {
       let gnx:String = row.get(0)?;
-      let d:String = row.get(1)?;
+      let d:Vec&lt;u8&gt; = row.get(1)?;
       if let Some(b) = nodes.get_mut(&amp;gnx){
         *b = deltainv(b, &amp;d);
       }
@@ -1197,7 +1218,7 @@ fn favicon() -&gt; impl Responder {
     if t.as_str() &lt; tstamp {
       return Ok(hb);
     }
-    let d:String = row.get(1)?;
+    let d:Vec&lt;u8&gt; = row.get(1)?;
     hb = deltainv(&amp;hb, &amp;d);
   }
   Ok(hb)
@@ -1228,7 +1249,7 @@ fn favicon() -&gt; impl Responder {
 
   let mut i = num;
   while let Some(row) = rows.next()? {
-    let d:String = row.get(0)?;
+    let d:Vec&lt;u8&gt; = row.get(0)?;
     hb = deltainv(&amp;hb, &amp;d);
     i -= 1;
     if i == 0 {
@@ -1258,7 +1279,7 @@ fn favicon() -&gt; impl Responder {
     let mut i = 0;
     while let Some(row) = rows.next()? {
       let gnx:String = row.get(0)?;
-      let d:String = row.get(1)?;
+      let d:Vec&lt;u8&gt; = row.get(1)?;
       if let Some(b) = nodes.get_mut(&amp;gnx){
         *b = deltainv(b, &amp;d);
       }
@@ -1417,11 +1438,11 @@ fn post_node_rev_count(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpRe
     gnx = p.gnx
     x = at.stringToString(p, p.b, sentinels=False)
     if c.user_dict.get(gnx) == x:
-        g.es('unchaned', p.h)
+        # g.es('unchaned', p.h)
         return
     fromdb = lambda x:c.db[x.group(1)]
-    x = re.sub('__from_db__([^_]+)__', fromdb, x)
-    y = gen(x)
+    x2 = re.sub('__from_db__([^_]+)__', fromdb, x)
+    y = gen(x2)
     if y:
         c.user_dict[gnx] = x
         fname = g.os_path_join(c.getNodePath(p), p.h.split(' ', 1)[1].strip())
@@ -1986,5 +2007,37 @@ the second argument optionally is a port number on which server should listen.
 leo-ver-serv ~/.leo/.leoRecentFiles.txt 8088
 ```
 </t>
+<t tx="vitalije.20190920125620.1">#[allow(dead_code)]
+static BUG002_A:&amp;str = r#"from student import moja_tajna_funkcija
+
+def check(a, b):
+    assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
+
+if __name__ == '__main__':
+    for x in range(-100, 101):
+        for y in range(-100, 101):
+            check(x, y)
+    print("Функција ради коректно")"#;
+
+#[allow(dead_code)]
+static BUG002_B:&amp;str = r#"from student import moja_tajna_funkcija
+
+def check(a, b):
+    assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
+
+if __name__ == '__main__':
+    for x in range(-100, 101):
+        for y in range(-100, 101):
+            check(x, y)
+    print("Није пронађена грешка у твом програму.")"#;</t>
+<t tx="vitalije.20190920132731.1">#[test]
+fn test_bug_002(){
+  let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
+  let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
+  let d = delta(b, a);
+  let mut d1 = Vec::new();
+  d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
+  assert_eq!(d, d1);
+}</t>
 </tnodes>
 </leo_file>

@@ -1,6 +1,6 @@
 [package]
 name = "py-fossil-delta"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["vitalije <vitalije@kviziracija.net>"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -19,7 +19,7 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta", version="0.1.5"}
+fossil-delta = { path="../fossil-delta", version="0.1.6"}
 
 [dependencies.pyo3]
 version = "0.7.0"

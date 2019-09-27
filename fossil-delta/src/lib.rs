@@ -173,7 +173,7 @@ fn checksum(z_in:&[u8]) -> u32 {
 pub fn generate_delta(
   z_out_t:&str /* The target text */,
   z_src_t:&str /* The source text */,
-  z_delta:&mut String /* A string to hold the resulting delta */) {
+  z_delta:&mut Vec<u8> /* A string to hold the resulting delta */) {
   z_delta.clear();
   let z_src = z_src_t.as_bytes();
   let z_out = z_out_t.as_bytes();
@@ -205,18 +205,18 @@ pub fn generate_delta(
       z_out.len() - j - 1
     }
   };
-  z_delta.push_str(&b64str(z_out.len() as u32));
-  z_delta.push('\n');
+  z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+  z_delta.push(b'\n');
   /* If the source file is very small, it means that we have no
   ** chance of ever doing a copy command.  Just output a single
   ** literal segment for the entire target and exit.
   */
   if  z_src.len() <= NHASH {
-    z_delta.push_str(&b64str(z_out.len() as u32));
-    z_delta.push(':');
-    z_delta.push_str(&z_out_t);
-    z_delta.push_str(&b64str(checksum(&z_out)));
-    z_delta.push(';');
+    z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+    z_delta.push(b':');
+    z_delta.extend_from_slice(z_out);
+    z_delta.extend_from_slice(b64str(checksum(&z_out)).as_bytes());
+    z_delta.push(b';');
     return
   }
   /* Compute the hash table used to locate matching sections in the
@@ -262,21 +262,21 @@ pub fn generate_delta(
       }
       if best_count > 0 {
         if best_lit_size > 0 {
-          z_delta.push_str(&b64str(best_lit_size as u32));
-          z_delta.push(':');
-          z_delta.push_str(&z_out_t[base..(base + best_lit_size)]);
+          z_delta.extend_from_slice(b64str(best_lit_size as u32).as_bytes());
+          z_delta.push(b':');
+          z_delta.extend_from_slice(&z_out[base..(base + best_lit_size)]);
           base += best_lit_size;
         }
         base += best_count;
-        z_delta.push_str(&b64str(best_count as u32));
-        z_delta.push('@');
-        z_delta.push_str(&b64str(best_offset as u32));
-        z_delta.push(',');
+        z_delta.extend_from_slice(b64str(best_count as u32).as_bytes());
+        z_delta.push(b'@');
+        z_delta.extend_from_slice(b64str(best_offset as u32).as_bytes());
+        z_delta.push(b',');
         break;
       } else if base + i + NHASH >= z_out.len() {
-        z_delta.push_str(&b64str((z_out.len() - base) as u32));
-        z_delta.push(':');
-        z_delta.push_str(&z_out_t[base..]);
+        z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+        z_delta.push(b':');
+        z_delta.extend_from_slice(&z_out[base..]);
         base = z_out.len();
         break;
       } else {
@@ -286,17 +286,17 @@ pub fn generate_delta(
     }
   }
   if  base < z_out.len() {
-      z_delta.push_str(&b64str((z_out.len() - base) as u32));
-      z_delta.push(':');
-      z_delta.push_str(&z_out_t[base..]);
+      z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+      z_delta.push(b':');
+      z_delta.extend_from_slice(&z_out[base..]);
   }
-  z_delta.push_str(&b64str(checksum(z_out)));
-  z_delta.push(';');
+  z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
+  z_delta.push(b';');
 }
 /// Creates delta and returns it as a String
 /// see [`generate_delta`]
-pub fn delta(a:&str, b:&str) -> String {
-  let mut d = String::with_capacity(b.len() + 60);
+pub fn delta(a:&str, b:&str) -> Vec<u8> {
+  let mut d = Vec::with_capacity(b.len() + 60);
   generate_delta(a, b, &mut d);
   d
 }
@@ -311,32 +311,32 @@ pub fn delta(a:&str, b:&str) -> String {
 pub fn delta_output_size(z_delta:&str) -> usize { b64int(z_delta) as usize }
 /// Given the current version of text value `b_txt` and delta value as `d_txt`
 /// this function returns the previous version of text b_txt.
-pub fn deltainv(b_txt:&str, d_txt:&str) -> String {
+pub fn deltainv(b_txt:&str, d_txt:&[u8]) -> String {
 
-  let (total_length, mut d_src) = b64int_read(d_txt.as_bytes());
+  let (total_length, mut d_src) = b64int_read(d_txt);
 
-  let mut a_res = String::with_capacity(total_length);
-
+  let mut a_res = Vec::with_capacity(total_length);
+  let b_bytes = b_txt.as_bytes();
   d_src = &d_src[1..];
   while d_src.len() > 0 {
     let (cnt, d1_src) = b64int_read(&d_src);
     match d1_src[0] {
       b'@' => {
         let (ofst, d1_src) = b64int_read(&d1_src[1..]);
-        a_res.push_str(&b_txt[ofst..(ofst + cnt)]);
+        a_res.extend_from_slice(&b_bytes[ofst..(ofst + cnt)]);
         d_src = &d1_src[1..];
       },
       b':' => {
         let i = d_txt.len() - d1_src.len() + 1;
-        a_res.push_str(&d_txt[i..(cnt + i)]);
+        a_res.extend_from_slice(&d_txt[i..(cnt + i)]);
         d_src = &d1_src[(1 + cnt)..];
       },
-      b';' => return a_res,
+      b';' => return String::from_utf8(a_res).unwrap(),
       _ => {
         let msg = format!(r#"Error in applying delta
         txt: {}
         -----------------------------
-        delta: {}
+        delta: {:?}
         =============================
         index: {}
         "#, b_txt, d_txt, d_txt.len() - d1_src.len());
@@ -344,7 +344,7 @@ pub fn deltainv(b_txt:&str, d_txt:&str) -> String {
       }
     }
   }
-  a_res
+  String::from_utf8(a_res).unwrap()
 }
 const NHASH_1:usize = NHASH - 1;
 const NHASHI32:i32 = NHASH as i32;
@@ -409,10 +409,10 @@ mod tests {
   fn delta_gen() {
     let old = include_str!("test-data/file-a.txt");
     let cur = include_str!("test-data/file-b.txt");
-    let d1 = include_str!("test-data/file-delta.txt");
-    let mut d = String::new();
+    let d1:&[u8] = include_bytes!("test-data/file-delta.txt");
+    let mut d = Vec::new();
     generate_delta(cur, old, &mut d);
-    assert_eq!(d, d1);
+    assert_eq!(d.as_slice(), d1);
   }
   #[test]
   fn round_trip_test() {
@@ -478,7 +478,7 @@ mod tests {
   fn test_deltainv() {
     let old = include_str!("test-data/file-a.txt");
     let cur = include_str!("test-data/file-b.txt");
-    let d1 = include_str!("test-data/file-delta.txt");
+    let d1:&[u8] = include_bytes!("test-data/file-delta.txt");
     let res = deltainv(cur, d1);
     assert_eq!(&res[..30], &old[..30]);
   }
@@ -486,10 +486,42 @@ mod tests {
   fn test_bug_001() {
   let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
   let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-  let d="3a\n1S@0,29@1T,31_Pqh;";
+  let d=b"3a\n1S@0,29@1T,31_Pqh;";
   let d1 = delta(a, b);
-  assert_eq!(&d1, d);
+  assert_eq!(&d1, &d);
   let s = deltainv(b, &d1);
   assert_eq!(&s, a);
   }
-}
+  }
+  #[test]
+  fn test_bug_002(){
+    let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
+    let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
+    let d = delta(b, a);
+    let mut d1 = Vec::new();
+    d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
+    assert_eq!(d, d1);
+  }
+#[allow(dead_code)]
+static BUG002_A:&str = r#"from student import moja_tajna_funkcija
+
+def check(a, b):
+    assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
+
+if __name__ == '__main__':
+    for x in range(-100, 101):
+        for y in range(-100, 101):
+            check(x, y)
+    print("Функција ради коректно")"#;
+
+#[allow(dead_code)]
+static BUG002_B:&str = r#"from student import moja_tajna_funkcija
+
+def check(a, b):
+    assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
+
+if __name__ == '__main__':
+    for x in range(-100, 101):
+        for y in range(-100, 101):
+            check(x, y)
+    print("Није пронађена грешка у твом програму.")"#;

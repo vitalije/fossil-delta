@@ -115,7 +115,7 @@ pub fn get_all_at(conn:&Connection, tstamp:&str) -> Result<String> {
     let mut rows = stmt.query(params![tstamp])?;
     while let Some(row) = rows.next()? {
       let gnx:String = row.get(0)?;
-      let d:String = row.get(1)?;
+      let d:Vec<u8> = row.get(1)?;
       if let Some(b) = nodes.get_mut(&gnx){
         *b = deltainv(b, &d);
       }
@@ -148,7 +148,7 @@ pub fn get_all_revision(conn:&Connection, rev:usize) -> Result<String> {
     let mut i = 0;
     while let Some(row) = rows.next()? {
       let gnx:String = row.get(0)?;
-      let d:String = row.get(1)?;
+      let d:Vec<u8> = row.get(1)?;
       if let Some(b) = nodes.get_mut(&gnx){
         *b = deltainv(b, &d);
       }
@@ -183,7 +183,7 @@ pub fn get_node_at(conn:&Connection, gnx:&str, tstamp:&str) -> Result<String> {
     if t.as_str() < tstamp {
       return Ok(hb);
     }
-    let d:String = row.get(1)?;
+    let d:Vec<u8> = row.get(1)?;
     hb = deltainv(&hb, &d);
   }
   Ok(hb)
@@ -213,7 +213,7 @@ pub fn get_node_revision(conn:&Connection, gnx:&str, num:usize) -> Result<String
 
   let mut i = num;
   while let Some(row) = rows.next()? {
-    let d:String = row.get(0)?;
+    let d:Vec<u8> = row.get(0)?;
     hb = deltainv(&hb, &d);
     i -= 1;
     if i == 0 {

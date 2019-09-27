@@ -1,6 +1,5 @@
 
 use pyo3::prelude::*;
-
 use fossil_delta::{delta, deltainv};
 
 #[pymodule]
@@ -12,9 +11,9 @@ fn fossil_delta(_py: Python, m:&PyModule) -> PyResult<()> {
     /// >>> assert s == a
     ///
     #[pyfn(m, "delta")]
-    fn py_delta(_py: Python, a:&str, b:&str) -> PyResult<String> {
+    fn py_delta(py: Python, a:&str, b:&str) -> PyResult<PyObject> {
         let res = delta(a, b);
-        Ok(res)
+        Ok(res.to_object(py))
     }
     /// Applies delta tp given text and returns changed text
     ///
@@ -23,8 +22,9 @@ fn fossil_delta(_py: Python, m:&PyModule) -> PyResult<()> {
     /// >>> assert s == a
     ///
     #[pyfn(m, "deltainv")]
-    fn py_deltainv(_py: Python, b:&str, d:&str) -> PyResult<String> {
-        let res = deltainv(b, d);
+    fn py_deltainv(py: Python, b:&str, d:PyObject) -> PyResult<String> {
+        let dv:Vec<u8> = d.extract(py).unwrap();
+        let res = deltainv(b, &dv);
         Ok(res)
     }
     Ok(())
