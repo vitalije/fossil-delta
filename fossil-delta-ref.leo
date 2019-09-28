@@ -861,7 +861,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
@@ -1667,13 +1667,14 @@ currentFileIndex:
       ss.range.i = v.n
     v.i = ss.range.i
     docdispatch EVENTS.RANGE_CHANGED, v
+
 nodeRange:
   get: -&gt; {...ss.nodeRange}
   set: (v) -&gt;
     ss.nodeRange.tmin = v.tmin
     ss.nodeRange.tmax = v.tmax
     ss.nodeRange.n = v.n
-    if v.n &lt; ss.range.i
+    if v.n &lt; ss.nodeRange.i
       ss.nodeRange.i = v.n
     v.i = ss.nodeRange.i
     docdispatch EVENTS.NODE_RANGE_CHANGED, v
@@ -1947,6 +1948,15 @@ rpartition = (s, sep) -&gt;
 of its current state, server calculates delta between the previous version of snapshot and
 the current one, and stores delta in a database. Server also serves a small web application
 which allows user to browse history of known Leo files.
+
+## Installation
+
+If you already have installed `cargo` and `rustc`, it is enaugh to execute the following
+command:
+
+```
+cargo install leo-ver-serv
+```
 
 It requires one or two arguments. The first one is a file containing known Leo files, and
 the second argument optionally is a port number on which server should listen.

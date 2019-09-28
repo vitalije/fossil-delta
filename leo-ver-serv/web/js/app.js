@@ -130,7 +130,7 @@
           ss.nodeRange.tmin = v.tmin;
           ss.nodeRange.tmax = v.tmax;
           ss.nodeRange.n = v.n;
-          if (v.n < ss.range.i) {
+          if (v.n < ss.nodeRange.i) {
             ss.nodeRange.i = v.n;
           }
           v.i = ss.nodeRange.i;
