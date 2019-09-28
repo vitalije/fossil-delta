@@ -15,6 +15,37 @@ use serde::{Serialize};
 use std::{env};
 use std::io::{Read};
 use std::fs::File;
+type ConMap = HashMap<String, db::Connection>;
+
+struct AppState {
+  m: RefCell<ConMap>,
+  valid_names: String,
+}
+impl AppState {
+  fn new() -> Self {
+    let mut args = env::args();
+    let valid_names = load_valid_names(&args.nth(1).unwrap());
+    AppState {
+      m:RefCell::new(HashMap::new()),
+      valid_names
+    }
+  }
+}
+fn load_file(fname:&str) -> std::io::Result<String> {
+  let mut content = String::new();
+  let mut file = File::open(fname)?;
+  file.read_to_string(&mut content)?;
+  Ok(content)
+}
+fn load_valid_names(fname:&str) -> String {
+  match load_file(fname) {
+    Ok(s) => s,
+    Err(e) => {
+      println!("Can't load valid file names: {:?}", e);
+      String::new()
+    }
+  }
+}
 #[cfg(debug_assertions)]
 fn st_file(req: HttpRequest) -> Result<NamedFile> {
   let path: PathBuf = req.match_info().query("filename").parse().unwrap();
@@ -190,37 +221,6 @@ fn favicon() -> impl Responder {
 fn get_leo_files(data:web::Data<AppState>) -> String {
   data.valid_names.clone()
 }
-type ConMap = HashMap<String, db::Connection>;
-
-struct AppState {
-  m: RefCell<ConMap>,
-  valid_names: String,
-}
-impl AppState {
-  fn new() -> Self {
-    let mut args = env::args();
-    let valid_names = load_valid_names(&args.nth(1).unwrap());
-    AppState {
-      m:RefCell::new(HashMap::new()),
-      valid_names
-    }
-  }
-}
-fn load_file(fname:&str) -> std::io::Result<String> {
-  let mut content = String::new();
-  let mut file = File::open(fname)?;
-  file.read_to_string(&mut content)?;
-  Ok(content)
-}
-fn load_valid_names(fname:&str) -> String {
-  match load_file(fname) {
-    Ok(s) => s,
-    Err(e) => {
-      println!("Can't load valid file names: {:?}", e);
-      String::new()
-    }
-  }
-}
 fn main() {
   let mut args = env::args();
   if args.len() < 2 {
@@ -230,6 +230,7 @@ fn main() {
     HttpServer::new(|| {
       App::new()
         .data(AppState::new())
+        .data(web::PayloadConfig::new(1 << 25))
         .route("/", web::get().to(index))
         .route("/public/{filename:.*}", web::get().to(st_file))
         .route("/favicon.ico", web::get().to(favicon))

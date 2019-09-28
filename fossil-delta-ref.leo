@@ -121,6 +121,9 @@
 </v>
 </v>
 <v t="vitalije.20190709160748.1"><vh>@clean leo-ver-serv/src/main.rs</vh>
+<v t="vitalije.20190928170916.1"><vh>AppState</vh></v>
+<v t="vitalije.20190928170928.1"><vh>load_file</vh></v>
+<v t="vitalije.20190928170932.1"><vh>load_valid_names</vh></v>
 <v t="vitalije.20190720151032.1"><vh>st_file</vh></v>
 <v t="vitalije.20190722072026.1"><vh>ensure_connection</vh>
 <v t="vitalije.20190722071704.1"><vh>dbname</vh></v>
@@ -827,37 +830,6 @@ use std::{env};
 use std::io::{Read};
 use std::fs::File;
 @others
-type ConMap = HashMap&lt;String, db::Connection&gt;;
-
-struct AppState {
-  m: RefCell&lt;ConMap&gt;,
-  valid_names: String,
-}
-impl AppState {
-  fn new() -&gt; Self {
-    let mut args = env::args();
-    let valid_names = load_valid_names(&amp;args.nth(1).unwrap());
-    AppState {
-      m:RefCell::new(HashMap::new()),
-      valid_names
-    }
-  }
-}
-fn load_file(fname:&amp;str) -&gt; std::io::Result&lt;String&gt; {
-  let mut content = String::new();
-  let mut file = File::open(fname)?;
-  file.read_to_string(&amp;mut content)?;
-  Ok(content)
-}
-fn load_valid_names(fname:&amp;str) -&gt; String {
-  match load_file(fname) {
-    Ok(s) =&gt; s,
-    Err(e) =&gt; {
-      println!("Can't load valid file names: {:?}", e);
-      String::new()
-    }
-  }
-}
 fn main() {
   let mut args = env::args();
   if args.len() &lt; 2 {
@@ -867,6 +839,7 @@ fn main() {
     HttpServer::new(|| {
       App::new()
         .data(AppState::new())
+        .data(web::PayloadConfig::new(1 &lt;&lt; 25))
         .route("/", web::get().to(index))
         .route("/public/{filename:.*}", web::get().to(st_file))
         .route("/favicon.ico", web::get().to(favicon))
@@ -888,7 +861,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
@@ -2077,5 +2050,36 @@ fn test_bug_002(){
     _visible_nodes._ver++
     appstate.currentIndex = Math.min(appstate.currentIndex, visible_nodes().length - 1)
     appstate.rev = 0</t>
+<t tx="vitalije.20190928170916.1">type ConMap = HashMap&lt;String, db::Connection&gt;;
+
+struct AppState {
+  m: RefCell&lt;ConMap&gt;,
+  valid_names: String,
+}
+impl AppState {
+  fn new() -&gt; Self {
+    let mut args = env::args();
+    let valid_names = load_valid_names(&amp;args.nth(1).unwrap());
+    AppState {
+      m:RefCell::new(HashMap::new()),
+      valid_names
+    }
+  }
+}</t>
+<t tx="vitalije.20190928170928.1">fn load_file(fname:&amp;str) -&gt; std::io::Result&lt;String&gt; {
+  let mut content = String::new();
+  let mut file = File::open(fname)?;
+  file.read_to_string(&amp;mut content)?;
+  Ok(content)
+}</t>
+<t tx="vitalije.20190928170932.1">fn load_valid_names(fname:&amp;str) -&gt; String {
+  match load_file(fname) {
+    Ok(s) =&gt; s,
+    Err(e) =&gt; {
+      println!("Can't load valid file names: {:?}", e);
+      String::new()
+    }
+  }
+}</t>
 </tnodes>
 </leo_file>
