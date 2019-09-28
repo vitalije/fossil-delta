@@ -105,6 +105,11 @@
 <v t="vitalije.20190729171345.1"><vh>get_body_rev</vh></v>
 <v t="vitalije.20190729172726.1"><vh>connect_outline_revisions</vh></v>
 <v t="vitalije.20190729172738.1"><vh>connect_node_revisions</vh></v>
+<v t="vitalije.20190928104916.1"><vh>connect_tree</vh></v>
+<v t="vitalije.20190928151539.1"><vh>select_leo_file</vh></v>
+<v t="vitalije.20190928151310.1"><vh>update_leo_files</vh></v>
+<v t="vitalije.20190928112512.1"><vh>connect_file_selection</vh></v>
+<v t="vitalije.20190928151405.1"><vh>install_editor</vh></v>
 <v t="vitalije.20190722172447.1"><vh>start_app</vh></v>
 </v>
 <v t="vitalije.20190722085839.1"><vh>@bulma css/app.css</vh>
@@ -122,7 +127,6 @@
 <v t="vitalije.20190722071708.1"><vh>make_connection</vh></v>
 </v>
 <v t="vitalije.20190720152015.1"><vh>post_snapshot</vh></v>
-<v t="vitalije.20190729152204.1"><vh>post_init</vh></v>
 <v t="vitalije.20190722080218.1"><vh>post_node_at</vh></v>
 <v t="vitalije.20190722080236.1"><vh>post_node_rev</vh></v>
 <v t="vitalije.20190722081531.1"><vh>post_snapshot_rev</vh></v>
@@ -144,7 +148,6 @@
 <v t="vitalije.20190721203545.1"><vh>get_node_rev_count</vh></v>
 <v t="vitalije.20190721154013.1"><vh>connect</vh></v>
 <v t="vitalije.20190721154022.1"><vh>create_tables</vh></v>
-<v t="vitalije.20190729151722.1"><vh>init</vh></v>
 </v>
 <v t="vitalije.20190709160800.1"><vh>@clean leo-ver-serv/Cargo.toml</vh></v>
 <v t="vitalije.20190730145718.1"><vh>@clean leo-ver-serv/README.md</vh></v>
@@ -808,7 +811,7 @@ True
 @tabwidth -2
 #[path="db-sqlite.rs"]
 mod db;
-use actix_web::{web, App, HttpResponse, HttpRequest, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpRequest, HttpServer, Responder, http::StatusCode};
 #[cfg(debug_assertions)]
 use actix_web::Result;
 #[cfg(debug_assertions)]
@@ -858,7 +861,7 @@ fn load_valid_names(fname:&amp;str) -&gt; String {
 fn main() {
   let mut args = env::args();
   if args.len() &lt; 2 {
-    println!("Usage:  ver-serv &lt;valid-filenames&gt; &lt;port&gt;");
+    println!("Usage:  leo-ver-serv &lt;valid-filenames&gt; &lt;port&gt;");
   } else {
     let port = args.nth(2).unwrap_or(String::from("8088"));
     HttpServer::new(|| {
@@ -874,7 +877,6 @@ fn main() {
         .route("/node-rev-count", web::post().to(post_node_rev_count))
         .route("/snapshot-rev", web::post().to(post_snapshot_rev))
         .route("/leo-files", web::get().to(get_leo_files))
-        .route("/init", web::post().to(post_init))
     })
     .
     bind(format!("127.0.0.1:{}", port))
@@ -886,7 +888,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
@@ -1057,6 +1059,9 @@ fn st_file(req: HttpRequest) -&gt; impl Responder {
   let ok = ok &amp;&amp; NaiveDateTime::parse_from_str(t, "%Y-%m-%dT%H:%M:%S%.f").is_ok();
   let ok = ok &amp;&amp; {
     let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+      return "Unknwon file";
+    }
     ensure_connection(&amp;mut hmap, fname);
     let ok = match db::add_snapshot(hmap.get_mut(fname).unwrap(), t, snapdata) {
       Ok(a) =&gt; a,
@@ -1069,7 +1074,10 @@ fn st_file(req: HttpRequest) -&gt; impl Responder {
 }
 </t>
 <t tx="vitalije.20190720152022.1">fn index() -&gt; impl Responder {
-  HttpResponse::Ok().body("Hello world!")
+  HttpResponse::Ok()
+  .status(StatusCode::MOVED_PERMANENTLY)
+  .set_header("Location", "/public/index.html")
+  .finish()
 }</t>
 <t tx="vitalije.20190720152025.1">static FICON:&amp;[u8] = include_bytes!("../favicon.ico");
 fn favicon() -&gt; impl Responder {
@@ -1194,12 +1202,14 @@ fn favicon() -&gt; impl Responder {
 }
 </t>
 <t tx="vitalije.20190721203545.1">pub fn get_node_rev_count(conn:&amp;Connection, gnx:&amp;str) -&gt; Result&lt;(String, String, u32)&gt; {
-  let mut stmt = conn.prepare("select min(t), max(t), count(t) from changes where gnx=?")?;
+  let mut stmt = conn.prepare("select Coalesce(min(t), strftime('now')), 
+                                      Coalesce(max(t), strftime('now')),
+                                      count(t) from changes where gnx=?")?;
   let mut rows = stmt.query(params![gnx])?;
   if let Some(row) = rows.next()? {
+    let n:u32 = row.get(2)?;
     let t1:String = row.get(0)?;
     let t2:String = row.get(1)?;
-    let n:u32 = row.get(2)?;
     Ok((t1, t2, n))
   } else {
     Ok((String::new(), String::new(), 0))
@@ -1319,15 +1329,15 @@ fn favicon() -&gt; impl Responder {
 <t tx="vitalije.20190722080218.1">fn post_node_at(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
   let (fname, _, rest) = partition(&amp;text, "\n");
   let (gnx, _, tstamp) = partition(rest, " ");
-  let mut hmap = data.m.borrow_mut();
 
+  let mut hmap = data.m.borrow_mut();
   if data.valid_names.lines().all(|x| x != fname) {
-    println!("Unknown file:[{}]", fname);
     return HttpResponse::NotFound()
       .header("x-err", format!("Unknown file:[{}]", fname))
       .finish();
   }
   ensure_connection(&amp;mut hmap, fname);
+
   match db::get_node_at(hmap.get_mut(fname).unwrap(), gnx, tstamp) {
     Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
     Err(e) =&gt; {
@@ -1568,6 +1578,8 @@ html
         span#nrev latest
         | ]:
       input#node-revs(type="range", min="0", max="100", value="100")
+      label Leo file:
+      select#leo-files
     .app-flex
       canvas#tree
       #app
@@ -1666,7 +1678,12 @@ window._state = appstate</t>
   get: -&gt; ss.leoFiles[ss.fi]
   set: (v) -&gt;
     ss.fi = ss.leoFiles.indexOf(v)
-    docdispatch EVENTS.LEOFILES_CHANGED, v</t>
+    docdispatch EVENTS.LEO_FILE_SELECTED, v
+currentFileIndex:
+  get: -&gt; ss.fi
+  set: (v) -&gt;
+    ss.fi = v
+    docdispatch EVENTS.LEO_FILE_SELECTED, ss.leoFiles[v]</t>
 <t tx="vitalije.20190722124355.1">range:
   get: -&gt; {...ss.range}
   set: (v) -&gt;
@@ -1693,14 +1710,14 @@ nodeRange:
 }</t>
 <t tx="vitalije.20190722130051.1">EVENTS =
   GNX_SELECTED: 'gnxselected'
+  LEO_FILE_SELECTED: 'leofileselected'
   LEOFILES_CHANGED: 'leofileschanged'
   NODE_RANGE_CHANGED: 'noderangechanged'
   NODE_REV_CHANGED: 'noderevchanged'
   OUTLINE_CHANGED: 'outlinechanged'
   RANGE_CHANGED: 'rangechanged'
   REV_CHANGED: 'revchanged'
-  TOPINDEX_CHANGED: 'topindexchanged'
-</t>
+  TOPINDEX_CHANGED: 'topindexchanged'</t>
 <t tx="vitalije.20190722130334.1">docdispatch = (kind, data) -&gt;
   e = new CustomEvent(kind, detail: data)
   document.dispatchEvent e
@@ -1753,7 +1770,8 @@ nodeRev:
   get: -&gt; ss.currentIndex
   set: (v) -&gt;
     ss.currentIndex = v
-    docdispatch EVENTS.GNX_SELECTED, ss.outline[v]?.gnx
+    gnx = ss.outline[v]?.gnx
+    docdispatch EVENTS.GNX_SELECTED, gnx if gnx
 
 </t>
 <t tx="vitalije.20190722135552.1">drawTree = -&gt;
@@ -1870,72 +1888,15 @@ visible_nodes = -&gt;
 <t tx="vitalije.20190722172447.1">start_app = -&gt;
   h = window.innerHeight - $el('toolbar').getBoundingClientRect().height
   $q('.app-flex').style.height = "#{h}px"
-  window._cm = CodeMirror.fromTextArea $el('body'),
-    lineNumbers: true
-    theme: 'abcdef'
-  canv = $el('tree')
-  canv.height = h
-  canv.width = 400
-  ctx = canv.getContext('2d')
-  ctx.fillStyle = '#336699'
-  ctx.fillRect(0, 0, 400, h)
-  console.log 'started'
-  get_leo_files().then -&gt;
-    get_rev_count('__outline__')
-    document.addEventListener EVENTS.GNX_SELECTED, get_body
-  Kefir.fromEvents(canv, 'mousedown').onValue (e) -&gt;
-    HR = 24
-    r = canv.getBoundingClientRect()
-    x = e.x - r.left
-    y = e.y - r.top
-    vnodes = visible_nodes().slice(appstate.topIndex)
-    vn = vnodes[Math.floor(y / HR)]
-    if x &lt; vn.x and vn.pref
-      node = appstate.outline[vn.i]
-      node.exp = not node.exp
-      _visible_nodes._ver++
-    appstate.currentIndex = vn.i
+  install_editor()
+  connect_file_selection()
+  connect_tree(h)
   connect_outline_revisions()
   connect_node_revisions()
-  document.addEventListener EVENTS.OUTLINE_CHANGED, drawTree
-  document.addEventListener EVENTS.TOPINDEX_CHANGED, drawTree
-  document.addEventListener EVENTS.TOPINDEX_CHANGED, drawTree
-  document.addEventListener EVENTS.GNX_SELECTED, drawTree
-  document.addEventListener EVENTS.REV_CHANGED, (ev) -&gt; get_outline_rev(ev.detail)
-  document.addEventListener EVENTS.NODE_REV_CHANGED, (ev) -&gt;
-    gnx = appstate.currentGnx
-    get_body_rev(gnx, ev.detail)
+  get_leo_files().then -&gt;
+    get_rev_count('__outline__')
   wait(20).then -&gt;
-    appstate.rev = 0</t>
-<t tx="vitalije.20190729151722.1">pub fn init(conn:&amp;mut Connection) -&gt; Result&lt;bool&gt; {
-  conn.execute_batch("delete from changes;delete from present;")?;
-  let tx = conn.transaction()?;
-  let mut ss = Vec::new();
-  {
-    let mut stmt = tx.prepare("select t, data from snapshots")?;
-    let mut rows = stmt.query(NO_PARAMS)?;
-    while let Some(row) = rows.next()? {
-      let t:String = row.get(0)?;
-      let d:String = row.get(1)?;
-      ss.push((t, d));
-    }
-  }
-  for (t, d) in ss {
-    process_snapshot(&amp;tx, &amp;t, &amp;d)?;
-  }
-  tx.commit()?;
-  Ok(true)
-}</t>
-<t tx="vitalije.20190729152204.1">fn post_init(data:web::Data&lt;AppState&gt;, fname:String) -&gt; &amp;'static str {
-  let mut hmap = data.m.borrow_mut();
-  ensure_connection(&amp;mut hmap, &amp;fname);
-  let ok = match db::init(hmap.get_mut(&amp;fname).unwrap()) {
-    Ok(a) =&gt; a,
-    Err(e) =&gt; {println!("post_init:{:?}", e); false}
-  };
-  println!("post init {}", fname);
-  if ok {"Ok"} else {"Err"}
-}
+    appstate.rev = 0
 </t>
 <t tx="vitalije.20190729154326.1">wait = (t) -&gt;
   new Promise (res, rej) -&gt;
@@ -1965,7 +1926,10 @@ visible_nodes = -&gt;
     r = e.detail
     orevinp.max = r.n
     orevinp.value = r.n - r.i
-    appstate.rev = r.i</t>
+    appstate.rev = r.i
+
+  document.addEventListener EVENTS.REV_CHANGED, (ev) -&gt; get_outline_rev(ev.detail)
+</t>
 <t tx="vitalije.20190729172738.1">connect_node_revisions = -&gt;
   nrevinp = $el('node-revs')
   nrevspan = $el('nrev')
@@ -1983,7 +1947,12 @@ visible_nodes = -&gt;
     r = e.detail
     nrevinp.max = r.n
     nrevinp.value = r.n - r.i
-    appstate.nodeRev = r.i</t>
+    appstate.nodeRev = r.i
+
+  document.addEventListener EVENTS.NODE_REV_CHANGED, (ev) -&gt;
+    gnx = appstate.currentGnx
+    get_body_rev(gnx, ev.detail)
+</t>
 <t tx="vitalije.20190729173243.1">currentGnx:
   get: -&gt;
     i = ss.currentIndex
@@ -1993,7 +1962,12 @@ visible_nodes = -&gt;
   if i &lt; 0
     return [s, '', '']
   [s.slice(0, i), sep, s.slice(i + sep.length)]
-</t>
+
+rpartition = (s, sep) -&gt;
+  i = s.lastIndexOf(sep)
+  if i &lt; 0
+    return [s, '', '']
+  [s.slice(0, i), sep, s.slice(i + sep.length)]</t>
 <t tx="vitalije.20190730145718.1"># Leo version server
 
 `leo-ver-serv` is a web server which accepts POST requests from Leo. Leo sends snapshots
@@ -2040,5 +2014,68 @@ fn test_bug_002(){
   d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
   assert_eq!(d, d1);
 }</t>
+<t tx="vitalije.20190928104916.1">connect_tree = (h) -&gt;
+  canv = $el('tree')
+  canv.height = h
+  canv.width = 400
+  ctx = canv.getContext('2d')
+  ctx.fillStyle = '#336699'
+  ctx.fillRect(0, 0, 400, h)
+  Kefir.fromEvents(canv, 'mousedown').onValue (e) -&gt;
+    HR = 24
+    r = canv.getBoundingClientRect()
+    x = e.x - r.left
+    y = e.y - r.top
+    vnodes = visible_nodes().slice(appstate.topIndex)
+    vn = vnodes[Math.floor(y / HR)]
+    return unless vn
+    if x &lt; vn.x and vn.pref
+      node = appstate.outline[vn.i]
+      node.exp = not node.exp
+      _visible_nodes._ver++
+    appstate.currentIndex = vn.i
+
+  document.addEventListener EVENTS.OUTLINE_CHANGED, drawTree
+  document.addEventListener EVENTS.TOPINDEX_CHANGED, drawTree
+  document.addEventListener EVENTS.TOPINDEX_CHANGED, drawTree
+  document.addEventListener EVENTS.GNX_SELECTED, drawTree
+  document.addEventListener EVENTS.GNX_SELECTED, get_body
+
+</t>
+<t tx="vitalije.20190928112512.1">connect_file_selection = -&gt;
+  s = $el('leo-files')
+  Kefir.fromEvents(s, 'change').onValue -&gt;
+    appstate.currentFileIndex = s.selectedIndex
+  document.addEventListener EVENTS.LEO_FILE_SELECTED, select_leo_file
+  document.addEventListener EVENTS.LEOFILES_CHANGED, update_leo_files
+</t>
+<t tx="vitalije.20190928151310.1">update_leo_files = -&gt;
+  s = $el('leo-files')
+  mkopt = (f, i) -&gt;
+    x = document.createElement('option')
+    x.value = i
+    x.innerText = rpartition(f, '/')[2]
+    x
+  lfs = appstate.leoFiles
+  lfs.forEach (f, i) -&gt;
+    if i &gt;= s.options.length
+      s.options.add(mkopt(f, i))
+    else
+      s.options[i].value = i
+      s.options[i].innerText = rpartition(f, '/')[2]
+  while s.options.length &gt; lfs.length
+    s.options.remove(lfs.length)</t>
+<t tx="vitalije.20190928151405.1">install_editor = -&gt;
+  window._cm = CodeMirror.fromTextArea $el('body'),
+    lineNumbers: true
+    theme: 'abcdef'</t>
+<t tx="vitalije.20190928151539.1">select_leo_file = -&gt;
+  console.log appstate.currentFile, 'selected'
+  return unless appstate.currentFile
+  get_rev_count('__outline__')
+  .then -&gt;
+    _visible_nodes._ver++
+    appstate.currentIndex = Math.min(appstate.currentIndex, visible_nodes().length - 1)
+    appstate.rev = 0</t>
 </tnodes>
 </leo_file>

@@ -1,5 +1,5 @@
 (function() {
-  var $el, $q, $qall, EVENTS, _visible_nodes, appstate, connect_node_revisions, connect_outline_revisions, docdispatch, drawTree, eldispatch, get_body, get_body_rev, get_leo_files, get_outline_rev, get_rev_count, partition, set_outline, start_app, visible_nodes, wait;
+  var $el, $q, $qall, EVENTS, _visible_nodes, appstate, connect_file_selection, connect_node_revisions, connect_outline_revisions, connect_tree, docdispatch, drawTree, eldispatch, get_body, get_body_rev, get_leo_files, get_outline_rev, get_rev_count, install_editor, partition, rpartition, select_leo_file, set_outline, start_app, update_leo_files, visible_nodes, wait;
 
   $el = function(_id) {
     return document.getElementById(_id);
@@ -28,8 +28,18 @@
     return [s.slice(0, i), sep, s.slice(i + sep.length)];
   };
 
+  rpartition = function(s, sep) {
+    var i;
+    i = s.lastIndexOf(sep);
+    if (i < 0) {
+      return [s, '', ''];
+    }
+    return [s.slice(0, i), sep, s.slice(i + sep.length)];
+  };
+
   EVENTS = {
     GNX_SELECTED: 'gnxselected',
+    LEO_FILE_SELECTED: 'leofileselected',
     LEOFILES_CHANGED: 'leofileschanged',
     NODE_RANGE_CHANGED: 'noderangechanged',
     NODE_REV_CHANGED: 'noderevchanged',
@@ -82,9 +92,12 @@
           return ss.currentIndex;
         },
         set: function(v) {
-          var ref;
+          var gnx, ref;
           ss.currentIndex = v;
-          return docdispatch(EVENTS.GNX_SELECTED, (ref = ss.outline[v]) != null ? ref.gnx : void 0);
+          gnx = (ref = ss.outline[v]) != null ? ref.gnx : void 0;
+          if (gnx) {
+            return docdispatch(EVENTS.GNX_SELECTED, gnx);
+          }
         }
       },
       currentGnx: {
@@ -178,7 +191,16 @@
         },
         set: function(v) {
           ss.fi = ss.leoFiles.indexOf(v);
-          return docdispatch(EVENTS.LEOFILES_CHANGED, v);
+          return docdispatch(EVENTS.LEO_FILE_SELECTED, v);
+        }
+      },
+      currentFileIndex: {
+        get: function() {
+          return ss.fi;
+        },
+        set: function(v) {
+          ss.fi = v;
+          return docdispatch(EVENTS.LEO_FILE_SELECTED, ss.leoFiles[v]);
         }
       },
       topNode: {
@@ -399,12 +421,15 @@
       i = n - v;
       return appstate.rev = i;
     });
-    return document.addEventListener(EVENTS.RANGE_CHANGED, function(e) {
+    document.addEventListener(EVENTS.RANGE_CHANGED, function(e) {
       var r;
       r = e.detail;
       orevinp.max = r.n;
       orevinp.value = r.n - r.i;
       return appstate.rev = r.i;
+    });
+    return document.addEventListener(EVENTS.REV_CHANGED, function(ev) {
+      return get_outline_rev(ev.detail);
     });
   };
 
@@ -425,34 +450,28 @@
       i = n - v;
       return appstate.nodeRev = i;
     });
-    return document.addEventListener(EVENTS.NODE_RANGE_CHANGED, function(e) {
+    document.addEventListener(EVENTS.NODE_RANGE_CHANGED, function(e) {
       var r;
       r = e.detail;
       nrevinp.max = r.n;
       nrevinp.value = r.n - r.i;
       return appstate.nodeRev = r.i;
     });
+    return document.addEventListener(EVENTS.NODE_REV_CHANGED, function(ev) {
+      var gnx;
+      gnx = appstate.currentGnx;
+      return get_body_rev(gnx, ev.detail);
+    });
   };
 
-  start_app = function() {
-    var canv, ctx, h;
-    h = window.innerHeight - $el('toolbar').getBoundingClientRect().height;
-    $q('.app-flex').style.height = `${h}px`;
-    window._cm = CodeMirror.fromTextArea($el('body'), {
-      lineNumbers: true,
-      theme: 'abcdef'
-    });
+  connect_tree = function(h) {
+    var canv, ctx;
     canv = $el('tree');
     canv.height = h;
     canv.width = 400;
     ctx = canv.getContext('2d');
     ctx.fillStyle = '#336699';
     ctx.fillRect(0, 0, 400, h);
-    console.log('started');
-    get_leo_files().then(function() {
-      get_rev_count('__outline__');
-      return document.addEventListener(EVENTS.GNX_SELECTED, get_body);
-    });
     Kefir.fromEvents(canv, 'mousedown').onValue(function(e) {
       var HR, node, r, vn, vnodes, x, y;
       HR = 24;
@@ -461,6 +480,9 @@
       y = e.y - r.top;
       vnodes = visible_nodes().slice(appstate.topIndex);
       vn = vnodes[Math.floor(y / HR)];
+      if (!vn) {
+        return;
+      }
       if (x < vn.x && vn.pref) {
         node = appstate.outline[vn.i];
         node.exp = !node.exp;
@@ -468,19 +490,79 @@
       }
       return appstate.currentIndex = vn.i;
     });
-    connect_outline_revisions();
-    connect_node_revisions();
     document.addEventListener(EVENTS.OUTLINE_CHANGED, drawTree);
     document.addEventListener(EVENTS.TOPINDEX_CHANGED, drawTree);
     document.addEventListener(EVENTS.TOPINDEX_CHANGED, drawTree);
     document.addEventListener(EVENTS.GNX_SELECTED, drawTree);
-    document.addEventListener(EVENTS.REV_CHANGED, function(ev) {
-      return get_outline_rev(ev.detail);
+    return document.addEventListener(EVENTS.GNX_SELECTED, get_body);
+  };
+
+  select_leo_file = function() {
+    console.log(appstate.currentFile, 'selected');
+    if (!appstate.currentFile) {
+      return;
+    }
+    return get_rev_count('__outline__').then(function() {
+      _visible_nodes._ver++;
+      appstate.currentIndex = Math.min(appstate.currentIndex, visible_nodes().length - 1);
+      return appstate.rev = 0;
     });
-    document.addEventListener(EVENTS.NODE_REV_CHANGED, function(ev) {
-      var gnx;
-      gnx = appstate.currentGnx;
-      return get_body_rev(gnx, ev.detail);
+  };
+
+  update_leo_files = function() {
+    var lfs, mkopt, results, s;
+    s = $el('leo-files');
+    mkopt = function(f, i) {
+      var x;
+      x = document.createElement('option');
+      x.value = i;
+      x.innerText = rpartition(f, '/')[2];
+      return x;
+    };
+    lfs = appstate.leoFiles;
+    lfs.forEach(function(f, i) {
+      if (i >= s.options.length) {
+        return s.options.add(mkopt(f, i));
+      } else {
+        s.options[i].value = i;
+        return s.options[i].innerText = rpartition(f, '/')[2];
+      }
+    });
+    results = [];
+    while (s.options.length > lfs.length) {
+      results.push(s.options.remove(lfs.length));
+    }
+    return results;
+  };
+
+  connect_file_selection = function() {
+    var s;
+    s = $el('leo-files');
+    Kefir.fromEvents(s, 'change').onValue(function() {
+      return appstate.currentFileIndex = s.selectedIndex;
+    });
+    document.addEventListener(EVENTS.LEO_FILE_SELECTED, select_leo_file);
+    return document.addEventListener(EVENTS.LEOFILES_CHANGED, update_leo_files);
+  };
+
+  install_editor = function() {
+    return window._cm = CodeMirror.fromTextArea($el('body'), {
+      lineNumbers: true,
+      theme: 'abcdef'
+    });
+  };
+
+  start_app = function() {
+    var h;
+    h = window.innerHeight - $el('toolbar').getBoundingClientRect().height;
+    $q('.app-flex').style.height = `${h}px`;
+    install_editor();
+    connect_file_selection();
+    connect_tree(h);
+    connect_outline_revisions();
+    connect_node_revisions();
+    get_leo_files().then(function() {
+      return get_rev_count('__outline__');
     });
     return wait(20).then(function() {
       return appstate.rev = 0;

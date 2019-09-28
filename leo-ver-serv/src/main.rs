@@ -1,6 +1,6 @@
 #[path="db-sqlite.rs"]
 mod db;
-use actix_web::{web, App, HttpResponse, HttpRequest, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpRequest, HttpServer, Responder, http::StatusCode};
 #[cfg(debug_assertions)]
 use actix_web::Result;
 #[cfg(debug_assertions)]
@@ -65,6 +65,9 @@ fn post_snapshot(data:web::Data<AppState>, text:String) -> &'static str {
   let ok = ok && NaiveDateTime::parse_from_str(t, "%Y-%m-%dT%H:%M:%S%.f").is_ok();
   let ok = ok && {
     let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+      return "Unknwon file";
+    }
     ensure_connection(&mut hmap, fname);
     let ok = match db::add_snapshot(hmap.get_mut(fname).unwrap(), t, snapdata) {
       Ok(a) => a,
@@ -75,28 +78,18 @@ fn post_snapshot(data:web::Data<AppState>, text:String) -> &'static str {
   println!("post snapshot {} bytes at {}", snapdata.len(), t);
   if ok {"Ok"} else {"Err"}
 }
-fn post_init(data:web::Data<AppState>, fname:String) -> &'static str {
-  let mut hmap = data.m.borrow_mut();
-  ensure_connection(&mut hmap, &fname);
-  let ok = match db::init(hmap.get_mut(&fname).unwrap()) {
-    Ok(a) => a,
-    Err(e) => {println!("post_init:{:?}", e); false}
-  };
-  println!("post init {}", fname);
-  if ok {"Ok"} else {"Err"}
-}
 fn post_node_at(data:web::Data<AppState>, text:String) -> HttpResponse {
   let (fname, _, rest) = partition(&text, "\n");
   let (gnx, _, tstamp) = partition(rest, " ");
-  let mut hmap = data.m.borrow_mut();
 
+  let mut hmap = data.m.borrow_mut();
   if data.valid_names.lines().all(|x| x != fname) {
-    println!("Unknown file:[{}]", fname);
     return HttpResponse::NotFound()
       .header("x-err", format!("Unknown file:[{}]", fname))
       .finish();
   }
   ensure_connection(&mut hmap, fname);
+
   match db::get_node_at(hmap.get_mut(fname).unwrap(), gnx, tstamp) {
     Ok(s) => HttpResponse::Ok().content_type("text/plain").body(s),
     Err(e) => {
@@ -185,7 +178,10 @@ fn post_snapshot_at(data:web::Data<AppState>, text:String) -> HttpResponse {
   }
 }
 fn index() -> impl Responder {
-  HttpResponse::Ok().body("Hello world!")
+  HttpResponse::Ok()
+  .status(StatusCode::MOVED_PERMANENTLY)
+  .set_header("Location", "/public/index.html")
+  .finish()
 }
 static FICON:&[u8] = include_bytes!("../favicon.ico");
 fn favicon() -> impl Responder {
@@ -228,7 +224,7 @@ fn load_valid_names(fname:&str) -> String {
 fn main() {
   let mut args = env::args();
   if args.len() < 2 {
-    println!("Usage:  ver-serv <valid-filenames> <port>");
+    println!("Usage:  leo-ver-serv <valid-filenames> <port>");
   } else {
     let port = args.nth(2).unwrap_or(String::from("8088"));
     HttpServer::new(|| {
@@ -244,7 +240,6 @@ fn main() {
         .route("/node-rev-count", web::post().to(post_node_rev_count))
         .route("/snapshot-rev", web::post().to(post_snapshot_rev))
         .route("/leo-files", web::get().to(get_leo_files))
-        .route("/init", web::post().to(post_init))
     })
     .
     bind(format!("127.0.0.1:{}", port))

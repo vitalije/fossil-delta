@@ -226,12 +226,14 @@ pub fn get_node_revision(conn:&Connection, gnx:&str, num:usize) -> Result<String
   Ok(tstamp)
 }
 pub fn get_node_rev_count(conn:&Connection, gnx:&str) -> Result<(String, String, u32)> {
-  let mut stmt = conn.prepare("select min(t), max(t), count(t) from changes where gnx=?")?;
+  let mut stmt = conn.prepare("select Coalesce(min(t), strftime('now')), 
+                                      Coalesce(max(t), strftime('now')),
+                                      count(t) from changes where gnx=?")?;
   let mut rows = stmt.query(params![gnx])?;
   if let Some(row) = rows.next()? {
+    let n:u32 = row.get(2)?;
     let t1:String = row.get(0)?;
     let t2:String = row.get(1)?;
-    let n:u32 = row.get(2)?;
     Ok((t1, t2, n))
   } else {
     Ok((String::new(), String::new(), 0))
@@ -248,23 +250,4 @@ fn create_tables(conn:&Connection) -> Result<()> {
   conn.execute("create table if not exists changes(t, gnx, d, primary key (t, gnx))", params![])?;
   conn.execute("create index if not exists gnx_changes on changes(gnx)", params![])?;
   Ok(())
-}
-pub fn init(conn:&mut Connection) -> Result<bool> {
-  conn.execute_batch("delete from changes;delete from present;")?;
-  let tx = conn.transaction()?;
-  let mut ss = Vec::new();
-  {
-    let mut stmt = tx.prepare("select t, data from snapshots")?;
-    let mut rows = stmt.query(NO_PARAMS)?;
-    while let Some(row) = rows.next()? {
-      let t:String = row.get(0)?;
-      let d:String = row.get(1)?;
-      ss.push((t, d));
-    }
-  }
-  for (t, d) in ss {
-    process_snapshot(&tx, &t, &d)?;
-  }
-  tx.commit()?;
-  Ok(true)
 }
