@@ -886,7 +886,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
@@ -1019,21 +1019,21 @@ pub fn partition&lt;'a&gt;(input:&amp;'a str, sep:&amp;str) -&gt; (&amp;'a str, 
 <t tx="vitalije.20190720151032.1">#[cfg(debug_assertions)]
 fn st_file(req: HttpRequest) -&gt; Result&lt;NamedFile&gt; {
   let path: PathBuf = req.match_info().query("filename").parse().unwrap();
-  let rpath = PathBuf::from("target/web/").join(path);
+  let rpath = PathBuf::from("leo-ver-serv/web/").join(path);
   let file = NamedFile::open(rpath)?;
   Ok(file.use_last_modified(true).use_etag(true))
 }
 #[cfg(not(debug_assertions))]
-static APPJS:&amp;str = include_str!("../../target/web/js/app.js");
+static APPJS:&amp;str = include_str!("../web/js/app.js");
 
 #[cfg(not(debug_assertions))]
-static VENDORSJS:&amp;str = include_str!("../../target/web/js/vendors.js");
+static VENDORSJS:&amp;str = include_str!("../web/js/vendors.js");
 
 #[cfg(not(debug_assertions))]
-static APPCSS:&amp;str = include_str!("../../target/web/css/app.css");
+static APPCSS:&amp;str = include_str!("../web/css/app.css");
 
 #[cfg(not(debug_assertions))]
-static INDEXHTML:&amp;str = include_str!("../../target/web/index.html");
+static INDEXHTML:&amp;str = include_str!("../web/index.html");
 
 #[cfg(not(debug_assertions))]
 fn st_file(req: HttpRequest) -&gt; impl Responder {
@@ -1475,10 +1475,11 @@ fn post_node_rev_count(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpRe
     c.fileCommands.save_ref()
     c.frame.tree.declutter_update = True</t>
 <t tx="vitalije.20190722085656.1">def ensure_target_web():
-    if os.path.exists('target/web'): return
-    os.makedirs('target/web/js')
-    os.makedirs('target/web/css/img')</t>
-<t tx="vitalije.20190722085734.1">@path target/web
+    if os.path.exists('leo-ver-serv/web'): return
+    os.makedirs('leo-ver-serv/web/js')
+    os.makedirs('leo-ver-serv/web/css/img')
+</t>
+<t tx="vitalije.20190722085734.1">@path leo-ver-serv/web
 g.os.chdir(c.openDirectory)
 g.es(g.os.getcwd())
 for p1 in p.children():
@@ -1490,8 +1491,8 @@ $el = (_id) -&gt; document.getElementById(_id)
 $q = (q) -&gt; document.querySelector(q)
 $qall = (q) -&gt; document.querySelectorAll(q)
 @others
-
 window.addEventListener 'load', start_app
+
 </t>
 <t tx="vitalije.20190722085820.1">kefir-prod
 codemirror-js

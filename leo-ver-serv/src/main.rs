@@ -18,21 +18,21 @@ use std::fs::File;
 #[cfg(debug_assertions)]
 fn st_file(req: HttpRequest) -> Result<NamedFile> {
   let path: PathBuf = req.match_info().query("filename").parse().unwrap();
-  let rpath = PathBuf::from("target/web/").join(path);
+  let rpath = PathBuf::from("leo-ver-serv/web/").join(path);
   let file = NamedFile::open(rpath)?;
   Ok(file.use_last_modified(true).use_etag(true))
 }
 #[cfg(not(debug_assertions))]
-static APPJS:&str = include_str!("../../target/web/js/app.js");
+static APPJS:&str = include_str!("../web/js/app.js");
 
 #[cfg(not(debug_assertions))]
-static VENDORSJS:&str = include_str!("../../target/web/js/vendors.js");
+static VENDORSJS:&str = include_str!("../web/js/vendors.js");
 
 #[cfg(not(debug_assertions))]
-static APPCSS:&str = include_str!("../../target/web/css/app.css");
+static APPCSS:&str = include_str!("../web/css/app.css");
 
 #[cfg(not(debug_assertions))]
-static INDEXHTML:&str = include_str!("../../target/web/index.html");
+static INDEXHTML:&str = include_str!("../web/index.html");
 
 #[cfg(not(debug_assertions))]
 fn st_file(req: HttpRequest) -> impl Responder {
