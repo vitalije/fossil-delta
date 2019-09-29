@@ -331,7 +331,8 @@ mod tests {
     use super::*;
     @others
 &lt;&lt;strings&gt;&gt;
-}</t>
+}
+</t>
 <t tx="vitalije.20190708082017.1">#[test]
 fn b64_works() {
     for i in 0..1000 {
@@ -342,11 +343,7 @@ fn b64_works() {
     }
 }
 </t>
-<t tx="vitalije.20190708083136.1">        }
-    }
-    String::from_utf8(a_res).unwrap()
-}
-const NHASH_1: usize = NHASH - 1;
+<t tx="vitalije.20190708083136.1">const NHASH_1: usize = NHASH - 1;
 const NHASHI32: i32 = NHASH as i32;
 struct Hash {
     a: u16,
@@ -518,7 +515,8 @@ if z_src.len() &lt;= NHASH {
     z_delta.extend_from_slice(b64str(checksum(&amp;z_out)).as_bytes());
     z_delta.push(b';');
     return;
-}</t>
+}
+</t>
 <t tx="vitalije.20190708110328.1">/* Compute the hash table used to locate matching sections in the
  ** source file.
  */
@@ -530,7 +528,8 @@ for i in 0..n_hash {
     let hv = h.as_usize() % n_hash + n_hash;
     collide[i] = collide[hv];
     collide[hv] = i as u32;
-}</t>
+}
+</t>
 <t tx="vitalije.20190708123712.1">let mut base = 0usize;
 while base + NHASH &lt; z_out.len() {
     let mut i = 0;
@@ -584,7 +583,8 @@ while base + NHASH &lt; z_out.len() {
             i += 1;
         }
     }
-}</t>
+}
+</t>
 <t tx="vitalije.20190708130411.1"></t>
 <t tx="vitalije.20190708131459.1">let z_out = z_out_t.as_bytes();
 // match block backward
@@ -603,7 +603,8 @@ let mb_backward = |i, j, n| {
         m -= 1;
     }
     i - k - 1
-};</t>
+};
+</t>
 <t tx="vitalije.20190708131503.1">// match block forward
 let mb_forward = |i, j| {
     let mut k = i + 1;
@@ -620,12 +621,14 @@ let mb_forward = |i, j| {
     } else {
         z_out.len() - j - 1
     }
-};</t>
+};
+</t>
 <t tx="vitalije.20190708134856.1">if base &lt; z_out.len() {
     z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
     z_delta.push(b':');
     z_delta.extend_from_slice(&amp;z_out[base..]);
-}</t>
+}
+</t>
 <t tx="vitalije.20190708135156.1">z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
 z_delta.push(b';');
 </t>
@@ -695,7 +698,10 @@ pub fn deltainv(b_txt: &amp;str, d_txt: &amp;[u8]) -&gt; String {
                 );
                 panic!(msg)
             }
-</t>
+        }
+    }
+    String::from_utf8(a_res).unwrap()
+}</t>
 <t tx="vitalije.20190708190730.1">#[test]
 fn test_deltainv() {
     let old = include_str!("test-data/file-a.txt");
@@ -1217,7 +1223,7 @@ fn favicon() -&gt; impl Responder {
     let mut stmt = conn.prepare(
         "select Coalesce(min(t), strftime('now')), 
               Coalesce(max(t), strftime('now')),
-              count(t) from changes where gnx=?"
+              count(t) from changes where gnx=?",
     )?;
     let mut rows = stmt.query(params![gnx])?;
     if let Some(row) = rows.next()? {
@@ -2020,8 +2026,8 @@ the second argument optionally is a port number on which server should listen.
 leo-ver-serv ~/.leo/.leoRecentFiles.txt 8088
 ```
 </t>
-<t tx="vitalije.20190920125620.1">#[allow(dead_code)]
-static BUG002_A:&amp;str = r#"from student import moja_tajna_funkcija
+<t tx="vitalije.20190920125620.1">    #[allow(dead_code)]
+    static BUG002_A:&amp;str = r#"from student import moja_tajna_funkcija
 
 def check(a, b):
     assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
@@ -2032,8 +2038,8 @@ if __name__ == '__main__':
             check(x, y)
     print("Функција ради коректно")"#;
 
-#[allow(dead_code)]
-static BUG002_B:&amp;str = r#"from student import moja_tajna_funkcija
+    #[allow(dead_code)]
+    static BUG002_B:&amp;str = r#"from student import moja_tajna_funkcija
 
 def check(a, b):
     assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)

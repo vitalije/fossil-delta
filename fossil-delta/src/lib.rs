@@ -520,8 +520,8 @@ mod tests {
         d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
         assert_eq!(d, d1);
     }
-#[allow(dead_code)]
-static BUG002_A:&str = r#"from student import moja_tajna_funkcija
+    #[allow(dead_code)]
+    static BUG002_A:&str = r#"from student import moja_tajna_funkcija
 
 def check(a, b):
     assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
@@ -532,8 +532,8 @@ if __name__ == '__main__':
             check(x, y)
     print("Функција ради коректно")"#;
 
-#[allow(dead_code)]
-static BUG002_B:&str = r#"from student import moja_tajna_funkcija
+    #[allow(dead_code)]
+    static BUG002_B:&str = r#"from student import moja_tajna_funkcija
 
 def check(a, b):
     assert moja_tajna_funkcija(a, b) == a + b, "Функција не даје добар резултат за аргументе: %r и %r"%(a, b)
