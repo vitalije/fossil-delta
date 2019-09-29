@@ -230,7 +230,8 @@ pub fn get_node_rev_count(conn: &Connection, gnx: &str) -> Result<(String, Strin
     let mut stmt = conn.prepare(
         "select Coalesce(min(t), strftime('now')), 
               Coalesce(max(t), strftime('now')),
-              count(t) from changes where gnx=?")?;
+              count(t) from changes where gnx=?"
+    )?;
     let mut rows = stmt.query(params![gnx])?;
     if let Some(row) = rows.next()? {
         let n: u32 = row.get(2)?;

@@ -303,12 +303,12 @@ pub fn b64int_read(a: &amp;[u8]) -&gt; (usize, &amp;[u8]) {
         if k == 255 {
             return (res, &amp;a[j..]);
         }
-</t>
-<t tx="vitalije.20190708080758.2">        res = (res &lt;&lt; 6) + (k as usize);
+        res = (res &lt;&lt; 6) + (k as usize);
     }
     (res, b"")
 }
-const B64DIGITS: [char; 64] = [
+</t>
+<t tx="vitalije.20190708080758.2">const B64DIGITS: [char; 64] = [
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', 'a',
     'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
@@ -329,18 +329,18 @@ const B64VALUES: [u8; 128] = [
 <t tx="vitalije.20190708081957.1">#[cfg(test)]
 mod tests {
     use super::*;
-  @others
+    @others
 &lt;&lt;strings&gt;&gt;
-</t>
-<t tx="vitalije.20190708082017.1">  #[test]
-  fn b64_works() {
-      for i in 0..1000 {
-          let s = b64str(i);
-          let s1 = b64str(i + 0x1_00_0000);
-          assert_eq!(i, b64int(&amp;s));
-          assert_eq!(i, b64int(&amp;s1) - 0x1_00_0000);
-      }
-  }
+}</t>
+<t tx="vitalije.20190708082017.1">#[test]
+fn b64_works() {
+    for i in 0..1000 {
+        let s = b64str(i);
+        let s1 = b64str(i + 0x1_00_0000);
+        assert_eq!(i, b64int(&amp;s));
+        assert_eq!(i, b64int(&amp;s1) - 0x1_00_0000);
+    }
+}
 </t>
 <t tx="vitalije.20190708083136.1">        }
     }
@@ -405,12 +405,10 @@ pub fn digit_count(v: usize) -&gt; usize {
     11
 }
 </t>
-<t tx="vitalije.20190708091311.1">
-/// Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
+<t tx="vitalije.20190708091311.1">/// Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
 /// buffer is not a multiple of 4 bytes length, compute the sum that would
 /// have occurred if the buffer was padded with zeros to the next multiple
 /// of four bytes.
-
 fn checksum(z_in: &amp;[u8]) -&gt; u32 {
     let it = z_in.chunks_exact(4);
     let b = it.remainder();
@@ -502,160 +500,155 @@ pub fn delta_output_size(z_delta: &amp;str) -&gt; usize {
 ) {
     z_delta.clear();
     let z_src = z_src_t.as_bytes();
-  @others
+    @others
 }
 </t>
-<t tx="vitalije.20190708105710.1">      }
-      if z_src.len() - i &lt; z_out.len() - j {
+<t tx="vitalije.20190708105710.1">z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+z_delta.push(b'\n');
+
 </t>
-<t tx="vitalije.20190708105810.1">          z_src.len() - i - 1
-      } else {
-          z_out.len() - j - 1
-      }
-  };
-  z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
-  z_delta.push(b'\n');
-  /* If the source file is very small, it means that we have no
-   ** chance of ever doing a copy command.  Just output a single
-   ** literal segment for the entire target and exit.
-   */
-  if z_src.len() &lt;= NHASH {
-</t>
-<t tx="vitalije.20190708110328.1">      z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
-      z_delta.push(b':');
-      z_delta.extend_from_slice(z_out);
-      z_delta.extend_from_slice(b64str(checksum(&amp;z_out)).as_bytes());
-      z_delta.push(b';');
-      return;
-  }
-  /* Compute the hash table used to locate matching sections in the
-   ** source file.
-   */
-  let n_hash = z_src.len() / NHASH;
-  let mut collide = vec![0xffff_ffff_u32; 2 * n_hash];
-</t>
-<t tx="vitalije.20190708123712.1">  let mut h = Hash::new();
-  for i in 0..n_hash {
-      h.init(&amp;z_src[(NHASH * i)..]);
-      let hv = h.as_usize() % n_hash + n_hash;
-      collide[i] = collide[hv];
-      collide[hv] = i as u32;
-  }
-  let mut base = 0usize;
-  while base + NHASH &lt; z_out.len() {
-      let mut i = 0;
-      h.init(&amp;z_out[base..]);
-      let mut best_count = 0;
-      let mut best_offset = 0;
-      let mut best_lit_size = 0;
-      loop {
-          let hv = h.as_usize() % n_hash;
-          let mut i_block = collide[n_hash + hv];
-          let mut limit = 250;
-          while i_block != 0xffff_ffff &amp;&amp; limit &gt; 0 {
-              limit -= 1;
-              let i_src = (i_block as usize) * NHASH;
-              if z_src[i_src] == z_out[base + i] {
-                  let j = mb_forward(i_src, base + i);
-                  let k = mb_backward(i_src, base + i, base);
-                  let ofst = i_src - k;
-                  let cnt = j + k + 1;
-                  let litsz = i - k;
-                  let sz = digit_count(litsz) + digit_count(cnt) + digit_count(ofst) + 3;
-                  if cnt &gt; sz &amp;&amp; cnt &gt; best_count {
-                      best_count = cnt;
-                      best_offset = ofst;
-                      best_lit_size = litsz;
-                  }
-              }
-              i_block = collide[i_block as usize];
-          }
-          if best_count &gt; 0 {
-              if best_lit_size &gt; 0 {
-                  z_delta.extend_from_slice(b64str(best_lit_size as u32).as_bytes());
-                  z_delta.push(b':');
-                  z_delta.extend_from_slice(&amp;z_out[base..(base + best_lit_size)]);
-                  base += best_lit_size;
-              }
-              base += best_count;
-              z_delta.extend_from_slice(b64str(best_count as u32).as_bytes());
-              z_delta.push(b'@');
-              z_delta.extend_from_slice(b64str(best_offset as u32).as_bytes());
-              z_delta.push(b',');
-              break;
-          } else if base + i + NHASH &gt;= z_out.len() {
-              z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
-              z_delta.push(b':');
-              z_delta.extend_from_slice(&amp;z_out[base..]);
-              base = z_out.len();
-              break;
-          } else {
-              h.update(z_out[base + NHASH + i]);
-              i += 1;
-          }
-      }
-  }
-  if base &lt; z_out.len() {
-      z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
-      z_delta.push(b':');
-      z_delta.extend_from_slice(&amp;z_out[base..]);
-  }
-  z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
-  z_delta.push(b';');
-</t>
+<t tx="vitalije.20190708105810.1">/* If the source file is very small, it means that we have no
+ ** chance of ever doing a copy command.  Just output a single
+ ** literal segment for the entire target and exit.
+ */
+if z_src.len() &lt;= NHASH {
+    z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+    z_delta.push(b':');
+    z_delta.extend_from_slice(z_out);
+    z_delta.extend_from_slice(b64str(checksum(&amp;z_out)).as_bytes());
+    z_delta.push(b';');
+    return;
+}</t>
+<t tx="vitalije.20190708110328.1">/* Compute the hash table used to locate matching sections in the
+ ** source file.
+ */
+let n_hash = z_src.len() / NHASH;
+let mut collide = vec![0xffff_ffff_u32; 2 * n_hash];
+let mut h = Hash::new();
+for i in 0..n_hash {
+    h.init(&amp;z_src[(NHASH * i)..]);
+    let hv = h.as_usize() % n_hash + n_hash;
+    collide[i] = collide[hv];
+    collide[hv] = i as u32;
+}</t>
+<t tx="vitalije.20190708123712.1">let mut base = 0usize;
+while base + NHASH &lt; z_out.len() {
+    let mut i = 0;
+    h.init(&amp;z_out[base..]);
+    let mut best_count = 0;
+    let mut best_offset = 0;
+    let mut best_lit_size = 0;
+    loop {
+        let hv = h.as_usize() % n_hash;
+        let mut i_block = collide[n_hash + hv];
+        let mut limit = 250;
+        while i_block != 0xffff_ffff &amp;&amp; limit &gt; 0 {
+            limit -= 1;
+            let i_src = (i_block as usize) * NHASH;
+            if z_src[i_src] == z_out[base + i] {
+                let j = mb_forward(i_src, base + i);
+                let k = mb_backward(i_src, base + i, base);
+                let ofst = i_src - k;
+                let cnt = j + k + 1;
+                let litsz = i - k;
+                let sz = digit_count(litsz) + digit_count(cnt) + digit_count(ofst) + 3;
+                if cnt &gt; sz &amp;&amp; cnt &gt; best_count {
+                    best_count = cnt;
+                    best_offset = ofst;
+                    best_lit_size = litsz;
+                }
+            }
+            i_block = collide[i_block as usize];
+        }
+        if best_count &gt; 0 {
+            if best_lit_size &gt; 0 {
+                z_delta.extend_from_slice(b64str(best_lit_size as u32).as_bytes());
+                z_delta.push(b':');
+                z_delta.extend_from_slice(&amp;z_out[base..(base + best_lit_size)]);
+                base += best_lit_size;
+            }
+            base += best_count;
+            z_delta.extend_from_slice(b64str(best_count as u32).as_bytes());
+            z_delta.push(b'@');
+            z_delta.extend_from_slice(b64str(best_offset as u32).as_bytes());
+            z_delta.push(b',');
+            break;
+        } else if base + i + NHASH &gt;= z_out.len() {
+            z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+            z_delta.push(b':');
+            z_delta.extend_from_slice(&amp;z_out[base..]);
+            base = z_out.len();
+            break;
+        } else {
+            h.update(z_out[base + NHASH + i]);
+            i += 1;
+        }
+    }
+}</t>
 <t tx="vitalije.20190708130411.1"></t>
-<t tx="vitalije.20190708131459.1">  let z_out = z_out_t.as_bytes();
-  // match block backward
-  let mb_backward = |i, j, n| {
-      if i == 0 || j &lt;= n {
-          return 0;
-      }
-      let mut k = i - 1;
-      let mut m = j - 1;
-      let n_1 = if n == 0 { 0 } else { n - 1 };
-      while k &gt; 0 &amp;&amp; m &gt; n_1 {
-          if z_src[k] != z_out[m] {
-              return i - k - 1;
-          }
+<t tx="vitalije.20190708131459.1">let z_out = z_out_t.as_bytes();
+// match block backward
+let mb_backward = |i, j, n| {
+    if i == 0 || j &lt;= n {
+        return 0;
+    }
+    let mut k = i - 1;
+    let mut m = j - 1;
+    let n_1 = if n == 0 { 0 } else { n - 1 };
+    while k &gt; 0 &amp;&amp; m &gt; n_1 {
+        if z_src[k] != z_out[m] {
+            return i - k - 1;
+        }
+        k -= 1;
+        m -= 1;
+    }
+    i - k - 1
+};</t>
+<t tx="vitalije.20190708131503.1">// match block forward
+let mb_forward = |i, j| {
+    let mut k = i + 1;
+    let mut m = j + 1;
+    while k &lt; z_src.len() &amp;&amp; m &lt; z_out.len() {
+        if z_src[k] != z_out[m] {
+            return k - i - 1;
+        }
+        k += 1;
+        m += 1;
+    }
+    if z_src.len() - i &lt; z_out.len() - j {
+        z_src.len() - i - 1
+    } else {
+        z_out.len() - j - 1
+    }
+};</t>
+<t tx="vitalije.20190708134856.1">if base &lt; z_out.len() {
+    z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+    z_delta.push(b':');
+    z_delta.extend_from_slice(&amp;z_out[base..]);
+}</t>
+<t tx="vitalije.20190708135156.1">z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
+z_delta.push(b';');
 </t>
-<t tx="vitalije.20190708131503.1">          k -= 1;
-          m -= 1;
-      }
-      i - k - 1
-  };
-  // match block forward
-  let mb_forward = |i, j| {
-      let mut k = i + 1;
-      let mut m = j + 1;
-      while k &lt; z_src.len() &amp;&amp; m &lt; z_out.len() {
-          if z_src[k] != z_out[m] {
-              return k - i - 1;
-          }
-          k += 1;
-          m += 1;
+<t tx="vitalije.20190708175831.1">#[test]
+fn delta_gen() {
+    let old = include_str!("test-data/file-a.txt");
+    let cur = include_str!("test-data/file-b.txt");
+    let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
+    let mut d = Vec::new();
+    generate_delta(cur, old, &amp;mut d);
+    assert_eq!(d.as_slice(), d1);
+}
 </t>
-<t tx="vitalije.20190708134856.1"></t>
-<t tx="vitalije.20190708135156.1"></t>
-<t tx="vitalije.20190708175831.1">  #[test]
-  fn delta_gen() {
-      let old = include_str!("test-data/file-a.txt");
-      let cur = include_str!("test-data/file-b.txt");
-      let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
-      let mut d = Vec::new();
-      generate_delta(cur, old, &amp;mut d);
-      assert_eq!(d.as_slice(), d1);
-  }
-</t>
-<t tx="vitalije.20190708175842.1">  #[test]
-  fn test_hash_update() {
-      let mut h = Hash::new();
-      h.init(b"0123456789ABCDEFFEDCBA9876543210");
-      assert_eq!(h.as_usize(), 0x1cbb03a2);
-      let mut h2 = Hash::new();
-      h2.init(b"123456789ABCDEFFEDCBA9876543210");
-      h.update(b'F');
-      assert_eq!(h.as_usize(), h2.as_usize())
-  }
+<t tx="vitalije.20190708175842.1">#[test]
+fn test_hash_update() {
+    let mut h = Hash::new();
+    h.init(b"0123456789ABCDEFFEDCBA9876543210");
+    assert_eq!(h.as_usize(), 0x1cbb03a2);
+    let mut h2 = Hash::new();
+    h2.init(b"123456789ABCDEFFEDCBA9876543210");
+    h.update(b'F');
+    assert_eq!(h.as_usize(), h2.as_usize())
+}
 </t>
 <t tx="vitalije.20190708180426.1">/// Creates delta and returns it as a String
 /// see [`generate_delta`]
@@ -703,14 +696,14 @@ pub fn deltainv(b_txt: &amp;str, d_txt: &amp;[u8]) -&gt; String {
                 panic!(msg)
             }
 </t>
-<t tx="vitalije.20190708190730.1">  #[test]
-  fn test_deltainv() {
-      let old = include_str!("test-data/file-a.txt");
-      let cur = include_str!("test-data/file-b.txt");
-      let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
-      let res = deltainv(cur, d1);
-      assert_eq!(&amp;res[..30], &amp;old[..30]);
-  }
+<t tx="vitalije.20190708190730.1">#[test]
+fn test_deltainv() {
+    let old = include_str!("test-data/file-a.txt");
+    let cur = include_str!("test-data/file-b.txt");
+    let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
+    let res = deltainv(cur, d1);
+    assert_eq!(&amp;res[..30], &amp;old[..30]);
+}
 </t>
 <t tx="vitalije.20190709081959.1"></t>
 <t tx="vitalije.20190709082121.1">[workspace]
@@ -900,84 +893,81 @@ serde_json = "1.0.40"
 [dependencies.rusqlite]
 version = "0.19.0"
 features = ["bundled"]</t>
-<t tx="vitalije.20190709214611.1">  #[test]
-  fn round_trip_test() {
-      let a = r#"line 1
-    yet another (a bit longer) line 2
-    yet another (a bit longer) line 3
-    yet another (a bit longer) line 4
-    yet another (a bit longer) line 5
-    yet another (a bit longer) line 6
-    yet another (a bit longer) line 7
-    yet another (a bit longer) line 8
-    yet another (a bit longer) line 9
-    yet another (a bit longer) line 10"#;
-
-      let b = r#"line 1
-    yet another (a bit longer) line 2
-    yet another (a bit longer) line 3
-    yet another (a bit longer) line 4
-    yet another (a bit longer) line 5
-    yet another (a bit longer) line 6
-    yet another (a bit longer) line 6 1/2
-    yet another (a bit longer) line 7
-    yet another (a bit longer) line 8
-    yet another (a bit longer) line 9
-    and finally last line 10"#;
-
-      let d = delta(a, b);
-      println!("delta:{:?}", &amp;d);
-      let s = deltainv(b, &amp;d);
-      assert_eq!(&amp;s, a);
-      assert_eq!(d.len(), 43);
-  }
+<t tx="vitalije.20190709214611.1">#[test]
+fn round_trip_test() {
+    let a = r#"line 1
+        yet another (a bit longer) line 2
+        yet another (a bit longer) line 3
+        yet another (a bit longer) line 4
+        yet another (a bit longer) line 5
+        yet another (a bit longer) line 6
+        yet another (a bit longer) line 7
+        yet another (a bit longer) line 8
+        yet another (a bit longer) line 9
+        yet another (a bit longer) line 10"#;
+    let b = r#"line 1
+        yet another (a bit longer) line 2
+        yet another (a bit longer) line 3
+        yet another (a bit longer) line 4
+        yet another (a bit longer) line 5
+        yet another (a bit longer) line 6
+        yet another (a bit longer) line 6 1/2
+        yet another (a bit longer) line 7
+        yet another (a bit longer) line 8
+        yet another (a bit longer) line 9
+        and finally last line 10"#;
+    let d = delta(a, b);
+    println!("delta:{:?}", &amp;d);
+    let s = deltainv(b, &amp;d);
+    assert_eq!(&amp;s, a);
+    assert_eq!(d.len(), 43);
+}
 </t>
-<t tx="vitalije.20190709214622.1">  #[test]
-  fn round_trip_test2() {
-      let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
-      let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
-      println!(
-          "a.len={}, b.len={}, b64={}",
-          a.len(),
-          b.len(),
-          &amp;b64str(a.len() as u32)
-      );
+<t tx="vitalije.20190709214622.1">#[test]
+fn round_trip_test2() {
+    let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+    let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+    println!(
+        "a.len={}, b.len={}, b64={}",
+        a.len(),
+        b.len(),
+        &amp;b64str(a.len() as u32)
+    );
+    let d = delta(b, a);
+    println!("delta:{:?}", &amp;d);
+    let s = deltainv(a, &amp;d);
+    assert_eq!(&amp;s, b);
+}
 </t>
-<t tx="vitalije.20190711104435.1">      let d = delta(b, a);
-      println!("delta:{:?}", &amp;d);
-      let s = deltainv(a, &amp;d);
-      assert_eq!(&amp;s, b);
-  }
-  #[test]
-  fn empty_txt() {
-      let a = "";
-      let b = r#"line 1
-    yet another (a bit longer) line 2
-    yet another (a bit longer) line 3
-    yet another (a bit longer) line 4
-    yet another (a bit longer) line 5
-    yet another (a bit longer) line 6
-    yet another (a bit longer) line 6 1/2
-    yet another (a bit longer) line 7
-    yet another (a bit longer) line 8
-    yet another (a bit longer) line 9
-    and finally last line 10"#;
-      let d = delta(b, a);
-      println!("empty delta:{:?}", &amp;d);
-      let s = deltainv(a, &amp;d);
-      assert_eq!(b, &amp;s);
-  }
+<t tx="vitalije.20190711104435.1">#[test]
+fn empty_txt() {
+    let a = "";
+    let b = r#"line 1
+  yet another (a bit longer) line 2
+  yet another (a bit longer) line 3
+  yet another (a bit longer) line 4
+  yet another (a bit longer) line 5
+  yet another (a bit longer) line 6
+  yet another (a bit longer) line 6 1/2
+  yet another (a bit longer) line 7
+  yet another (a bit longer) line 8
+  yet another (a bit longer) line 9
+  and finally last line 10"#;
+    let d = delta(b, a);
+    println!("empty delta:{:?}", &amp;d);
+    let s = deltainv(a, &amp;d);
+    assert_eq!(b, &amp;s);
+}
 </t>
-<t tx="vitalije.20190711122248.1">  #[test]
-  fn test_bug_001() {
-      let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-      let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-      let d = b"3a\n1S@0,29@1T,31_Pqh;";
-      let d1 = delta(a, b);
-      assert_eq!(&amp;d1, &amp;d);
-      let s = deltainv(b, &amp;d1);
-      assert_eq!(&amp;s, a);
-  }
+<t tx="vitalije.20190711122248.1">#[test]
+fn test_bug_001() {
+    let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+    let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+    let d = b"3a\n1S@0,29@1T,31_Pqh;";
+    let d1 = delta(a, b);
+    assert_eq!(&amp;d1, &amp;d);
+    let s = deltainv(b, &amp;d1);
+    assert_eq!(&amp;s, a);
 }
 </t>
 <t tx="vitalije.20190720114956.1">@language rust
@@ -1227,7 +1217,8 @@ fn favicon() -&gt; impl Responder {
     let mut stmt = conn.prepare(
         "select Coalesce(min(t), strftime('now')), 
               Coalesce(max(t), strftime('now')),
-              count(t) from changes where gnx=?")?;
+              count(t) from changes where gnx=?"
+    )?;
     let mut rows = stmt.query(params![gnx])?;
     if let Some(row) = rows.next()? {
         let n: u32 = row.get(2)?;
@@ -2055,12 +2046,12 @@ if __name__ == '__main__':
 </t>
 <t tx="vitalije.20190920132731.1">#[test]
 fn test_bug_002() {
-  let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
-  let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
-  let d = delta(b, a);
-  let mut d1 = Vec::new();
-  d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
-  assert_eq!(d, d1);
+    let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
+    let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
+    let d = delta(b, a);
+    let mut d1 = Vec::new();
+    d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
+    assert_eq!(d, d1);
 }
 </t>
 <t tx="vitalije.20190928104916.1">connect_tree = (h) -&gt;

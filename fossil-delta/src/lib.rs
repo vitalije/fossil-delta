@@ -89,12 +89,10 @@ pub fn digit_count(v: usize) -> usize {
     }
     11
 }
-
 /// Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
 /// buffer is not a multiple of 4 bytes length, compute the sum that would
 /// have occurred if the buffer was padded with zeros to the next multiple
 /// of four bytes.
-
 fn checksum(z_in: &[u8]) -> u32 {
     let it = z_in.chunks_exact(4);
     let b = it.remainder();
@@ -209,6 +207,7 @@ pub fn generate_delta(
     };
     z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
     z_delta.push(b'\n');
+
     /* If the source file is very small, it means that we have no
      ** chance of ever doing a copy command.  Just output a single
      ** literal segment for the entire target and exit.
@@ -434,28 +433,26 @@ mod tests {
     #[test]
     fn round_trip_test() {
         let a = r#"line 1
-      yet another (a bit longer) line 2
-      yet another (a bit longer) line 3
-      yet another (a bit longer) line 4
-      yet another (a bit longer) line 5
-      yet another (a bit longer) line 6
-      yet another (a bit longer) line 7
-      yet another (a bit longer) line 8
-      yet another (a bit longer) line 9
-      yet another (a bit longer) line 10"#;
-
+            yet another (a bit longer) line 2
+            yet another (a bit longer) line 3
+            yet another (a bit longer) line 4
+            yet another (a bit longer) line 5
+            yet another (a bit longer) line 6
+            yet another (a bit longer) line 7
+            yet another (a bit longer) line 8
+            yet another (a bit longer) line 9
+            yet another (a bit longer) line 10"#;
         let b = r#"line 1
-      yet another (a bit longer) line 2
-      yet another (a bit longer) line 3
-      yet another (a bit longer) line 4
-      yet another (a bit longer) line 5
-      yet another (a bit longer) line 6
-      yet another (a bit longer) line 6 1/2
-      yet another (a bit longer) line 7
-      yet another (a bit longer) line 8
-      yet another (a bit longer) line 9
-      and finally last line 10"#;
-
+            yet another (a bit longer) line 2
+            yet another (a bit longer) line 3
+            yet another (a bit longer) line 4
+            yet another (a bit longer) line 5
+            yet another (a bit longer) line 6
+            yet another (a bit longer) line 6 1/2
+            yet another (a bit longer) line 7
+            yet another (a bit longer) line 8
+            yet another (a bit longer) line 9
+            and finally last line 10"#;
         let d = delta(a, b);
         println!("delta:{:?}", &d);
         let s = deltainv(b, &d);
@@ -514,16 +511,15 @@ mod tests {
         let s = deltainv(b, &d1);
         assert_eq!(&s, a);
     }
-  }
-  #[test]
-  fn test_bug_002() {
-    let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
-    let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
-    let d = delta(b, a);
-    let mut d1 = Vec::new();
-    d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
-    assert_eq!(d, d1);
-  }
+    #[test]
+    fn test_bug_002() {
+        let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
+        let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
+        let d = delta(b, a);
+        let mut d1 = Vec::new();
+        d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
+        assert_eq!(d, d1);
+    }
 #[allow(dead_code)]
 static BUG002_A:&str = r#"from student import moja_tajna_funkcija
 
@@ -547,3 +543,4 @@ if __name__ == '__main__':
         for y in range(-100, 101):
             check(x, y)
     print("Није пронађена грешка у твом програму.")"#;
+}
