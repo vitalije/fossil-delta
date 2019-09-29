@@ -200,7 +200,7 @@ categories = ["algorithms", "compression", "encoding", "text-processing"]
 [dependencies]
 </t>
 <t tx="vitalije.20190708073438.1">@language rust
-@tabwidth -2
+@tabwidth -4
 /*! Implementation of the delta algorithm used by fossil version control system.
 
 ```rust
@@ -232,7 +232,7 @@ assert_eq!(&amp;s, a);
 assert_eq!(d.len(), 43);
 ```
 */
-const NHASH:usize = 16;
+const NHASH: usize = 16;
 @others
 </t>
 <t tx="vitalije.20190708073913.1"># A Delta algorithm ported to Rust
@@ -277,124 +277,132 @@ user to browse history of known Leo files.
 
 </t>
 <t tx="vitalije.20190708080758.1">/// converts integer to String in base 64
-pub fn b64str(n:u32) -&gt; String {
-  if n == 0 {
-    String::from("0")
-  } else {
-    let mut res = String::new();
-    let mut _n = n;
-    while _n &gt; 0 {
-      res.insert(0, B64DIGITS[(_n &amp; 63) as usize]);
-      _n = _n &gt;&gt; 6;
+pub fn b64str(n: u32) -&gt; String {
+    if n == 0 {
+        String::from("0")
+    } else {
+        let mut res = String::new();
+        let mut _n = n;
+        while _n &gt; 0 {
+            res.insert(0, B64DIGITS[(_n &amp; 63) as usize]);
+            _n = _n &gt;&gt; 6;
+        }
+        res
     }
-    res
-  }
 }
 
 /// converts base 64 str to u32
-pub fn b64int(a:&amp;str) -&gt; u32 { b64int_read(a.as_bytes()).0 as u32}
-
-pub fn b64int_read(a:&amp;[u8]) -&gt; (usize, &amp;[u8]) {
-  let mut res = 0_usize;
-  for (j, i) in a.iter().enumerate() {
-    let k = B64VALUES[(i &amp; 127) as usize];
-    if k == 255 { return (res, &amp;a[j..]); }
-    res = (res &lt;&lt; 6) + (k as usize);
-  }
-  (res, b"")
+pub fn b64int(a: &amp;str) -&gt; u32 {
+    b64int_read(a.as_bytes()).0 as u32
 }
+
+pub fn b64int_read(a: &amp;[u8]) -&gt; (usize, &amp;[u8]) {
+    let mut res = 0_usize;
+    for (j, i) in a.iter().enumerate() {
+        let k = B64VALUES[(i &amp; 127) as usize];
+        if k == 255 {
+            return (res, &amp;a[j..]);
+        }
 </t>
-<t tx="vitalije.20190708080758.2">const B64DIGITS:[char;64] = [
-  '0', '1', '2', '3', '4', '5', '6', '7',
-  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-  'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-  'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-  'W', 'X', 'Y', 'Z', '_', 'a', 'b', 'c',
-  'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-  'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-  't', 'u', 'v', 'w', 'x', 'y', 'z', '~'
+<t tx="vitalije.20190708080758.2">        res = (res &lt;&lt; 6) + (k as usize);
+    }
+    (res, b"")
+}
+const B64DIGITS: [char; 64] = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', 'a',
+    'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x', 'y', 'z', '~',
 ];
-const B64VALUES:[u8; 128] = [
-  255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-  255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-  255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-  255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-  255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-  255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-    0u8,   1u8,   2u8,   3u8,   4u8,   5u8,   6u8,   7u8,
-    8u8,   9u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
-  255u8,  10u8,  11u8,  12u8,  13u8,  14u8,  15u8,  16u8,
-   17u8,  18u8,  19u8,  20u8,  21u8,  22u8,  23u8,  24u8,
-   25u8,  26u8,  27u8,  28u8,  29u8,  30u8,  31u8,  32u8,
-   33u8,  34u8,  35u8, 255u8, 255u8, 255u8, 255u8,  36u8,
-  255u8,  37u8,  38u8,  39u8,  40u8,  41u8,  42u8,  43u8,
-   44u8,  45u8,  46u8,  47u8,  48u8,  49u8,  50u8,  51u8,
-   52u8,  53u8,  54u8,  55u8,  56u8,  57u8,  58u8,  59u8,
-   60u8,  61u8,  62u8, 255u8, 255u8, 255u8,  63u8, 255u8
+const B64VALUES: [u8; 128] = [
+    255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
+    255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
+    255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8,
+    255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 0u8, 1u8, 2u8, 3u8, 4u8, 5u8,
+    6u8, 7u8, 8u8, 9u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 255u8, 10u8, 11u8, 12u8, 13u8,
+    14u8, 15u8, 16u8, 17u8, 18u8, 19u8, 20u8, 21u8, 22u8, 23u8, 24u8, 25u8, 26u8, 27u8, 28u8, 29u8,
+    30u8, 31u8, 32u8, 33u8, 34u8, 35u8, 255u8, 255u8, 255u8, 255u8, 36u8, 255u8, 37u8, 38u8, 39u8,
+    40u8, 41u8, 42u8, 43u8, 44u8, 45u8, 46u8, 47u8, 48u8, 49u8, 50u8, 51u8, 52u8, 53u8, 54u8, 55u8,
+    56u8, 57u8, 58u8, 59u8, 60u8, 61u8, 62u8, 255u8, 255u8, 255u8, 63u8, 255u8,
 ];
 </t>
 <t tx="vitalije.20190708081957.1">#[cfg(test)]
 mod tests {
-  use super::*;
+    use super::*;
   @others
 &lt;&lt;strings&gt;&gt;
 </t>
-<t tx="vitalije.20190708082017.1">#[test]
-fn b64_works() {
-  for i in 0..1000 {
-    let s = b64str(i);
-    let s1 = b64str(i + 0x1_00_0000);
-    assert_eq!(i, b64int(&amp;s));
-    assert_eq!(i, b64int(&amp;s1) - 0x1_00_0000);
+<t tx="vitalije.20190708082017.1">  #[test]
+  fn b64_works() {
+      for i in 0..1000 {
+          let s = b64str(i);
+          let s1 = b64str(i + 0x1_00_0000);
+          assert_eq!(i, b64int(&amp;s));
+          assert_eq!(i, b64int(&amp;s1) - 0x1_00_0000);
+      }
   }
-}
 </t>
-<t tx="vitalije.20190708083136.1">const NHASH_1:usize = NHASH - 1;
-const NHASHI32:i32 = NHASH as i32;
+<t tx="vitalije.20190708083136.1">        }
+    }
+    String::from_utf8(a_res).unwrap()
+}
+const NHASH_1: usize = NHASH - 1;
+const NHASHI32: i32 = NHASH as i32;
 struct Hash {
-  a: u16,
-  b: u16,
-  i: usize,
-  z: [u8; NHASH]
+    a: u16,
+    b: u16,
+    i: usize,
+    z: [u8; NHASH],
 }
 impl Hash {
-  fn new() -&gt; Self { Hash {a:0, b:0, i:0, z:[0;NHASH]} }
-  /// Initialize the rolling hash using the first NHASH characters of z[]
-  fn init(&amp;mut self, z:&amp;[u8]) {
-    let mut a = z[0] as u32;
-    let mut b = z[0] as u32;
-    self.z[0] = z[0];
-    for i in 1..NHASH{
-      a = (a + (z[i] as u32)) &amp; 0xffff;
-      b = (b + a) &amp; 0xffff;
-      self.z[i] = z[i];
+    fn new() -&gt; Self {
+        Hash {
+            a: 0,
+            b: 0,
+            i: 0,
+            z: [0; NHASH],
+        }
     }
-    self.a = a as u16;
-    self.b = b as u16;
-    self.i = 0;
-  }
-  /// Advance the rolling hash by a single character c
-  fn update(&amp;mut self, c:u8) {
-    let old = self.z[self.i];
-    self.z[self.i] = c;
-    self.i = (self.i + 1) &amp; NHASH_1;
-    let a = (self.a as i32) + (c as i32) - (old as i32);
-    let b = (self.b as i32) - NHASHI32 * (old as i32) + (a &amp; 0xffff);
-    self.a = (a &amp; 0xffff) as u16;
-    self.b = (b &amp; 0xffff) as u16;
-  }
-  /// Return a usize hash value
-  fn as_usize(&amp;self) -&gt; usize { (self.a as usize) | ((self.b as usize) &lt;&lt; 16)}
+    /// Initialize the rolling hash using the first NHASH characters of z[]
+    fn init(&amp;mut self, z: &amp;[u8]) {
+        let mut a = z[0] as u32;
+        let mut b = z[0] as u32;
+        self.z[0] = z[0];
+        for i in 1..NHASH {
+            a = (a + (z[i] as u32)) &amp; 0xffff;
+            b = (b + a) &amp; 0xffff;
+            self.z[i] = z[i];
+        }
+        self.a = a as u16;
+        self.b = b as u16;
+        self.i = 0;
+    }
+    /// Advance the rolling hash by a single character c
+    fn update(&amp;mut self, c: u8) {
+        let old = self.z[self.i];
+        self.z[self.i] = c;
+        self.i = (self.i + 1) &amp; NHASH_1;
+        let a = (self.a as i32) + (c as i32) - (old as i32);
+        let b = (self.b as i32) - NHASHI32 * (old as i32) + (a &amp; 0xffff);
+        self.a = (a &amp; 0xffff) as u16;
+        self.b = (b &amp; 0xffff) as u16;
+    }
+    /// Return a usize hash value
+    fn as_usize(&amp;self) -&gt; usize {
+        (self.a as usize) | ((self.b as usize) &lt;&lt; 16)
+    }
 }
 </t>
 <t tx="vitalije.20190708090600.1">/// Return the number digits in the base-64 representation of a positive integer
-pub fn digit_count(v:usize) -&gt; usize {
-  let mut x = 64;
-  for i in 1..10 {
-    if x &gt; v { return i };
-    x = x &lt;&lt; 6;
-  }
-  11
+pub fn digit_count(v: usize) -&gt; usize {
+    let mut x = 64;
+    for i in 1..10 {
+        if x &gt; v {
+            return i;
+        };
+        x = x &lt;&lt; 6;
+    }
+    11
 }
 </t>
 <t tx="vitalije.20190708091311.1">
@@ -403,22 +411,22 @@ pub fn digit_count(v:usize) -&gt; usize {
 /// have occurred if the buffer was padded with zeros to the next multiple
 /// of four bytes.
 
-fn checksum(z_in:&amp;[u8]) -&gt; u32 {
-  let it = z_in.chunks_exact(4);
-  let b = it.remainder();
-  let a_b:[u8;4] = match b.len() {
-      0 =&gt; [0, 0, 0, 0],
-      1 =&gt; [b[0], 0, 0, 0],
-      2 =&gt; [b[0], b[1], 0, 0],
-      _ =&gt; [b[0], b[1], b[2], 0]
-  };
-  let mut s:u32 = u32::from_be_bytes(a_b);
-  for b in it {
-    let a_b:&amp;[u8;4] = unsafe {&amp;*(b.as_ptr() as *const [u8; 4])};
-    let a = u32::from_be_bytes(*a_b);
-    s = s.overflowing_add(a).0;
-  }
-  s
+fn checksum(z_in: &amp;[u8]) -&gt; u32 {
+    let it = z_in.chunks_exact(4);
+    let b = it.remainder();
+    let a_b: [u8; 4] = match b.len() {
+        0 =&gt; [0, 0, 0, 0],
+        1 =&gt; [b[0], 0, 0, 0],
+        2 =&gt; [b[0], b[1], 0, 0],
+        _ =&gt; [b[0], b[1], b[2], 0],
+    };
+    let mut s: u32 = u32::from_be_bytes(a_b);
+    for b in it {
+        let a_b: &amp;[u8; 4] = unsafe { &amp;*(b.as_ptr() as *const [u8; 4]) };
+        let a = u32::from_be_bytes(*a_b);
+        s = s.overflowing_add(a).0;
+    }
+    s
 }
 </t>
 <t tx="vitalije.20190708102546.1">/// Generate new delta in given mutable string reference
@@ -483,217 +491,226 @@ fn checksum(z_in:&amp;[u8]) -&gt; u32 {
 /// for the output and hence allocate nor more space that is really
 /// needed.
 ///
-pub fn delta_output_size(z_delta:&amp;str) -&gt; usize { b64int(z_delta) as usize }
+pub fn delta_output_size(z_delta: &amp;str) -&gt; usize {
+    b64int(z_delta) as usize
+}
 </t>
 <t tx="vitalije.20190708103528.1">pub fn generate_delta(
-  z_out_t:&amp;str /* The target text */,
-  z_src_t:&amp;str /* The source text */,
-  z_delta:&amp;mut Vec&lt;u8&gt; /* A string to hold the resulting delta */) {
-  z_delta.clear();
-  let z_src = z_src_t.as_bytes();
-  let z_out = z_out_t.as_bytes();
+    z_out_t: &amp;str,         /* The target text */
+    z_src_t: &amp;str,         /* The source text */
+    z_delta: &amp;mut Vec&lt;u8&gt;, /* A string to hold the resulting delta */
+) {
+    z_delta.clear();
+    let z_src = z_src_t.as_bytes();
   @others
 }
 </t>
-<t tx="vitalije.20190708105710.1">z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
-z_delta.push(b'\n');
+<t tx="vitalije.20190708105710.1">      }
+      if z_src.len() - i &lt; z_out.len() - j {
 </t>
-<t tx="vitalije.20190708105810.1">/* If the source file is very small, it means that we have no
-** chance of ever doing a copy command.  Just output a single
-** literal segment for the entire target and exit.
-*/
-if  z_src.len() &lt;= NHASH {
+<t tx="vitalije.20190708105810.1">          z_src.len() - i - 1
+      } else {
+          z_out.len() - j - 1
+      }
+  };
   z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
-  z_delta.push(b':');
-  z_delta.extend_from_slice(z_out);
-  z_delta.extend_from_slice(b64str(checksum(&amp;z_out)).as_bytes());
-  z_delta.push(b';');
-  return
-}
+  z_delta.push(b'\n');
+  /* If the source file is very small, it means that we have no
+   ** chance of ever doing a copy command.  Just output a single
+   ** literal segment for the entire target and exit.
+   */
+  if z_src.len() &lt;= NHASH {
 </t>
-<t tx="vitalije.20190708110328.1">/* Compute the hash table used to locate matching sections in the
-** source file.
-*/
-let n_hash = z_src.len() / NHASH;
-let mut collide = vec![0xffff_ffff_u32; 2 * n_hash];
-let mut h = Hash::new();
-for i in 0..n_hash {
-  h.init(&amp;z_src[(NHASH * i)..]);
-  let hv = h.as_usize() % n_hash + n_hash;
-  collide[i] = collide[hv];
-  collide[hv] = i as u32;
-}
+<t tx="vitalije.20190708110328.1">      z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
+      z_delta.push(b':');
+      z_delta.extend_from_slice(z_out);
+      z_delta.extend_from_slice(b64str(checksum(&amp;z_out)).as_bytes());
+      z_delta.push(b';');
+      return;
+  }
+  /* Compute the hash table used to locate matching sections in the
+   ** source file.
+   */
+  let n_hash = z_src.len() / NHASH;
+  let mut collide = vec![0xffff_ffff_u32; 2 * n_hash];
 </t>
-<t tx="vitalije.20190708123712.1">let mut base = 0usize;
-while base + NHASH &lt; z_out.len() {
-  let mut i = 0;
-  h.init(&amp;z_out[base..]);
-  let mut best_count = 0;
-  let mut best_offset  = 0;
-  let mut best_lit_size = 0;
-  loop {
-    let hv = h.as_usize() % n_hash;
-    let mut i_block = collide[n_hash + hv];
-    let mut limit = 250;
-    while i_block != 0xffff_ffff &amp;&amp; limit &gt; 0 {
-      limit -= 1;
-      let i_src = (i_block as usize) * NHASH;
-      if z_src[i_src] == z_out[base + i] {
-        let j = mb_forward(i_src, base + i);
-        let k = mb_backward(i_src, base + i, base);
-        let ofst = i_src - k;
-        let cnt = j + k + 1;
-        let litsz = i - k;
-        let sz = digit_count(litsz) + digit_count(cnt) + digit_count(ofst) + 3;
-        if cnt &gt; sz &amp;&amp; cnt &gt; best_count {
-          best_count = cnt;
-          best_offset = ofst;
-          best_lit_size = litsz;
-        }
+<t tx="vitalije.20190708123712.1">  let mut h = Hash::new();
+  for i in 0..n_hash {
+      h.init(&amp;z_src[(NHASH * i)..]);
+      let hv = h.as_usize() % n_hash + n_hash;
+      collide[i] = collide[hv];
+      collide[hv] = i as u32;
+  }
+  let mut base = 0usize;
+  while base + NHASH &lt; z_out.len() {
+      let mut i = 0;
+      h.init(&amp;z_out[base..]);
+      let mut best_count = 0;
+      let mut best_offset = 0;
+      let mut best_lit_size = 0;
+      loop {
+          let hv = h.as_usize() % n_hash;
+          let mut i_block = collide[n_hash + hv];
+          let mut limit = 250;
+          while i_block != 0xffff_ffff &amp;&amp; limit &gt; 0 {
+              limit -= 1;
+              let i_src = (i_block as usize) * NHASH;
+              if z_src[i_src] == z_out[base + i] {
+                  let j = mb_forward(i_src, base + i);
+                  let k = mb_backward(i_src, base + i, base);
+                  let ofst = i_src - k;
+                  let cnt = j + k + 1;
+                  let litsz = i - k;
+                  let sz = digit_count(litsz) + digit_count(cnt) + digit_count(ofst) + 3;
+                  if cnt &gt; sz &amp;&amp; cnt &gt; best_count {
+                      best_count = cnt;
+                      best_offset = ofst;
+                      best_lit_size = litsz;
+                  }
+              }
+              i_block = collide[i_block as usize];
+          }
+          if best_count &gt; 0 {
+              if best_lit_size &gt; 0 {
+                  z_delta.extend_from_slice(b64str(best_lit_size as u32).as_bytes());
+                  z_delta.push(b':');
+                  z_delta.extend_from_slice(&amp;z_out[base..(base + best_lit_size)]);
+                  base += best_lit_size;
+              }
+              base += best_count;
+              z_delta.extend_from_slice(b64str(best_count as u32).as_bytes());
+              z_delta.push(b'@');
+              z_delta.extend_from_slice(b64str(best_offset as u32).as_bytes());
+              z_delta.push(b',');
+              break;
+          } else if base + i + NHASH &gt;= z_out.len() {
+              z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
+              z_delta.push(b':');
+              z_delta.extend_from_slice(&amp;z_out[base..]);
+              base = z_out.len();
+              break;
+          } else {
+              h.update(z_out[base + NHASH + i]);
+              i += 1;
+          }
       }
-      i_block = collide[i_block as usize];
-    }
-    if best_count &gt; 0 {
-      if best_lit_size &gt; 0 {
-        z_delta.extend_from_slice(b64str(best_lit_size as u32).as_bytes());
-        z_delta.push(b':');
-        z_delta.extend_from_slice(&amp;z_out[base..(base + best_lit_size)]);
-        base += best_lit_size;
-      }
-      base += best_count;
-      z_delta.extend_from_slice(b64str(best_count as u32).as_bytes());
-      z_delta.push(b'@');
-      z_delta.extend_from_slice(b64str(best_offset as u32).as_bytes());
-      z_delta.push(b',');
-      break;
-    } else if base + i + NHASH &gt;= z_out.len() {
+  }
+  if base &lt; z_out.len() {
       z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
       z_delta.push(b':');
       z_delta.extend_from_slice(&amp;z_out[base..]);
-      base = z_out.len();
-      break;
-    } else {
-      h.update(z_out[base + NHASH + i]);
-      i += 1;
-    }
   }
-}
+  z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
+  z_delta.push(b';');
 </t>
 <t tx="vitalije.20190708130411.1"></t>
-<t tx="vitalije.20190708131459.1">// match block backward
-let mb_backward = |i, j, n| {
-  if i == 0 || j &lt;= n {return 0}
-  let mut k = i - 1;
-  let mut m = j - 1;
-  let n_1 = if n == 0 {0} else {n - 1};
-  while k &gt; 0 &amp;&amp; m &gt; n_1 {
-    if z_src[k] != z_out[m] { return i - k - 1; }
-    k -= 1;
-    m -= 1;
+<t tx="vitalije.20190708131459.1">  let z_out = z_out_t.as_bytes();
+  // match block backward
+  let mb_backward = |i, j, n| {
+      if i == 0 || j &lt;= n {
+          return 0;
+      }
+      let mut k = i - 1;
+      let mut m = j - 1;
+      let n_1 = if n == 0 { 0 } else { n - 1 };
+      while k &gt; 0 &amp;&amp; m &gt; n_1 {
+          if z_src[k] != z_out[m] {
+              return i - k - 1;
+          }
+</t>
+<t tx="vitalije.20190708131503.1">          k -= 1;
+          m -= 1;
+      }
+      i - k - 1
+  };
+  // match block forward
+  let mb_forward = |i, j| {
+      let mut k = i + 1;
+      let mut m = j + 1;
+      while k &lt; z_src.len() &amp;&amp; m &lt; z_out.len() {
+          if z_src[k] != z_out[m] {
+              return k - i - 1;
+          }
+          k += 1;
+          m += 1;
+</t>
+<t tx="vitalije.20190708134856.1"></t>
+<t tx="vitalije.20190708135156.1"></t>
+<t tx="vitalije.20190708175831.1">  #[test]
+  fn delta_gen() {
+      let old = include_str!("test-data/file-a.txt");
+      let cur = include_str!("test-data/file-b.txt");
+      let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
+      let mut d = Vec::new();
+      generate_delta(cur, old, &amp;mut d);
+      assert_eq!(d.as_slice(), d1);
   }
-  i - k - 1
-};
 </t>
-<t tx="vitalije.20190708131503.1">// match block forward
-let mb_forward = |i, j| {
-  let mut k = i + 1;
-  let mut m = j + 1;
-  while k &lt; z_src.len() &amp;&amp; m &lt; z_out.len() {
-    if z_src[k] != z_out[m] { return k - i - 1; }
-    k += 1;
-    m += 1;
+<t tx="vitalije.20190708175842.1">  #[test]
+  fn test_hash_update() {
+      let mut h = Hash::new();
+      h.init(b"0123456789ABCDEFFEDCBA9876543210");
+      assert_eq!(h.as_usize(), 0x1cbb03a2);
+      let mut h2 = Hash::new();
+      h2.init(b"123456789ABCDEFFEDCBA9876543210");
+      h.update(b'F');
+      assert_eq!(h.as_usize(), h2.as_usize())
   }
-  if z_src.len() - i &lt; z_out.len() - j {
-    z_src.len() - i - 1
-  } else {
-    z_out.len() - j - 1
-  }
-};
-</t>
-<t tx="vitalije.20190708134856.1">if  base &lt; z_out.len() {
-    z_delta.extend_from_slice(b64str((z_out.len() - base) as u32).as_bytes());
-    z_delta.push(b':');
-    z_delta.extend_from_slice(&amp;z_out[base..]);
-}
-</t>
-<t tx="vitalije.20190708135156.1">z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
-z_delta.push(b';');
-</t>
-<t tx="vitalije.20190708175831.1">#[test]
-fn delta_gen() {
-  let old = include_str!("test-data/file-a.txt");
-  let cur = include_str!("test-data/file-b.txt");
-  let d1:&amp;[u8] = include_bytes!("test-data/file-delta.txt");
-  let mut d = Vec::new();
-  generate_delta(cur, old, &amp;mut d);
-  assert_eq!(d.as_slice(), d1);
-}
-</t>
-<t tx="vitalije.20190708175842.1">#[test]
-fn test_hash_update(){
-  let mut h = Hash::new();
-  h.init(b"0123456789ABCDEFFEDCBA9876543210");
-  assert_eq!(h.as_usize(), 0x1cbb03a2);
-  let mut h2 = Hash::new();
-  h2.init(b"123456789ABCDEFFEDCBA9876543210");
-  h.update(b'F');
-  assert_eq!(h.as_usize(), h2.as_usize())
-}
 </t>
 <t tx="vitalije.20190708180426.1">/// Creates delta and returns it as a String
 /// see [`generate_delta`]
-pub fn delta(a:&amp;str, b:&amp;str) -&gt; Vec&lt;u8&gt; {
-  let mut d = Vec::with_capacity(b.len() + 60);
-  generate_delta(a, b, &amp;mut d);
-  d
+pub fn delta(a: &amp;str, b: &amp;str) -&gt; Vec&lt;u8&gt; {
+    let mut d = Vec::with_capacity(b.len() + 60);
+    generate_delta(a, b, &amp;mut d);
+    d
 }
 </t>
 <t tx="vitalije.20190708183210.1">/// Given the current version of text value `b_txt` and delta value as `d_txt`
 /// this function returns the previous version of text b_txt.
-pub fn deltainv(b_txt:&amp;str, d_txt:&amp;[u8]) -&gt; String {
+pub fn deltainv(b_txt: &amp;str, d_txt: &amp;[u8]) -&gt; String {
+    let (total_length, mut d_src) = b64int_read(d_txt);
 
-  let (total_length, mut d_src) = b64int_read(d_txt);
-
-  let mut a_res = Vec::with_capacity(total_length);
-  let b_bytes = b_txt.as_bytes();
-  d_src = &amp;d_src[1..];
-  while d_src.len() &gt; 0 {
-    let (cnt, d1_src) = b64int_read(&amp;d_src);
-    match d1_src[0] {
-      b'@' =&gt; {
-        let (ofst, d1_src) = b64int_read(&amp;d1_src[1..]);
-        a_res.extend_from_slice(&amp;b_bytes[ofst..(ofst + cnt)]);
-        d_src = &amp;d1_src[1..];
-      },
-      b':' =&gt; {
-        let i = d_txt.len() - d1_src.len() + 1;
-        a_res.extend_from_slice(&amp;d_txt[i..(cnt + i)]);
-        d_src = &amp;d1_src[(1 + cnt)..];
-      },
-      b';' =&gt; return String::from_utf8(a_res).unwrap(),
-      _ =&gt; {
-        let msg = format!(r#"Error in applying delta
+    let mut a_res = Vec::with_capacity(total_length);
+    let b_bytes = b_txt.as_bytes();
+    d_src = &amp;d_src[1..];
+    while d_src.len() &gt; 0 {
+        let (cnt, d1_src) = b64int_read(&amp;d_src);
+        match d1_src[0] {
+            b'@' =&gt; {
+                let (ofst, d1_src) = b64int_read(&amp;d1_src[1..]);
+                a_res.extend_from_slice(&amp;b_bytes[ofst..(ofst + cnt)]);
+                d_src = &amp;d1_src[1..];
+            }
+            b':' =&gt; {
+                let i = d_txt.len() - d1_src.len() + 1;
+                a_res.extend_from_slice(&amp;d_txt[i..(cnt + i)]);
+                d_src = &amp;d1_src[(1 + cnt)..];
+            }
+            b';' =&gt; return String::from_utf8(a_res).unwrap(),
+            _ =&gt; {
+                let msg = format!(
+                    r#"Error in applying delta
         txt: {}
         -----------------------------
         delta: {:?}
         =============================
         index: {}
-        "#, b_txt, d_txt, d_txt.len() - d1_src.len());
-        panic!(msg)
-      }
-    }
-  }
-  String::from_utf8(a_res).unwrap()
-}
+        "#,
+                    b_txt,
+                    d_txt,
+                    d_txt.len() - d1_src.len()
+                );
+                panic!(msg)
+            }
 </t>
-<t tx="vitalije.20190708190730.1">#[test]
-fn test_deltainv() {
-  let old = include_str!("test-data/file-a.txt");
-  let cur = include_str!("test-data/file-b.txt");
-  let d1:&amp;[u8] = include_bytes!("test-data/file-delta.txt");
-  let res = deltainv(cur, d1);
-  assert_eq!(&amp;res[..30], &amp;old[..30]);
-}
+<t tx="vitalije.20190708190730.1">  #[test]
+  fn test_deltainv() {
+      let old = include_str!("test-data/file-a.txt");
+      let cur = include_str!("test-data/file-b.txt");
+      let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
+      let res = deltainv(cur, d1);
+      assert_eq!(&amp;res[..30], &amp;old[..30]);
+  }
 </t>
 <t tx="vitalije.20190709081959.1"></t>
 <t tx="vitalije.20190709082121.1">[workspace]
@@ -730,12 +747,11 @@ fossil-delta = { path="../fossil-delta", version="0.1.6"}
 version = "0.7.0"
 features = ["extension-module"]
 </t>
-<t tx="vitalije.20190709083254.1">
+<t tx="vitalije.20190709083254.1">use fossil_delta::{delta, deltainv};
 use pyo3::prelude::*;
-use fossil_delta::{delta, deltainv};
 
 #[pymodule]
-fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
+fn fossil_delta(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     /// Calculates delta between two given strings a and b
     ///
     /// &gt;&gt;&gt; d = fossil_delta.delta(a, b)
@@ -743,7 +759,7 @@ fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
     /// &gt;&gt;&gt; assert s == a
     ///
     #[pyfn(m, "delta")]
-    fn py_delta(py: Python, a:&amp;str, b:&amp;str) -&gt; PyResult&lt;PyObject&gt; {
+    fn py_delta(py: Python, a: &amp;str, b: &amp;str) -&gt; PyResult&lt;PyObject&gt; {
         let res = delta(a, b);
         Ok(res.to_object(py))
     }
@@ -754,13 +770,14 @@ fn fossil_delta(_py: Python, m:&amp;PyModule) -&gt; PyResult&lt;()&gt; {
     /// &gt;&gt;&gt; assert s == a
     ///
     #[pyfn(m, "deltainv")]
-    fn py_deltainv(py: Python, b:&amp;str, d:PyObject) -&gt; PyResult&lt;String&gt; {
-        let dv:Vec&lt;u8&gt; = d.extract(py).unwrap();
+    fn py_deltainv(py: Python, b: &amp;str, d: PyObject) -&gt; PyResult&lt;String&gt; {
+        let dv: Vec&lt;u8&gt; = d.extract(py).unwrap();
         let res = deltainv(b, &amp;dv);
         Ok(res)
     }
     Ok(())
-}</t>
+}
+</t>
 <t tx="vitalije.20190709091253.1"># fossil_delta a Python extension
 
 This crate exports functions `fossil_delta::delta` and `fossil_delta::deltainv` to
@@ -811,52 +828,51 @@ True
 <t tx="vitalije.20190709160215.1"></t>
 <t tx="vitalije.20190709160731.1"></t>
 <t tx="vitalije.20190709160748.1">@language rust
-@tabwidth -2
-#[path="db-sqlite.rs"]
+@tabwidth -4
+#[path = "db-sqlite.rs"]
 mod db;
-use actix_web::{web, App, HttpResponse, HttpRequest, HttpServer, Responder, http::StatusCode};
-#[cfg(debug_assertions)]
-use actix_web::Result;
 #[cfg(debug_assertions)]
 use actix_files::NamedFile;
 #[cfg(debug_assertions)]
-use std::path::PathBuf;
-use std::collections::HashMap;
-use std::cell::RefCell;
+use actix_web::Result;
+use actix_web::{http::StatusCode, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use chrono::NaiveDateTime;
-use db::{partition};
-use serde::{Serialize};
-use std::{env};
-use std::io::{Read};
+use db::partition;
+use serde::Serialize;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::env;
 use std::fs::File;
+use std::io::Read;
+#[cfg(debug_assertions)]
+use std::path::PathBuf;
 @others
 fn main() {
-  let mut args = env::args();
-  if args.len() &lt; 2 {
-    println!("Usage:  leo-ver-serv &lt;valid-filenames&gt; &lt;port&gt;");
-  } else {
-    let port = args.nth(2).unwrap_or(String::from("8088"));
-    HttpServer::new(|| {
-      App::new()
-        .data(AppState::new())
-        .data(web::PayloadConfig::new(1 &lt;&lt; 25))
-        .route("/", web::get().to(index))
-        .route("/public/{filename:.*}", web::get().to(st_file))
-        .route("/favicon.ico", web::get().to(favicon))
-        .route("/add-snapshot", web::post().to(post_snapshot))
-        .route("/snapshot-at", web::post().to(post_snapshot_at))
-        .route("/node-at", web::post().to(post_node_at))
-        .route("/node-rev", web::post().to(post_node_rev))
-        .route("/node-rev-count", web::post().to(post_node_rev_count))
-        .route("/snapshot-rev", web::post().to(post_snapshot_rev))
-        .route("/leo-files", web::get().to(get_leo_files))
-    })
-    .
-    bind(format!("127.0.0.1:{}", port))
-    .unwrap()
-    .run()
-    .unwrap();
-  }
+    let mut args = env::args();
+    if args.len() &lt; 2 {
+        println!("Usage:  leo-ver-serv &lt;valid-filenames&gt; &lt;port&gt;");
+    } else {
+        let port = args.nth(2).unwrap_or(String::from("8088"));
+        HttpServer::new(|| {
+            App::new()
+                .data(AppState::new())
+                .data(web::PayloadConfig::new(1 &lt;&lt; 25))
+                .route("/", web::get().to(index))
+                .route("/public/{filename:.*}", web::get().to(st_file))
+                .route("/favicon.ico", web::get().to(favicon))
+                .route("/add-snapshot", web::post().to(post_snapshot))
+                .route("/snapshot-at", web::post().to(post_snapshot_at))
+                .route("/node-at", web::post().to(post_node_at))
+                .route("/node-rev", web::post().to(post_node_rev))
+                .route("/node-rev-count", web::post().to(post_node_rev_count))
+                .route("/snapshot-rev", web::post().to(post_snapshot_rev))
+                .route("/leo-files", web::get().to(get_leo_files))
+        })
+        .bind(format!("127.0.0.1:{}", port))
+        .unwrap()
+        .run()
+        .unwrap();
+    }
 }
 </t>
 <t tx="vitalije.20190709160800.1">[package]
@@ -884,9 +900,9 @@ serde_json = "1.0.40"
 [dependencies.rusqlite]
 version = "0.19.0"
 features = ["bundled"]</t>
-<t tx="vitalije.20190709214611.1">#[test]
-fn round_trip_test() {
-  let a = r#"line 1
+<t tx="vitalije.20190709214611.1">  #[test]
+  fn round_trip_test() {
+      let a = r#"line 1
     yet another (a bit longer) line 2
     yet another (a bit longer) line 3
     yet another (a bit longer) line 4
@@ -897,7 +913,7 @@ fn round_trip_test() {
     yet another (a bit longer) line 9
     yet another (a bit longer) line 10"#;
 
-  let b = r#"line 1
+      let b = r#"line 1
     yet another (a bit longer) line 2
     yet another (a bit longer) line 3
     yet another (a bit longer) line 4
@@ -909,28 +925,33 @@ fn round_trip_test() {
     yet another (a bit longer) line 9
     and finally last line 10"#;
 
-  let d = delta(a, b);
-  println!("delta:{:?}", &amp;d);
-  let s = deltainv(b, &amp;d);
-  assert_eq!(&amp;s, a);
-  assert_eq!(d.len(), 43);
-}
+      let d = delta(a, b);
+      println!("delta:{:?}", &amp;d);
+      let s = deltainv(b, &amp;d);
+      assert_eq!(&amp;s, a);
+      assert_eq!(d.len(), 43);
+  }
 </t>
-<t tx="vitalije.20190709214622.1">#[test]
-fn round_trip_test2() {
-  let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
-  let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
-  println!("a.len={}, b.len={}, b64={}", a.len(), b.len(), &amp;b64str(a.len() as u32));
-  let d = delta(b, a);
-  println!("delta:{:?}", &amp;d);
-  let s = deltainv(a, &amp;d);
-  assert_eq!(&amp;s, b);
-}
+<t tx="vitalije.20190709214622.1">  #[test]
+  fn round_trip_test2() {
+      let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+      let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+      println!(
+          "a.len={}, b.len={}, b64={}",
+          a.len(),
+          b.len(),
+          &amp;b64str(a.len() as u32)
+      );
 </t>
-<t tx="vitalije.20190711104435.1">#[test]
-fn empty_txt() {
-  let a = "";
-  let b = r#"line 1
+<t tx="vitalije.20190711104435.1">      let d = delta(b, a);
+      println!("delta:{:?}", &amp;d);
+      let s = deltainv(a, &amp;d);
+      assert_eq!(&amp;s, b);
+  }
+  #[test]
+  fn empty_txt() {
+      let a = "";
+      let b = r#"line 1
     yet another (a bit longer) line 2
     yet another (a bit longer) line 3
     yet another (a bit longer) line 4
@@ -941,31 +962,31 @@ fn empty_txt() {
     yet another (a bit longer) line 8
     yet another (a bit longer) line 9
     and finally last line 10"#;
-  let d = delta(b, a);
-  println!("empty delta:{:?}", &amp;d);
-  let s = deltainv(a, &amp;d);
-  assert_eq!(b, &amp;s);
-}
+      let d = delta(b, a);
+      println!("empty delta:{:?}", &amp;d);
+      let s = deltainv(a, &amp;d);
+      assert_eq!(b, &amp;s);
+  }
 </t>
-<t tx="vitalije.20190711122248.1">#[test]
-fn test_bug_001() {
-let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-let d=b"3a\n1S@0,29@1T,31_Pqh;";
-let d1 = delta(a, b);
-assert_eq!(&amp;d1, &amp;d);
-let s = deltainv(b, &amp;d1);
-assert_eq!(&amp;s, a);
-}
+<t tx="vitalije.20190711122248.1">  #[test]
+  fn test_bug_001() {
+      let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+      let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+      let d = b"3a\n1S@0,29@1T,31_Pqh;";
+      let d1 = delta(a, b);
+      assert_eq!(&amp;d1, &amp;d);
+      let s = deltainv(b, &amp;d1);
+      assert_eq!(&amp;s, a);
+  }
 }
 </t>
 <t tx="vitalije.20190720114956.1">@language rust
-@tabwidth -2
+@tabwidth -4
 //use rusqlite::types::ToSql;
-pub use rusqlite::{params, Connection, Result, NO_PARAMS, Statement, Transaction};
-use std::collections::HashMap;
-use chrono::{NaiveDateTime};
+use chrono::NaiveDateTime;
 use fossil_delta::{delta, deltainv};
+pub use rusqlite::{params, Connection, Result, Statement, Transaction, NO_PARAMS};
+use std::collections::HashMap;
 @others
 </t>
 <t tx="vitalije.20190720144355.1">/* pub fn rpartition&lt;'a&gt;(input:&amp;'a str, sep:&amp;str) -&gt; (&amp;'a str, &amp;'a str, &amp;'a str) {
@@ -980,424 +1001,466 @@ use fossil_delta::{delta, deltainv};
   }
 }
 */
-pub fn partition&lt;'a&gt;(input:&amp;'a str, sep:&amp;str) -&gt; (&amp;'a str, &amp;'a str, &amp;'a str) {
-  match input.find(sep) {
-    Some(i) =&gt; {
-      let j = i + sep.len();
-      (&amp;input[..i], &amp;input[i..j], &amp;input[j..])
-    },
-    None =&gt; {
-      (&amp;input, "", "")
+pub fn partition&lt;'a&gt;(input: &amp;'a str, sep: &amp;str) -&gt; (&amp;'a str, &amp;'a str, &amp;'a str) {
+    match input.find(sep) {
+        Some(i) =&gt; {
+            let j = i + sep.len();
+            (&amp;input[..i], &amp;input[i..j], &amp;input[j..])
+        }
+        None =&gt; (&amp;input, "", ""),
     }
-  }
-}</t>
+}
+</t>
 <t tx="vitalije.20190720151032.1">#[cfg(debug_assertions)]
 fn st_file(req: HttpRequest) -&gt; Result&lt;NamedFile&gt; {
-  let path: PathBuf = req.match_info().query("filename").parse().unwrap();
-  let rpath = PathBuf::from("leo-ver-serv/web/").join(path);
-  let file = NamedFile::open(rpath)?;
-  Ok(file.use_last_modified(true).use_etag(true))
+    let path: PathBuf = req.match_info().query("filename").parse().unwrap();
+    let rpath = PathBuf::from("leo-ver-serv/web/").join(path);
+    let file = NamedFile::open(rpath)?;
+    Ok(file.use_last_modified(true).use_etag(true))
 }
 #[cfg(not(debug_assertions))]
-static APPJS:&amp;str = include_str!("../web/js/app.js");
+static APPJS: &amp;str = include_str!("../web/js/app.js");
 
 #[cfg(not(debug_assertions))]
-static VENDORSJS:&amp;str = include_str!("../web/js/vendors.js");
+static VENDORSJS: &amp;str = include_str!("../web/js/vendors.js");
 
 #[cfg(not(debug_assertions))]
-static APPCSS:&amp;str = include_str!("../web/css/app.css");
+static APPCSS: &amp;str = include_str!("../web/css/app.css");
 
 #[cfg(not(debug_assertions))]
-static INDEXHTML:&amp;str = include_str!("../web/index.html");
+static INDEXHTML: &amp;str = include_str!("../web/index.html");
 
 #[cfg(not(debug_assertions))]
 fn st_file(req: HttpRequest) -&gt; impl Responder {
-  match req.match_info().query("filename") {
-    "js/app.js" =&gt; HttpResponse::Ok().content_type("application/javascript").body(APPJS),
-    "js/vendors.js" =&gt; HttpResponse::Ok().content_type("application/javascript").body(VENDORSJS),
-    "css/app.css" =&gt; HttpResponse::Ok().content_type("text/css").body(APPCSS),
-    "index.html" =&gt; HttpResponse::Ok().content_type("text/html").body(INDEXHTML),
-    _ =&gt; HttpResponse::NotFound().finish()
-  }
-}</t>
+    match req.match_info().query("filename") {
+        "js/app.js" =&gt; HttpResponse::Ok()
+            .content_type("application/javascript")
+            .body(APPJS),
+        "js/vendors.js" =&gt; HttpResponse::Ok()
+            .content_type("application/javascript")
+            .body(VENDORSJS),
+        "css/app.css" =&gt; HttpResponse::Ok().content_type("text/css").body(APPCSS),
+        "index.html" =&gt; HttpResponse::Ok().content_type("text/html").body(INDEXHTML),
+        _ =&gt; HttpResponse::NotFound().finish(),
+    }
+}
+</t>
 <t tx="vitalije.20190720151151.1"></t>
 <t tx="vitalije.20190720151217.1">^\s*(?:pub\s+)?fn\s+(\w+)\s*[(]
 ^\s*(?:pub\s+)?struct\s+(\w+)\s*[{]
 ^\s*(?:pub\s+)?impl\s+(\w+\s+for\s+\w+)\s*[{]
 ^\s*let\s+(?:mut\s+)?(\w+)\s*=\s*[|][^|]*[|]\s*(?:-&gt;|[{])</t>
-<t tx="vitalije.20190720152015.1">fn post_snapshot(data:web::Data&lt;AppState&gt;, text:String) -&gt; &amp;'static str {
-  let (fname, _, rest) = partition(&amp;text, "\n");
-  let (t, sep, snapdata) = partition(rest, "\n");
-  let ok = sep.len() &gt; 0;
-  let ok = ok &amp;&amp; NaiveDateTime::parse_from_str(t, "%Y-%m-%dT%H:%M:%S%.f").is_ok();
-  let ok = ok &amp;&amp; {
-    let mut hmap = data.m.borrow_mut();
-    if data.valid_names.lines().all(|x| x != fname) {
-      return "Unknwon file";
-    }
-    ensure_connection(&amp;mut hmap, fname);
-    let ok = match db::add_snapshot(hmap.get_mut(fname).unwrap(), t, snapdata) {
-      Ok(a) =&gt; a,
-      Err(e) =&gt; {println!("post_snapshot:{:?}", e); false}
+<t tx="vitalije.20190720152015.1">fn post_snapshot(data: web::Data&lt;AppState&gt;, text: String) -&gt; &amp;'static str {
+    let (fname, _, rest) = partition(&amp;text, "\n");
+    let (t, sep, snapdata) = partition(rest, "\n");
+    let ok = sep.len() &gt; 0;
+    let ok = ok &amp;&amp; NaiveDateTime::parse_from_str(t, "%Y-%m-%dT%H:%M:%S%.f").is_ok();
+    let ok = ok &amp;&amp; {
+        let mut hmap = data.m.borrow_mut();
+        if data.valid_names.lines().all(|x| x != fname) {
+            return "Unknwon file";
+        }
+        ensure_connection(&amp;mut hmap, fname);
+        let ok = match db::add_snapshot(hmap.get_mut(fname).unwrap(), t, snapdata) {
+            Ok(a) =&gt; a,
+            Err(e) =&gt; {
+                println!("post_snapshot:{:?}", e);
+                false
+            }
+        };
+        ok
     };
-    ok
-  };
-  println!("post snapshot {} bytes at {}", snapdata.len(), t);
-  if ok {"Ok"} else {"Err"}
+    println!("post snapshot {} bytes at {}", snapdata.len(), t);
+    if ok {
+        "Ok"
+    } else {
+        "Err"
+    }
 }
 </t>
 <t tx="vitalije.20190720152022.1">fn index() -&gt; impl Responder {
-  HttpResponse::Ok()
-  .status(StatusCode::MOVED_PERMANENTLY)
-  .set_header("Location", "/public/index.html")
-  .finish()
-}</t>
-<t tx="vitalije.20190720152025.1">static FICON:&amp;[u8] = include_bytes!("../favicon.ico");
+    HttpResponse::Ok()
+        .status(StatusCode::MOVED_PERMANENTLY)
+        .set_header("Location", "/public/index.html")
+        .finish()
+}
+</t>
+<t tx="vitalije.20190720152025.1">static FICON: &amp;[u8] = include_bytes!("../favicon.ico");
 fn favicon() -&gt; impl Responder {
-  HttpResponse::Ok().content_type("image/vnd.microsoft.icon").body(FICON)
-}</t>
-<t tx="vitalije.20190721152644.1">fn decode_snapshot(txt:&amp;str) -&gt; HashMap&lt;String, String&gt; {
-  let (outline, _, rest) = partition(txt, "\n\n");
-  let mut nodes = HashMap::new();
-  nodes.insert(String::from("__outline__"), String::from(outline));
-  let mut i = 0;
-  let nrest = rest.len();
-  while i &lt; nrest {
-    let (n, _, x) = partition(&amp;rest[i..], " ");
-    i += n.len() + 1;
-    let n:usize = n.parse().unwrap();
-    let (gnx, _, hb) = partition(&amp;x[..n], "\n");
-    i += n;
-    nodes.insert(String::from(gnx), String::from(hb));
-  }
-  nodes
-}</t>
-<t tx="vitalije.20190721154013.1">pub fn connect(pth:&amp;str) -&gt; Result&lt;Connection&gt; {
-  let conn = Connection::open(pth)?;
-  create_tables(&amp;conn)?;
-  Ok(conn)
-}</t>
-<t tx="vitalije.20190721154018.1">pub fn add_snapshot(conn:&amp;mut Connection, tstamp:&amp;str, data:&amp;str) -&gt; Result&lt;bool&gt; {
-  match NaiveDateTime::parse_from_str(tstamp, "%Y-%m-%dT%H:%M:%S%.f") {
-    Ok(_) =&gt; {
-      let tx = conn.transaction()?;
-      // it used to be useful to keep all snapshots in case history needs to be rebuilt
-      // but in production it would consume too much space to keep all raw snapshots in db
-      // {
-      //   let mut stmt = tx.prepare("replace into snapshots(t, data) values(?, ?)")?;
-      //   stmt.execute(params![tstamp, data])?;
-      // }
-      process_snapshot(&amp;tx, tstamp, data)?;
-      tx.commit()?;
-      Ok(true)
-    },
-    _ =&gt; Ok(false)
-  }
+    HttpResponse::Ok()
+        .content_type("image/vnd.microsoft.icon")
+        .body(FICON)
 }
 </t>
-<t tx="vitalije.20190721154022.1">fn create_tables(conn:&amp;Connection) -&gt; Result&lt;()&gt; {
-  conn.execute("create table if not exists snapshots(t primary key, data)", params![])?;
-  conn.execute("create table if not exists present(gnx primary key, hb, x)", params![])?;
-  conn.execute("create table if not exists changes(t, gnx, d, primary key (t, gnx))", params![])?;
-  conn.execute("create index if not exists gnx_changes on changes(gnx)", params![])?;
-  Ok(())
-}</t>
-<t tx="vitalije.20190721154502.1">fn process_snapshot(tx:&amp;Transaction, tstamp:&amp;str, txt:&amp;str) -&gt; Result&lt;()&gt; {
-  let mut nodes = decode_snapshot(txt);
-  let mut a = Vec::new();
-  let mut b = Vec::new();
-  let mut stmt = tx.prepare("select gnx, hb from present")?;
-  let mut rows = stmt.query(NO_PARAMS)?;
-  while let Ok(Some(row)) = rows.next() {
-    let gnx:String = row.get(0).unwrap();
-    let hb:String = row.get(1).unwrap();
-    match nodes.remove(&amp;gnx) {
-      Some(s) =&gt; {
-        if hb != s {
-          a.push((tstamp, gnx.clone(), delta(&amp;hb, &amp;s)));
-          b.push((gnx, s, false));
-        }
-      },
-      None =&gt; {
-        // this node is deleted
-        if hb.len() &gt; 0 {
-          a.push((tstamp, gnx.clone(), delta(&amp;hb, "")));
-        }
-        b.push((gnx, String::new(), true));
-      }
+<t tx="vitalije.20190721152644.1">fn decode_snapshot(txt: &amp;str) -&gt; HashMap&lt;String, String&gt; {
+    let (outline, _, rest) = partition(txt, "\n\n");
+    let mut nodes = HashMap::new();
+    nodes.insert(String::from("__outline__"), String::from(outline));
+    let mut i = 0;
+    let nrest = rest.len();
+    while i &lt; nrest {
+        let (n, _, x) = partition(&amp;rest[i..], " ");
+        i += n.len() + 1;
+        let n: usize = n.parse().unwrap();
+        let (gnx, _, hb) = partition(&amp;x[..n], "\n");
+        i += n;
+        nodes.insert(String::from(gnx), String::from(hb));
     }
-  }
-  for (gnx, hb) in nodes.drain() {
-    // these nodes are new
-    a.push((tstamp, gnx.clone(), delta("", &amp;hb)));
-    b.push((gnx, hb, false));
-  }
-  let mut stmt = tx.prepare("insert or replace into present(gnx, hb, x) values (?, ?, ?)")?;
-  for (x, y, z) in b {
-    stmt.execute(params![x, y, z])?;
-  }
-  let mut stmt = tx.prepare("insert into changes(t, gnx, d) values (?, ?, ?)")?;
-  for (x, y, z) in a {
-    stmt.execute(params![x, y, z])?;
-  }
-  Ok(())
+    nodes
+}
+</t>
+<t tx="vitalije.20190721154013.1">pub fn connect(pth: &amp;str) -&gt; Result&lt;Connection&gt; {
+    let conn = Connection::open(pth)?;
+    create_tables(&amp;conn)?;
+    Ok(conn)
+}
+</t>
+<t tx="vitalije.20190721154018.1">pub fn add_snapshot(conn: &amp;mut Connection, tstamp: &amp;str, data: &amp;str) -&gt; Result&lt;bool&gt; {
+    match NaiveDateTime::parse_from_str(tstamp, "%Y-%m-%dT%H:%M:%S%.f") {
+        Ok(_) =&gt; {
+            let tx = conn.transaction()?;
+            // it used to be useful to keep all snapshots in case history needs to be rebuilt
+            // but in production it would consume too much space to keep all raw snapshots in db
+            // {
+            //   let mut stmt = tx.prepare("replace into snapshots(t, data) values(?, ?)")?;
+            //   stmt.execute(params![tstamp, data])?;
+            // }
+            process_snapshot(&amp;tx, tstamp, data)?;
+            tx.commit()?;
+            Ok(true)
+        }
+        _ =&gt; Ok(false),
+    }
 }</t>
-<t tx="vitalije.20190721200842.1">pub fn get_all_at(conn:&amp;Connection, tstamp:&amp;str) -&gt; Result&lt;String&gt; {
-  let mut nodes = HashMap::new();
-  {
-    let mut stmt = conn.prepare("select gnx, hb from present where not x")?;
+<t tx="vitalije.20190721154022.1">fn create_tables(conn: &amp;Connection) -&gt; Result&lt;()&gt; {
+    conn.execute(
+        "create table if not exists snapshots(t primary key, data)",
+        params![],
+    )?;
+    conn.execute(
+        "create table if not exists present(gnx primary key, hb, x)",
+        params![],
+    )?;
+    conn.execute(
+        "create table if not exists changes(t, gnx, d, primary key (t, gnx))",
+        params![],
+    )?;
+    conn.execute(
+        "create index if not exists gnx_changes on changes(gnx)",
+        params![],
+    )?;
+    Ok(())
+}
+</t>
+<t tx="vitalije.20190721154502.1">fn process_snapshot(tx: &amp;Transaction, tstamp: &amp;str, txt: &amp;str) -&gt; Result&lt;()&gt; {
+    let mut nodes = decode_snapshot(txt);
+    let mut a = Vec::new();
+    let mut b = Vec::new();
+    let mut stmt = tx.prepare("select gnx, hb from present")?;
     let mut rows = stmt.query(NO_PARAMS)?;
-    while let Some(row) = rows.next()? {
-      let gnx:String = row.get(0)?;
-      let hb:String = row.get(1)?;
-      nodes.insert(gnx, hb);
+    while let Ok(Some(row)) = rows.next() {
+        let gnx: String = row.get(0).unwrap();
+        let hb: String = row.get(1).unwrap();
+        match nodes.remove(&amp;gnx) {
+            Some(s) =&gt; {
+                if hb != s {
+                    a.push((tstamp, gnx.clone(), delta(&amp;hb, &amp;s)));
+                    b.push((gnx, s, false));
+                }
+            }
+            None =&gt; {
+                // this node is deleted
+                if hb.len() &gt; 0 {
+                    a.push((tstamp, gnx.clone(), delta(&amp;hb, "")));
+                }
+                b.push((gnx, String::new(), true));
+            }
+        }
     }
-  }
-  {
-    let mut stmt = conn.prepare("select gnx, d from changes where t &gt;= ? order by t desc")?;
-    let mut rows = stmt.query(params![tstamp])?;
-    while let Some(row) = rows.next()? {
-      let gnx:String = row.get(0)?;
-      let d:Vec&lt;u8&gt; = row.get(1)?;
-      if let Some(b) = nodes.get_mut(&amp;gnx){
-        *b = deltainv(b, &amp;d);
-      }
+    for (gnx, hb) in nodes.drain() {
+        // these nodes are new
+        a.push((tstamp, gnx.clone(), delta("", &amp;hb)));
+        b.push((gnx, hb, false));
     }
-  }
-  let mut o = nodes.remove("__outline__").unwrap();
-  o.push('\n');
-  o.push('\n');
-  for (gnx, hb) in nodes.iter() {
-      let n = gnx.len() + hb.len() + 1;
-      o.push_str(&amp;format!("{} {}\n{}", n, &amp;gnx, &amp;hb));
-  }
-  Ok(o)
-}
-</t>
-<t tx="vitalije.20190721203545.1">pub fn get_node_rev_count(conn:&amp;Connection, gnx:&amp;str) -&gt; Result&lt;(String, String, u32)&gt; {
-  let mut stmt = conn.prepare("select Coalesce(min(t), strftime('now')), 
-                                      Coalesce(max(t), strftime('now')),
-                                      count(t) from changes where gnx=?")?;
-  let mut rows = stmt.query(params![gnx])?;
-  if let Some(row) = rows.next()? {
-    let n:u32 = row.get(2)?;
-    let t1:String = row.get(0)?;
-    let t2:String = row.get(1)?;
-    Ok((t1, t2, n))
-  } else {
-    Ok((String::new(), String::new(), 0))
-  }
+    let mut stmt = tx.prepare("insert or replace into present(gnx, hb, x) values (?, ?, ?)")?;
+    for (x, y, z) in b {
+        stmt.execute(params![x, y, z])?;
+    }
+    let mut stmt = tx.prepare("insert into changes(t, gnx, d) values (?, ?, ?)")?;
+    for (x, y, z) in a {
+        stmt.execute(params![x, y, z])?;
+    }
+    Ok(())
 }</t>
-<t tx="vitalije.20190721205405.1">pub fn get_node_at(conn:&amp;Connection, gnx:&amp;str, tstamp:&amp;str) -&gt; Result&lt;String&gt; {
-  let mut stmt = conn.prepare("select hb from present where gnx = ?")?;
-  let mut rows = stmt.query(params![gnx])?;
-  let mut hb = if let Some(row) = rows.next()? {
-    row.get(0)?
-  } else { String::new() };
-  let mut stmt = conn.prepare("select t, d from changes where gnx=? order by t desc")?;
-  let mut rows = stmt.query(params![gnx])?;
-  while let Some(row) = rows.next()? {
-    let t:String = row.get(0)?;
-    if t.as_str() &lt; tstamp {
-      return Ok(hb);
+<t tx="vitalije.20190721200842.1">pub fn get_all_at(conn: &amp;Connection, tstamp: &amp;str) -&gt; Result&lt;String&gt; {
+    let mut nodes = HashMap::new();
+    {
+        let mut stmt = conn.prepare("select gnx, hb from present where not x")?;
+        let mut rows = stmt.query(NO_PARAMS)?;
+        while let Some(row) = rows.next()? {
+            let gnx: String = row.get(0)?;
+            let hb: String = row.get(1)?;
+            nodes.insert(gnx, hb);
+        }
     }
-    let d:Vec&lt;u8&gt; = row.get(1)?;
-    hb = deltainv(&amp;hb, &amp;d);
-  }
-  Ok(hb)
+    {
+        let mut stmt = conn.prepare("select gnx, d from changes where t &gt;= ? order by t desc")?;
+        let mut rows = stmt.query(params![tstamp])?;
+        while let Some(row) = rows.next()? {
+            let gnx: String = row.get(0)?;
+            let d: Vec&lt;u8&gt; = row.get(1)?;
+            if let Some(b) = nodes.get_mut(&amp;gnx) {
+                *b = deltainv(b, &amp;d);
+            }
+        }
+    }
+    let mut o = nodes.remove("__outline__").unwrap();
+    o.push('\n');
+    o.push('\n');
+    for (gnx, hb) in nodes.iter() {
+        let n = gnx.len() + hb.len() + 1;
+        o.push_str(&amp;format!("{} {}\n{}", n, &amp;gnx, &amp;hb));
+    }
+    Ok(o)
+}</t>
+<t tx="vitalije.20190721203545.1">pub fn get_node_rev_count(conn: &amp;Connection, gnx: &amp;str) -&gt; Result&lt;(String, String, u32)&gt; {
+    let mut stmt = conn.prepare(
+        "select Coalesce(min(t), strftime('now')), 
+              Coalesce(max(t), strftime('now')),
+              count(t) from changes where gnx=?")?;
+    let mut rows = stmt.query(params![gnx])?;
+    if let Some(row) = rows.next()? {
+        let n: u32 = row.get(2)?;
+        let t1: String = row.get(0)?;
+        let t2: String = row.get(1)?;
+        Ok((t1, t2, n))
+    } else {
+        Ok((String::new(), String::new(), 0))
+    }
 }
 </t>
-<t tx="vitalije.20190721210327.1">pub fn get_node_revision(conn:&amp;Connection, gnx:&amp;str, num:usize) -&gt; Result&lt;String&gt; {
-  let mut stmt = conn.prepare("select hb, datetime('now', 'localtime') from present where gnx = ?")?;
-  let mut rows = stmt.query(params![gnx])?;
-  let mut tstamp = String::new();
-  let mut hb = match rows.next()? {
-    Some(row) =&gt; {
-      let t:String = row.get(1)?;
-      tstamp.push_str(&amp;t[..10]);
-      tstamp.push('T');
-      tstamp.push_str(&amp;t[11..]);
-      tstamp.push_str(".000000");
-      row.get(0)?
-    },
-    _ =&gt; String::new()
-  };
-  if num  == 0 {
+<t tx="vitalije.20190721205405.1">pub fn get_node_at(conn: &amp;Connection, gnx: &amp;str, tstamp: &amp;str) -&gt; Result&lt;String&gt; {
+    let mut stmt = conn.prepare("select hb from present where gnx = ?")?;
+    let mut rows = stmt.query(params![gnx])?;
+    let mut hb = if let Some(row) = rows.next()? {
+        row.get(0)?
+    } else {
+        String::new()
+    };
+    let mut stmt = conn.prepare("select t, d from changes where gnx=? order by t desc")?;
+    let mut rows = stmt.query(params![gnx])?;
+    while let Some(row) = rows.next()? {
+        let t: String = row.get(0)?;
+        if t.as_str() &lt; tstamp {
+            return Ok(hb);
+        }
+        let d: Vec&lt;u8&gt; = row.get(1)?;
+        hb = deltainv(&amp;hb, &amp;d);
+    }
+    Ok(hb)
+}</t>
+<t tx="vitalije.20190721210327.1">pub fn get_node_revision(conn: &amp;Connection, gnx: &amp;str, num: usize) -&gt; Result&lt;String&gt; {
+    let mut stmt =
+        conn.prepare("select hb, datetime('now', 'localtime') from present where gnx = ?")?;
+    let mut rows = stmt.query(params![gnx])?;
+    let mut tstamp = String::new();
+    let mut hb = match rows.next()? {
+        Some(row) =&gt; {
+            let t: String = row.get(1)?;
+            tstamp.push_str(&amp;t[..10]);
+            tstamp.push('T');
+            tstamp.push_str(&amp;t[11..]);
+            tstamp.push_str(".000000");
+            row.get(0)?
+        }
+        _ =&gt; String::new(),
+    };
+    if num == 0 {
+        tstamp.push('\n');
+        tstamp.push_str(&amp;hb);
+        return Ok(tstamp);
+    }
+    let mut stmt = conn.prepare("select d,t from changes where gnx=? order by t desc")?;
+    let mut rows = stmt.query(params![gnx])?;
+
+    let mut i = num;
+    while let Some(row) = rows.next()? {
+        let d: Vec&lt;u8&gt; = row.get(0)?;
+        hb = deltainv(&amp;hb, &amp;d);
+        i -= 1;
+        if i == 0 {
+            tstamp = row.get(1)?;
+            break;
+        }
+    }
     tstamp.push('\n');
     tstamp.push_str(&amp;hb);
-    return Ok(tstamp);
-  }
-  let mut stmt = conn.prepare("select d,t from changes where gnx=? order by t desc")?;
-  let mut rows = stmt.query(params![gnx])?;
-
-  let mut i = num;
-  while let Some(row) = rows.next()? {
-    let d:Vec&lt;u8&gt; = row.get(0)?;
-    hb = deltainv(&amp;hb, &amp;d);
-    i -= 1;
-    if i == 0 {
-      tstamp = row.get(1)?;
-      break;
-    }
-  }
-  tstamp.push('\n');
-  tstamp.push_str(&amp;hb);
-  Ok(tstamp)
-}</t>
-<t tx="vitalije.20190721210558.1">pub fn get_all_revision(conn:&amp;Connection, rev:usize) -&gt; Result&lt;String&gt; {
-  let mut nodes = HashMap::new();
-  {
-    let mut stmt = conn.prepare("select gnx, hb from present where not x")?;
-    let mut rows = stmt.query(NO_PARAMS)?;
-    while let Some(row) = rows.next()? {
-      let gnx:String = row.get(0)?;
-      let hb:String = row.get(1)?;
-      nodes.insert(gnx, hb);
-    }
-  }
-  let mut tstamp = String::new();
-  if rev &gt; 0 {
-    let mut stmt = conn.prepare("select gnx, d, t from changes order by t desc")?;
-    let mut rows = stmt.query(NO_PARAMS)?;
-    let mut i = 0;
-    while let Some(row) = rows.next()? {
-      let gnx:String = row.get(0)?;
-      let d:Vec&lt;u8&gt; = row.get(1)?;
-      if let Some(b) = nodes.get_mut(&amp;gnx){
-        *b = deltainv(b, &amp;d);
-      }
-      i += 1;
-      if i == rev {
-        tstamp = row.get(2)?;
-        break;
-      }
-    }
-  }
-  let mut o = nodes.remove("__outline__").unwrap();
-  o.insert(0, '\n');
-  o.insert_str(0, &amp;tstamp);
-  o.push('\n');
-  o.push('\n');
-  for (gnx, hb) in nodes.iter() {
-      let n = gnx.len() + hb.len() + 1;
-      o.push_str(&amp;format!("{} {}\n{}", n, &amp;gnx, &amp;hb));
-  }
-  Ok(o)
+    Ok(tstamp)
 }
 </t>
-<t tx="vitalije.20190722071704.1">fn dbname(a:&amp;str) -&gt; String {
-  let mut res = String::from(a);
-  res.push_str(".history");
-  res
+<t tx="vitalije.20190721210558.1">pub fn get_all_revision(conn: &amp;Connection, rev: usize) -&gt; Result&lt;String&gt; {
+    let mut nodes = HashMap::new();
+    {
+        let mut stmt = conn.prepare("select gnx, hb from present where not x")?;
+        let mut rows = stmt.query(NO_PARAMS)?;
+        while let Some(row) = rows.next()? {
+            let gnx: String = row.get(0)?;
+            let hb: String = row.get(1)?;
+            nodes.insert(gnx, hb);
+        }
+    }
+    let mut tstamp = String::new();
+    if rev &gt; 0 {
+        let mut stmt = conn.prepare("select gnx, d, t from changes order by t desc")?;
+        let mut rows = stmt.query(NO_PARAMS)?;
+        let mut i = 0;
+        while let Some(row) = rows.next()? {
+            let gnx: String = row.get(0)?;
+            let d: Vec&lt;u8&gt; = row.get(1)?;
+            if let Some(b) = nodes.get_mut(&amp;gnx) {
+                *b = deltainv(b, &amp;d);
+            }
+            i += 1;
+            if i == rev {
+                tstamp = row.get(2)?;
+                break;
+            }
+        }
+    }
+    let mut o = nodes.remove("__outline__").unwrap();
+    o.insert(0, '\n');
+    o.insert_str(0, &amp;tstamp);
+    o.push('\n');
+    o.push('\n');
+    for (gnx, hb) in nodes.iter() {
+        let n = gnx.len() + hb.len() + 1;
+        o.push_str(&amp;format!("{} {}\n{}", n, &amp;gnx, &amp;hb));
+    }
+    Ok(o)
 }</t>
-<t tx="vitalije.20190722071708.1">fn make_connection(fname:&amp;str) -&gt; db::Connection {
-  db::connect(&amp;dbname(fname)).unwrap()
-}</t>
-<t tx="vitalije.20190722072026.1">fn ensure_connection(hmap:&amp;mut ConMap, fname:&amp;str) {
-  if !hmap.contains_key(fname) {
-    let conn = make_connection(fname);
-    hmap.insert(String::from(fname), conn);
-  }
-}</t>
-<t tx="vitalije.20190722080218.1">fn post_node_at(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
-  let (fname, _, rest) = partition(&amp;text, "\n");
-  let (gnx, _, tstamp) = partition(rest, " ");
+<t tx="vitalije.20190722071704.1">fn dbname(a: &amp;str) -&gt; String {
+    let mut res = String::from(a);
+    res.push_str(".history");
+    res
+}
+</t>
+<t tx="vitalije.20190722071708.1">fn make_connection(fname: &amp;str) -&gt; db::Connection {
+    db::connect(&amp;dbname(fname)).unwrap()
+}
+</t>
+<t tx="vitalije.20190722072026.1">fn ensure_connection(hmap: &amp;mut ConMap, fname: &amp;str) {
+    if !hmap.contains_key(fname) {
+        let conn = make_connection(fname);
+        hmap.insert(String::from(fname), conn);
+    }
+}
+</t>
+<t tx="vitalije.20190722080218.1">fn post_node_at(data: web::Data&lt;AppState&gt;, text: String) -&gt; HttpResponse {
+    let (fname, _, rest) = partition(&amp;text, "\n");
+    let (gnx, _, tstamp) = partition(rest, " ");
 
-  let mut hmap = data.m.borrow_mut();
-  if data.valid_names.lines().all(|x| x != fname) {
-    return HttpResponse::NotFound()
-      .header("x-err", format!("Unknown file:[{}]", fname))
-      .finish();
-  }
-  ensure_connection(&amp;mut hmap, fname);
+    let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+        return HttpResponse::NotFound()
+            .header("x-err", format!("Unknown file:[{}]", fname))
+            .finish();
+    }
+    ensure_connection(&amp;mut hmap, fname);
 
-  match db::get_node_at(hmap.get_mut(fname).unwrap(), gnx, tstamp) {
-    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
-    Err(e) =&gt; {
-      println!("Failed node {}\n{} at {}\n {:?}", fname, gnx, tstamp, e);
-      HttpResponse::NotFound().header("x-err", format!("Error: {:?}", e))
-      .finish()
+    match db::get_node_at(hmap.get_mut(fname).unwrap(), gnx, tstamp) {
+        Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+        Err(e) =&gt; {
+            println!("Failed node {}\n{} at {}\n {:?}", fname, gnx, tstamp, e);
+            HttpResponse::NotFound()
+                .header("x-err", format!("Error: {:?}", e))
+                .finish()
+        }
     }
-  }
-}</t>
-<t tx="vitalije.20190722080222.1">fn post_snapshot_at(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
-  let (fname, _, tstamp) = partition(&amp;text, "\n");
-  let mut hmap = data.m.borrow_mut();
-  if data.valid_names.lines().all(|x| x != fname) {
-    return HttpResponse::NotFound().body("Unknown file");
-  }
-  ensure_connection(&amp;mut hmap, fname);
-  match db::get_all_at(hmap.get_mut(fname).unwrap(), tstamp) {
-    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
-    Err(e) =&gt; {
-      println!("Failed snapshot {} at {}\n {:?}", fname, tstamp, e);
-      HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+}
+</t>
+<t tx="vitalije.20190722080222.1">fn post_snapshot_at(data: web::Data&lt;AppState&gt;, text: String) -&gt; HttpResponse {
+    let (fname, _, tstamp) = partition(&amp;text, "\n");
+    let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+        return HttpResponse::NotFound().body("Unknown file");
     }
-  }
-}</t>
-<t tx="vitalije.20190722080236.1">fn post_node_rev(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
-  let (fname, _, rest) = partition(&amp;text, "\n");
-  let (gnx, _, num) = partition(rest, " ");
-  let num:usize = match num.trim().parse() {
-    Ok(i) =&gt; i, _ =&gt; return HttpResponse::BadRequest()
-    .body(format!("Bad request: {:?}", num))
-  };
-  let mut hmap = data.m.borrow_mut();
-  if data.valid_names.lines().all(|x| x != fname) {
-    return HttpResponse::NotFound()
-      .header("x-err", format!("Unknown file:[{}]", fname))
-      .finish();
-  }
-  ensure_connection(&amp;mut hmap, fname);
-  match db::get_node_revision(hmap.get_mut(fname).unwrap(), gnx, num) {
-    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
-    Err(e) =&gt; {
-      println!("Failed node {}\n{} rev {}\n {:?}", fname, gnx, num, e);
-      HttpResponse::NotFound().header("x-err", format!("Error: {:?}", e))
-      .finish()
+    ensure_connection(&amp;mut hmap, fname);
+    match db::get_all_at(hmap.get_mut(fname).unwrap(), tstamp) {
+        Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+        Err(e) =&gt; {
+            println!("Failed snapshot {} at {}\n {:?}", fname, tstamp, e);
+            HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+        }
     }
-  }
-}</t>
+}
+</t>
+<t tx="vitalije.20190722080236.1">fn post_node_rev(data: web::Data&lt;AppState&gt;, text: String) -&gt; HttpResponse {
+    let (fname, _, rest) = partition(&amp;text, "\n");
+    let (gnx, _, num) = partition(rest, " ");
+    let num: usize = match num.trim().parse() {
+        Ok(i) =&gt; i,
+        _ =&gt; return HttpResponse::BadRequest().body(format!("Bad request: {:?}", num)),
+    };
+    let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+        return HttpResponse::NotFound()
+            .header("x-err", format!("Unknown file:[{}]", fname))
+            .finish();
+    }
+    ensure_connection(&amp;mut hmap, fname);
+    match db::get_node_revision(hmap.get_mut(fname).unwrap(), gnx, num) {
+        Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+        Err(e) =&gt; {
+            println!("Failed node {}\n{} rev {}\n {:?}", fname, gnx, num, e);
+            HttpResponse::NotFound()
+                .header("x-err", format!("Error: {:?}", e))
+                .finish()
+        }
+    }
+}
+</t>
 <t tx="vitalije.20190722080629.1">#[derive(Serialize)]
 struct RevCount {
-  tmin:String,
-  tmax:String,
-  n:u32,
+    tmin: String,
+    tmax: String,
+    n: u32,
 }
-fn post_node_rev_count(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
-  let (fname, _, gnx) = partition(&amp;text, "\n");
-  let mut hmap = data.m.borrow_mut();
-  if data.valid_names.lines().all(|x| x != fname) {
-    return HttpResponse::NotFound().body("Unknown file");
-  }
-  ensure_connection(&amp;mut hmap, fname);
-  match db::get_node_rev_count(hmap.get_mut(fname).unwrap(), gnx) {
-    Ok((tmin, tmax, n)) =&gt;
-      HttpResponse::Ok().json(RevCount {tmin, tmax, n}),
-    Err(e) =&gt; {
-      println!("Failed node rev count {}\n{}\n {:?}", fname, gnx, e);
-      HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+fn post_node_rev_count(data: web::Data&lt;AppState&gt;, text: String) -&gt; HttpResponse {
+    let (fname, _, gnx) = partition(&amp;text, "\n");
+    let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+        return HttpResponse::NotFound().body("Unknown file");
     }
-  }
-}</t>
-<t tx="vitalije.20190722081531.1">fn post_snapshot_rev(data:web::Data&lt;AppState&gt;, text:String) -&gt; HttpResponse {
-  let (fname, _, rest) = partition(&amp;text, "\n");
-  let num:usize = match rest.trim().parse() {
-    Ok(i) =&gt; i, _ =&gt; return HttpResponse::BadRequest().body("Bad request")
-  };
-  let mut hmap = data.m.borrow_mut();
-  if data.valid_names.lines().all(|x| x != fname) {
-    return HttpResponse::NotFound().body("Unknown file");
-  }
-  ensure_connection(&amp;mut hmap, fname);
-  match db::get_all_revision(hmap.get_mut(fname).unwrap(), num) {
-    Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
-    Err(e) =&gt; {
-      println!("Failed snapshot {} rev {}\n {:?}", fname, num, e);
-      HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+    ensure_connection(&amp;mut hmap, fname);
+    match db::get_node_rev_count(hmap.get_mut(fname).unwrap(), gnx) {
+        Ok((tmin, tmax, n)) =&gt; HttpResponse::Ok().json(RevCount { tmin, tmax, n }),
+        Err(e) =&gt; {
+            println!("Failed node rev count {}\n{}\n {:?}", fname, gnx, e);
+            HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+        }
     }
-  }
-}</t>
+}
+</t>
+<t tx="vitalije.20190722081531.1">fn post_snapshot_rev(data: web::Data&lt;AppState&gt;, text: String) -&gt; HttpResponse {
+    let (fname, _, rest) = partition(&amp;text, "\n");
+    let num: usize = match rest.trim().parse() {
+        Ok(i) =&gt; i,
+        _ =&gt; return HttpResponse::BadRequest().body("Bad request"),
+    };
+    let mut hmap = data.m.borrow_mut();
+    if data.valid_names.lines().all(|x| x != fname) {
+        return HttpResponse::NotFound().body("Unknown file");
+    }
+    ensure_connection(&amp;mut hmap, fname);
+    match db::get_all_revision(hmap.get_mut(fname).unwrap(), num) {
+        Ok(s) =&gt; HttpResponse::Ok().content_type("text/plain").body(s),
+        Err(e) =&gt; {
+            println!("Failed snapshot {} rev {}\n {:?}", fname, num, e);
+            HttpResponse::NotFound().body(format!("\n\nError: {:?}", e))
+        }
+    }
+}
+</t>
 <t tx="vitalije.20190722085141.2">def genbulma(x):
     ob = {}
     ob['data'] = x
@@ -1679,9 +1742,10 @@ nodeRange:
     v.i = ss.nodeRange.i
     docdispatch EVENTS.NODE_RANGE_CHANGED, v
 </t>
-<t tx="vitalije.20190722124627.1">fn get_leo_files(data:web::Data&lt;AppState&gt;) -&gt; String {
-  data.valid_names.clone()
-}</t>
+<t tx="vitalije.20190722124627.1">fn get_leo_files(data: web::Data&lt;AppState&gt;) -&gt; String {
+    data.valid_names.clone()
+}
+</t>
 <t tx="vitalije.20190722130051.1">EVENTS =
   GNX_SELECTED: 'gnxselected'
   LEO_FILE_SELECTED: 'leofileselected'
@@ -1987,16 +2051,18 @@ if __name__ == '__main__':
     for x in range(-100, 101):
         for y in range(-100, 101):
             check(x, y)
-    print("Није пронађена грешка у твом програму.")"#;</t>
+    print("Није пронађена грешка у твом програму.")"#;
+</t>
 <t tx="vitalije.20190920132731.1">#[test]
-fn test_bug_002(){
+fn test_bug_002() {
   let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
   let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
   let d = delta(b, a);
   let mut d1 = Vec::new();
   d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
   assert_eq!(d, d1);
-}</t>
+}
+</t>
 <t tx="vitalije.20190928104916.1">connect_tree = (h) -&gt;
   canv = $el('tree')
   canv.height = h
@@ -2063,33 +2129,36 @@ fn test_bug_002(){
 <t tx="vitalije.20190928170916.1">type ConMap = HashMap&lt;String, db::Connection&gt;;
 
 struct AppState {
-  m: RefCell&lt;ConMap&gt;,
-  valid_names: String,
+    m: RefCell&lt;ConMap&gt;,
+    valid_names: String,
 }
 impl AppState {
-  fn new() -&gt; Self {
-    let mut args = env::args();
-    let valid_names = load_valid_names(&amp;args.nth(1).unwrap());
-    AppState {
-      m:RefCell::new(HashMap::new()),
-      valid_names
+    fn new() -&gt; Self {
+        let mut args = env::args();
+        let valid_names = load_valid_names(&amp;args.nth(1).unwrap());
+        AppState {
+            m: RefCell::new(HashMap::new()),
+            valid_names,
+        }
     }
-  }
-}</t>
-<t tx="vitalije.20190928170928.1">fn load_file(fname:&amp;str) -&gt; std::io::Result&lt;String&gt; {
-  let mut content = String::new();
-  let mut file = File::open(fname)?;
-  file.read_to_string(&amp;mut content)?;
-  Ok(content)
-}</t>
-<t tx="vitalije.20190928170932.1">fn load_valid_names(fname:&amp;str) -&gt; String {
-  match load_file(fname) {
-    Ok(s) =&gt; s,
-    Err(e) =&gt; {
-      println!("Can't load valid file names: {:?}", e);
-      String::new()
+}
+</t>
+<t tx="vitalije.20190928170928.1">fn load_file(fname: &amp;str) -&gt; std::io::Result&lt;String&gt; {
+    let mut content = String::new();
+    let mut file = File::open(fname)?;
+    file.read_to_string(&amp;mut content)?;
+    Ok(content)
+}
+</t>
+<t tx="vitalije.20190928170932.1">fn load_valid_names(fname: &amp;str) -&gt; String {
+    match load_file(fname) {
+        Ok(s) =&gt; s,
+        Err(e) =&gt; {
+            println!("Can't load valid file names: {:?}", e);
+            String::new()
+        }
     }
-  }
-}</t>
+}
+</t>
 </tnodes>
 </leo_file>

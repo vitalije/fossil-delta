@@ -1,9 +1,8 @@
-
-use pyo3::prelude::*;
 use fossil_delta::{delta, deltainv};
+use pyo3::prelude::*;
 
 #[pymodule]
-fn fossil_delta(_py: Python, m:&PyModule) -> PyResult<()> {
+fn fossil_delta(_py: Python, m: &PyModule) -> PyResult<()> {
     /// Calculates delta between two given strings a and b
     ///
     /// >>> d = fossil_delta.delta(a, b)
@@ -11,7 +10,7 @@ fn fossil_delta(_py: Python, m:&PyModule) -> PyResult<()> {
     /// >>> assert s == a
     ///
     #[pyfn(m, "delta")]
-    fn py_delta(py: Python, a:&str, b:&str) -> PyResult<PyObject> {
+    fn py_delta(py: Python, a: &str, b: &str) -> PyResult<PyObject> {
         let res = delta(a, b);
         Ok(res.to_object(py))
     }
@@ -22,8 +21,8 @@ fn fossil_delta(_py: Python, m:&PyModule) -> PyResult<()> {
     /// >>> assert s == a
     ///
     #[pyfn(m, "deltainv")]
-    fn py_deltainv(py: Python, b:&str, d:PyObject) -> PyResult<String> {
-        let dv:Vec<u8> = d.extract(py).unwrap();
+    fn py_deltainv(py: Python, b: &str, d: PyObject) -> PyResult<String> {
+        let dv: Vec<u8> = d.extract(py).unwrap();
         let res = deltainv(b, &dv);
         Ok(res)
     }
