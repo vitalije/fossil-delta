@@ -2149,7 +2149,10 @@ impl AppState {
 </t>
 <t tx="vitalije.20190928170932.1">fn load_valid_names(fname: &amp;str) -&gt; String {
     match load_file(fname) {
-        Ok(s) =&gt; s,
+        Ok(mut s) =&gt; {
+            s.retain(|c|c != '\r');
+            s
+        },
         Err(e) =&gt; {
             println!("Can't load valid file names: {:?}", e);
             String::new()

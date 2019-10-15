@@ -39,7 +39,10 @@ fn load_file(fname: &str) -> std::io::Result<String> {
 }
 fn load_valid_names(fname: &str) -> String {
     match load_file(fname) {
-        Ok(s) => s,
+        Ok(mut s) => {
+            s.retain(|c|c != '\r');
+            s
+        },
         Err(e) => {
             println!("Can't load valid file names: {:?}", e);
             String::new()
