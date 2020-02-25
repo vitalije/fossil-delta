@@ -20,3 +20,12 @@ the second argument optionally is a port number on which server should listen.
 ```
 leo-ver-serv ~/.leo/.leoRecentFiles.txt 8088
 ```
+
+## Leo Configuration
+In Leo open _myLeoSettings.leo_ add a node under `@settings` with matching port:
+
+```
+@int history-tracer-port=8088
+```
+...and ensure `history_tracer.py` in body of `@settings-->@enabled-plugins` is uncommented.
+
