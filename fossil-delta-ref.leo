@@ -876,7 +876,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
@@ -1932,7 +1932,18 @@ visible_nodes = -&gt;
     get_rev_count('__outline__')
   wait(20).then -&gt;
     appstate.rev = 0
-</t>
+  last_redraw = [0]
+  rf = (t) -&gt;
+    if last_redraw[0] != 0
+      dt = t - last_redraw[0]
+      if dt &gt; 10000
+        # if the page was not visible for more than 10s
+        # we must repopulate ranges. This will happen
+        # automatically after the following line
+        appstate.currentFileIndex = appstate.currentFileIndex
+    last_redraw[0] = t
+    requestAnimationFrame(rf)
+  requestAnimationFrame(rf)</t>
 <t tx="vitalije.20190729154326.1">wait = (t) -&gt;
   new Promise (res, rej) -&gt;
     setTimeout res, t</t>

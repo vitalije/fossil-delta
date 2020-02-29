@@ -553,7 +553,7 @@
   };
 
   start_app = function() {
-    var h;
+    var h, last_redraw, rf;
     h = window.innerHeight - $el('toolbar').getBoundingClientRect().height;
     $q('.app-flex').style.height = `${h}px`;
     install_editor();
@@ -564,9 +564,25 @@
     get_leo_files().then(function() {
       return get_rev_count('__outline__');
     });
-    return wait(20).then(function() {
+    wait(20).then(function() {
       return appstate.rev = 0;
     });
+    last_redraw = [0];
+    rf = function(t) {
+      var dt;
+      if (last_redraw[0] !== 0) {
+        dt = t - last_redraw[0];
+        if (dt > 10000) {
+          // if the page was not visible for more than 10s
+          // we must repopulate ranges. This will happen
+          // automatically after the following line
+          appstate.currentFileIndex = appstate.currentFileIndex;
+        }
+      }
+      last_redraw[0] = t;
+      return requestAnimationFrame(rf);
+    };
+    return requestAnimationFrame(rf);
   };
 
   window.addEventListener('load', start_app);
