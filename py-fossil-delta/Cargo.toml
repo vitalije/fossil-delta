@@ -22,5 +22,5 @@ cbindgen = "0.5.2"
 fossil-delta = { path="../fossil-delta", version="0.1.6"}
 
 [dependencies.pyo3]
-version = "0.7.0"
+version = "0.8.4"
 features = ["extension-module"]

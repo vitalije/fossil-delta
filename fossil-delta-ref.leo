@@ -743,9 +743,8 @@ cbindgen = "0.5.2"
 fossil-delta = { path="../fossil-delta", version="0.1.6"}
 
 [dependencies.pyo3]
-version = "0.7.0"
-features = ["extension-module"]
-</t>
+version = "0.8.4"
+features = ["extension-module"]</t>
 <t tx="vitalije.20190709083254.1">use fossil_delta::{delta, deltainv};
 use pyo3::prelude::*;
 
@@ -2036,6 +2035,15 @@ the second argument optionally is a port number on which server should listen.
 ```
 leo-ver-serv ~/.leo/.leoRecentFiles.txt 8088
 ```
+
+## Leo Configuration
+In Leo open _myLeoSettings.leo_ add a node under `@settings` with matching port:
+
+```
+@int history-tracer-port=8088
+```
+...and ensure `history_tracer.py` in body of `@settings--&gt;@enabled-plugins` is uncommented.
+
 </t>
 <t tx="vitalije.20190920125620.1">    #[allow(dead_code)]
     static BUG002_A:&amp;str = r#"from student import moja_tajna_funkcija
