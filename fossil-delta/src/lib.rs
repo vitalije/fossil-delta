@@ -2,7 +2,7 @@
 
 ```rust
 use fossil_delta::{delta, deltainv};
-let a = r#"line 1
+let a = b"line 1
   yet another (a bit longer) line 2
   yet another (a bit longer) line 3
   yet another (a bit longer) line 4
@@ -11,8 +11,8 @@ let a = r#"line 1
   yet another (a bit longer) line 7
   yet another (a bit longer) line 8
   yet another (a bit longer) line 9
-  yet another (a bit longer) line 10"#;
-let b = r#"line 1
+  yet another (a bit longer) line 10";
+let b = b"line 1
   yet another (a bit longer) line 2
   yet another (a bit longer) line 3
   yet another (a bit longer) line 4
@@ -22,7 +22,7 @@ let b = r#"line 1
   yet another (a bit longer) line 7
   yet another (a bit longer) line 8
   yet another (a bit longer) line 9
-  and finally last line 10"#;
+  and finally last line 10";
 let d = delta(a, b);
 let s = deltainv(b, &d);
 assert_eq!(&s, a);
@@ -46,21 +46,23 @@ pub fn b64str(n: u32) -> String {
 }
 
 /// converts base 64 str to u32
-pub fn b64int(a: &str) -> u32 {
-    b64int_read(a.as_bytes()).0 as u32
+pub fn b64int<T: AsRef<[u8]> + ?Sized>(a: &T) -> u32 {
+    b64int_read(a.as_ref()).0 as u32
 }
 
-pub fn b64int_read(a: &[u8]) -> (usize, &[u8]) {
+pub fn b64int_read<T: AsRef<[u8]> + ?Sized>(a: &T) -> (usize, &[u8]) {
     let mut res = 0_usize;
-    for (j, i) in a.iter().enumerate() {
+    for (j, i) in a.as_ref().iter().enumerate() {
         let k = B64VALUES[(i & 127) as usize];
         if k == 255 {
+             let a = a.as_ref();
             return (res, &a[j..]);
         }
         res = (res << 6) + (k as usize);
     }
     (res, b"")
 }
+
 const B64DIGITS: [char; 64] = [
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', 'a',
@@ -78,6 +80,7 @@ const B64VALUES: [u8; 128] = [
     40u8, 41u8, 42u8, 43u8, 44u8, 45u8, 46u8, 47u8, 48u8, 49u8, 50u8, 51u8, 52u8, 53u8, 54u8, 55u8,
     56u8, 57u8, 58u8, 59u8, 60u8, 61u8, 62u8, 255u8, 255u8, 255u8, 63u8, 255u8,
 ];
+
 /// Return the number digits in the base-64 representation of a positive integer
 pub fn digit_count(v: usize) -> usize {
     let mut x = 64;
@@ -89,12 +92,13 @@ pub fn digit_count(v: usize) -> usize {
     }
     11
 }
+
 /// Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
 /// buffer is not a multiple of 4 bytes length, compute the sum that would
 /// have occurred if the buffer was padded with zeros to the next multiple
 /// of four bytes.
-fn checksum(z_in: &[u8]) -> u32 {
-    let it = z_in.chunks_exact(4);
+fn checksum<T: AsRef<[u8]>>(z_in: T) -> u32 {
+    let it = z_in.as_ref().chunks_exact(4);
     let b = it.remainder();
     let a_b: [u8; 4] = match b.len() {
         0 => [0, 0, 0, 0],
@@ -163,14 +167,14 @@ fn checksum(z_in: &[u8]) -> u32 {
 /// do not match or which can not be encoded efficiently using copy
 /// commands.
 ///
-pub fn generate_delta(
-    z_out_t: &str,         /* The target text */
-    z_src_t: &str,         /* The source text */
+pub fn generate_delta<T: AsRef<[u8]>, V: AsRef<[u8]>>(
+    z_out_t: T,         /* The target text */
+    z_src_t: V,         /* The source text */
     z_delta: &mut Vec<u8>, /* A string to hold the resulting delta */
 ) {
     z_delta.clear();
-    let z_src = z_src_t.as_bytes();
-    let z_out = z_out_t.as_bytes();
+    let z_src = z_src_t.as_ref();
+    let z_out = z_out_t.as_ref();
     // match block backward
     let mb_backward = |i, j, n| {
         if i == 0 || j <= n {
@@ -294,13 +298,15 @@ pub fn generate_delta(
     z_delta.extend_from_slice(b64str(checksum(z_out)).as_bytes());
     z_delta.push(b';');
 }
+
 /// Creates delta and returns it as a String
 /// see [`generate_delta`]
-pub fn delta(a: &str, b: &str) -> Vec<u8> {
-    let mut d = Vec::with_capacity(b.len() + 60);
+pub fn delta<T: AsRef<[u8]>, V: AsRef<[u8]>>(a: T, b: V) -> Vec<u8> {
+    let mut d = Vec::with_capacity(b.as_ref().len() + 60);
     generate_delta(a, b, &mut d);
     d
 }
+
 /// Return the size (in bytes) of the output from applying
 /// a delta.
 ///
@@ -309,19 +315,22 @@ pub fn delta(a: &str, b: &str) -> Vec<u8> {
 /// for the output and hence allocate nor more space that is really
 /// needed.
 ///
-pub fn delta_output_size(z_delta: &str) -> usize {
-    b64int(z_delta) as usize
+pub fn delta_output_size<T: AsRef<[u8]>>(z_delta: T) -> usize {
+    b64int(&z_delta) as usize
 }
+
 /// Given the current version of text value `b_txt` and delta value as `d_txt`
 /// this function returns the previous version of text b_txt.
-pub fn deltainv(b_txt: &str, d_txt: &[u8]) -> String {
-    let (total_length, mut d_src) = b64int_read(d_txt);
+pub fn deltainv<T: AsRef<[u8]>, V: AsRef<[u8]>>(b_txt: T, d_txt: V) -> Vec<u8> {
+    let (total_length, mut d_src) = b64int_read(&d_txt);
 
     let mut a_res = Vec::with_capacity(total_length);
-    let b_bytes = b_txt.as_bytes();
+    let b_txt = b_txt.as_ref();
+    let b_bytes = b_txt;
+    let d_txt = d_txt.as_ref();
     d_src = &d_src[1..];
     while d_src.len() > 0 {
-        let (cnt, d1_src) = b64int_read(&d_src);
+        let (cnt, d1_src) = b64int_read(d_src);
         match d1_src[0] {
             b'@' => {
                 let (ofst, d1_src) = b64int_read(&d1_src[1..]);
@@ -333,11 +342,11 @@ pub fn deltainv(b_txt: &str, d_txt: &[u8]) -> String {
                 a_res.extend_from_slice(&d_txt[i..(cnt + i)]);
                 d_src = &d1_src[(1 + cnt)..];
             }
-            b';' => return String::from_utf8(a_res).unwrap(),
+            b';' => return a_res,
             _ => {
                 let msg = format!(
                     r#"Error in applying delta
-        txt: {}
+        txt: {:?}
         -----------------------------
         delta: {:?}
         =============================
@@ -347,12 +356,13 @@ pub fn deltainv(b_txt: &str, d_txt: &[u8]) -> String {
                     d_txt,
                     d_txt.len() - d1_src.len()
                 );
-                panic!(msg)
+                panic!("{}", msg)
             }
         }
     }
-    String::from_utf8(a_res).unwrap()
+    a_res
 }
+
 const NHASH_1: usize = NHASH - 1;
 const NHASHI32: i32 = NHASH as i32;
 struct Hash {
@@ -427,12 +437,12 @@ mod tests {
         let cur = include_str!("test-data/file-b.txt");
         let d1: &[u8] = include_bytes!("test-data/file-delta.txt");
         let mut d = Vec::new();
-        generate_delta(cur, old, &mut d);
+        generate_delta(&cur, &old, &mut d);
         assert_eq!(d.as_slice(), d1);
     }
     #[test]
     fn round_trip_test() {
-        let a = r#"line 1
+        let a = b"line 1
             yet another (a bit longer) line 2
             yet another (a bit longer) line 3
             yet another (a bit longer) line 4
@@ -441,8 +451,8 @@ mod tests {
             yet another (a bit longer) line 7
             yet another (a bit longer) line 8
             yet another (a bit longer) line 9
-            yet another (a bit longer) line 10"#;
-        let b = r#"line 1
+            yet another (a bit longer) line 10";
+        let b = b"line 1
             yet another (a bit longer) line 2
             yet another (a bit longer) line 3
             yet another (a bit longer) line 4
@@ -452,7 +462,7 @@ mod tests {
             yet another (a bit longer) line 7
             yet another (a bit longer) line 8
             yet another (a bit longer) line 9
-            and finally last line 10"#;
+            and finally last line 10";
         let d = delta(a, b);
         println!("delta:{:?}", &d);
         let s = deltainv(b, &d);
@@ -461,8 +471,8 @@ mod tests {
     }
     #[test]
     fn round_trip_test2() {
-        let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
-        let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+        let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#.as_bytes();
+        let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#.as_bytes();
         println!(
             "a.len={}, b.len={}, b64={}",
             a.len(),
@@ -476,7 +486,7 @@ mod tests {
     }
     #[test]
     fn empty_txt() {
-        let a = "";
+        let a = "".as_bytes();
         let b = r#"line 1
       yet another (a bit longer) line 2
       yet another (a bit longer) line 3
@@ -487,7 +497,7 @@ mod tests {
       yet another (a bit longer) line 7
       yet another (a bit longer) line 8
       yet another (a bit longer) line 9
-      and finally last line 10"#;
+      and finally last line 10"#.as_bytes();
         let d = delta(b, a);
         println!("empty delta:{:?}", &d);
         let s = deltainv(a, &d);
@@ -495,18 +505,18 @@ mod tests {
     }
     #[test]
     fn test_deltainv() {
-        let old = include_str!("test-data/file-a.txt");
-        let cur = include_str!("test-data/file-b.txt");
+        let old = include_bytes!("test-data/file-a.txt");
+        let cur = include_bytes!("test-data/file-b.txt");
         let d1: &[u8] = include_bytes!("test-data/file-delta.txt");
         let res = deltainv(cur, d1);
         assert_eq!(&res[..30], &old[..30]);
     }
     #[test]
     fn test_bug_001() {
-        let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-        let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+        let a=b"send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+        let b=b"send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
         let d = b"3a\n1S@0,29@1T,31_Pqh;";
-        let d1 = delta(a, b);
+        let d1 = delta(&a, &b);
         assert_eq!(&d1, &d);
         let s = deltainv(b, &d1);
         assert_eq!(&s, a);
@@ -515,7 +525,7 @@ mod tests {
     fn test_bug_002() {
         let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
         let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
-        let d = delta(b, a);
+        let d = delta(&b, &a);
         let mut d1 = Vec::new();
         d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
         assert_eq!(d, d1);
