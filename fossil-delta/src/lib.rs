@@ -29,6 +29,8 @@ assert_eq!(&s, a);
 assert_eq!(d.len(), 43);
 ```
 */
+
+use std::convert::TryInto;
 const NHASH: usize = 16;
 /// converts integer to String in base 64
 pub fn b64str(n: u32) -> String {
@@ -307,6 +309,41 @@ pub fn delta<T: AsRef<[u8]>, V: AsRef<[u8]>>(a: T, b: V) -> Vec<u8> {
     d
 }
 
+pub fn apply<T: AsRef<[u8]>, V: AsRef<[u8]>>(source: T, delta: V) -> Vec<u8> {
+    let source = source.as_ref();
+
+    let (total_length, mut delta) = b64int_read(&delta);
+    let mut output = Vec::with_capacity(total_length);
+
+    delta = &delta[1..];
+    while delta.len() > 0 {
+        let (cnt, delta_read) = b64int_read(delta);
+        match delta_read[0] {
+            b'@' => {
+                let (offset, delta_read) = b64int_read(&delta_read[1..]);
+                output.extend_from_slice(&source[offset..(offset + cnt)]);
+                delta = &delta_read[1..];
+            }
+            b':'=> {
+                let i = delta.len() - delta_read.len() + 1;
+                output.extend_from_slice(&delta[i..(cnt + i)]);
+                delta = &delta_read[(1 + cnt)..];
+            }
+            b';' => {
+                if cnt != checksum(&output).try_into().unwrap() {
+                    panic!("{}", "bad checksum");
+                }
+                return output;
+            }
+            c => {
+                panic!("unexpected character {}", c)
+            }
+        }
+    }
+    
+    output
+}
+
 /// Return the size (in bytes) of the output from applying
 /// a delta.
 ///
@@ -510,6 +547,14 @@ mod tests {
         let d1: &[u8] = include_bytes!("test-data/file-delta.txt");
         let res = deltainv(cur, d1);
         assert_eq!(&res[..30], &old[..30]);
+    }
+    #[test] 
+    fn apply_test() {
+        let old = include_str!("test-data/file-a.txt");
+        let cur = include_str!("test-data/file-b.txt");
+        let d1: &[u8] = include_bytes!("test-data/file-delta.txt");
+        let out = apply(&old, &d1);
+        assert_eq!(cur, String::from_utf8_lossy(&out));
     }
     #[test]
     fn test_bug_001() {
