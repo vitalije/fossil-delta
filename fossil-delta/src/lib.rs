@@ -31,6 +31,13 @@ assert_eq!(d.len(), 43);
 */
 
 use std::convert::TryInto;
+
+#[derive(Debug)]
+pub enum Error {
+    BadChecksum,
+    UnexpectedCharacter(u8),
+}
+
 const NHASH: usize = 16;
 /// converts integer to String in base 64
 pub fn b64str(n: u32) -> String {
@@ -309,7 +316,7 @@ pub fn delta<T: AsRef<[u8]>, V: AsRef<[u8]>>(a: T, b: V) -> Vec<u8> {
     d
 }
 
-pub fn apply<T: AsRef<[u8]>, V: AsRef<[u8]>>(source: T, delta: V) -> Vec<u8> {
+pub fn apply<T: AsRef<[u8]>, V: AsRef<[u8]>>(source: T, delta: V) -> Result<Vec<u8>, Error> {
     let source = source.as_ref();
 
     let (total_length, mut delta) = b64int_read(&delta);
@@ -331,17 +338,17 @@ pub fn apply<T: AsRef<[u8]>, V: AsRef<[u8]>>(source: T, delta: V) -> Vec<u8> {
             }
             b';' => {
                 if cnt != checksum(&output).try_into().unwrap() {
-                    panic!("{}", "bad checksum");
+                    return Err(Error::BadChecksum);
                 }
-                return output;
+                return Ok(output);
             }
             c => {
-                panic!("unexpected character {}", c)
+                return Err(Error::UnexpectedCharacter(c));
             }
         }
     }
     
-    output
+    Ok(output)
 }
 
 /// Return the size (in bytes) of the output from applying
@@ -553,7 +560,7 @@ mod tests {
         let old = include_str!("test-data/file-a.txt");
         let cur = include_str!("test-data/file-b.txt");
         let d1: &[u8] = include_bytes!("test-data/file-delta.txt");
-        let out = apply(&old, &d1);
+        let out = apply(&old, &d1).unwrap();
         assert_eq!(cur, String::from_utf8_lossy(&out));
     }
     #[test]
