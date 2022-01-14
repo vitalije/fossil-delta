@@ -35,6 +35,8 @@ use std::convert::TryInto;
 #[derive(Debug)]
 pub enum Error {
     BadChecksum,
+    CopyExceedsSize,
+    CopyExtendsPasteEndOfInput,
     UnexpectedCharacter(u8),
 }
 
@@ -318,7 +320,8 @@ pub fn delta<T: AsRef<[u8]>, V: AsRef<[u8]>>(a: T, b: V) -> Vec<u8> {
 
 pub fn apply<T: AsRef<[u8]>, V: AsRef<[u8]>>(source: T, delta: V) -> Result<Vec<u8>, Error> {
     let source = source.as_ref();
-
+    let mut total = 0;
+    let source_length = source.len();
     let (total_length, mut delta) = b64int_read(&delta);
     let mut output = Vec::with_capacity(total_length);
 
@@ -327,12 +330,23 @@ pub fn apply<T: AsRef<[u8]>, V: AsRef<[u8]>>(source: T, delta: V) -> Result<Vec<
         let (cnt, delta_read) = b64int_read(delta);
         match delta_read[0] {
             b'@' => {
+                total += cnt;
                 let (offset, delta_read) = b64int_read(&delta_read[1..]);
+                if total > total_length {
+                    return Err(Error::CopyExceedsSize);
+                }
+                if offset + cnt > source_length {
+                    return Err(Error::CopyExtendsPasteEndOfInput);
+                }
                 output.extend_from_slice(&source[offset..(offset + cnt)]);
                 delta = &delta_read[1..];
             }
             b':'=> {
+                total += cnt;
                 let i = delta.len() - delta_read.len() + 1;
+                if total > total_length {
+                    return Err(Error::CopyExceedsSize);
+                }
                 output.extend_from_slice(&delta[i..(cnt + i)]);
                 delta = &delta_read[(1 + cnt)..];
             }
