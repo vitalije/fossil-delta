@@ -252,7 +252,7 @@ const NHASH: usize = 16;
 This algorithm is used in [fossil](https://fossil-scm.org) where it has been implemented in C-99.
 This crate contains the same algorithm implemented in Rust.
 
-It exports two functions: `delta(a:&amp;str, b:&amp;str) -&gt; String` and `deltainv(b:&amp;str, d:&amp;str) -&gt; String`.
+It exports two functions: `delta(a:AsRef&lt;[u8]&gt;, b:AsRef&lt;[u8]&gt;) -&gt; Vec&lt;u8&gt;` and `deltainv(b:AsRef&lt;[u8]&gt;, d:AsRef&lt;[u8]&gt;) -&gt; Vec&lt;8&gt;`.
 
 ```
 // creating delta between a and its next version b
@@ -270,7 +270,7 @@ the new text value `b`. If later user wants to see the previous version of text,
 we can use `deltainv(b, d)` to get the previous value `a`. If we keep all consequtive deltas
 we can use `deltainv` multiple times to get any of the earlier text versions.
 
-The delta value calculated between two utf-8 encoded strings is itself utf-8 encoded string.
+The delta value calculated between two utf-8 encoded might not be valid utf-8.
 
 The algorithm is very well described
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
@@ -286,6 +286,7 @@ snapshots from Leo, calculates the delta form the previous snapshot and stores a
 in a database. On the other side, this server serves a small web application which allows
 user to browse history of known Leo files.
 
+Thanks to [Vincent Néel](https://github.com/pikanezi), functions `delta` and `deltainv` now accept both binary and text arguments.
 </t>
 <t tx="vitalije.20190708080758.1">/// converts integer to String in base 64
 pub fn b64str(n: u32) -&gt; String {
@@ -798,7 +799,7 @@ members = [
 ]</t>
 <t tx="vitalije.20190709083222.1">[package]
 name = "py-fossil-delta"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -953,7 +954,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
