@@ -186,7 +186,7 @@ for p in c.allNodes_iter():
 <t tx="vitalije.20190708073324.1">@nocolor
 [package]
 name = "fossil-delta"
-version = "0.1.6"
+version = "0.2.0"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -205,7 +205,7 @@ categories = ["algorithms", "compression", "encoding", "text-processing"]
 
 ```rust
 use fossil_delta::{delta, deltainv};
-let a = r#"line 1
+let a = b"line 1
   yet another (a bit longer) line 2
   yet another (a bit longer) line 3
   yet another (a bit longer) line 4
@@ -214,8 +214,8 @@ let a = r#"line 1
   yet another (a bit longer) line 7
   yet another (a bit longer) line 8
   yet another (a bit longer) line 9
-  yet another (a bit longer) line 10"#;
-let b = r#"line 1
+  yet another (a bit longer) line 10";
+let b = b"line 1
   yet another (a bit longer) line 2
   yet another (a bit longer) line 3
   yet another (a bit longer) line 4
@@ -225,13 +225,24 @@ let b = r#"line 1
   yet another (a bit longer) line 7
   yet another (a bit longer) line 8
   yet another (a bit longer) line 9
-  and finally last line 10"#;
+  and finally last line 10";
 let d = delta(a, b);
 let s = deltainv(b, &amp;d);
 assert_eq!(&amp;s, a);
 assert_eq!(d.len(), 43);
 ```
 */
+
+use std::convert::TryInto;
+
+#[derive(Debug)]
+pub enum Error {
+    BadChecksum,
+    CopyExceedsSize,
+    CopyExtendsPasteEndOfInput,
+    UnexpectedCharacter(u8),
+}
+
 const NHASH: usize = 16;
 @others
 </t>
@@ -241,7 +252,7 @@ const NHASH: usize = 16;
 This algorithm is used in [fossil](https://fossil-scm.org) where it has been implemented in C-99.
 This crate contains the same algorithm implemented in Rust.
 
-It exports two functions: `delta(a:&amp;str, b:&amp;str) -&gt; String` and `deltainv(b:&amp;str, d:&amp;str) -&gt; String`.
+It exports two functions: `delta(a:AsRef&lt;[u8]&gt;, b:AsRef&lt;[u8]&gt;) -&gt; Vec&lt;u8&gt;` and `deltainv(b:AsRef&lt;[u8]&gt;, d:AsRef&lt;[u8]&gt;) -&gt; Vec&lt;8&gt;`.
 
 ```
 // creating delta between a and its next version b
@@ -259,7 +270,7 @@ the new text value `b`. If later user wants to see the previous version of text,
 we can use `deltainv(b, d)` to get the previous value `a`. If we keep all consequtive deltas
 we can use `deltainv` multiple times to get any of the earlier text versions.
 
-The delta value calculated between two utf-8 encoded strings is itself utf-8 encoded string.
+The delta value calculated between two utf-8 encoded might not be valid utf-8.
 
 The algorithm is very well described
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
@@ -275,6 +286,7 @@ snapshots from Leo, calculates the delta form the previous snapshot and stores a
 in a database. On the other side, this server serves a small web application which allows
 user to browse history of known Leo files.
 
+Thanks to [Vincent Néel](https://github.com/pikanezi), functions `delta` and `deltainv` now accept both binary and text arguments.
 </t>
 <t tx="vitalije.20190708080758.1">/// converts integer to String in base 64
 pub fn b64str(n: u32) -&gt; String {
@@ -292,21 +304,23 @@ pub fn b64str(n: u32) -&gt; String {
 }
 
 /// converts base 64 str to u32
-pub fn b64int(a: &amp;str) -&gt; u32 {
-    b64int_read(a.as_bytes()).0 as u32
+pub fn b64int&lt;T: AsRef&lt;[u8]&gt; + ?Sized&gt;(a: &amp;T) -&gt; u32 {
+    b64int_read(a.as_ref()).0 as u32
 }
 
-pub fn b64int_read(a: &amp;[u8]) -&gt; (usize, &amp;[u8]) {
+pub fn b64int_read&lt;T: AsRef&lt;[u8]&gt; + ?Sized&gt;(a: &amp;T) -&gt; (usize, &amp;[u8]) {
     let mut res = 0_usize;
-    for (j, i) in a.iter().enumerate() {
+    for (j, i) in a.as_ref().iter().enumerate() {
         let k = B64VALUES[(i &amp; 127) as usize];
         if k == 255 {
+             let a = a.as_ref();
             return (res, &amp;a[j..]);
         }
         res = (res &lt;&lt; 6) + (k as usize);
     }
     (res, b"")
 }
+
 </t>
 <t tx="vitalije.20190708080758.2">const B64DIGITS: [char; 64] = [
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
@@ -325,6 +339,7 @@ const B64VALUES: [u8; 128] = [
     40u8, 41u8, 42u8, 43u8, 44u8, 45u8, 46u8, 47u8, 48u8, 49u8, 50u8, 51u8, 52u8, 53u8, 54u8, 55u8,
     56u8, 57u8, 58u8, 59u8, 60u8, 61u8, 62u8, 255u8, 255u8, 255u8, 63u8, 255u8,
 ];
+
 </t>
 <t tx="vitalije.20190708081957.1">#[cfg(test)]
 mod tests {
@@ -401,13 +416,14 @@ pub fn digit_count(v: usize) -&gt; usize {
     }
     11
 }
+
 </t>
 <t tx="vitalije.20190708091311.1">/// Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
 /// buffer is not a multiple of 4 bytes length, compute the sum that would
 /// have occurred if the buffer was padded with zeros to the next multiple
 /// of four bytes.
-fn checksum(z_in: &amp;[u8]) -&gt; u32 {
-    let it = z_in.chunks_exact(4);
+fn checksum&lt;T: AsRef&lt;[u8]&gt;&gt;(z_in: T) -&gt; u32 {
+    let it = z_in.as_ref().chunks_exact(4);
     let b = it.remainder();
     let a_b: [u8; 4] = match b.len() {
         0 =&gt; [0, 0, 0, 0],
@@ -486,19 +502,21 @@ fn checksum(z_in: &amp;[u8]) -&gt; u32 {
 /// for the output and hence allocate nor more space that is really
 /// needed.
 ///
-pub fn delta_output_size(z_delta: &amp;str) -&gt; usize {
-    b64int(z_delta) as usize
+pub fn delta_output_size&lt;T: AsRef&lt;[u8]&gt;&gt;(z_delta: T) -&gt; usize {
+    b64int(&amp;z_delta) as usize
 }
+
 </t>
-<t tx="vitalije.20190708103528.1">pub fn generate_delta(
-    z_out_t: &amp;str,         /* The target text */
-    z_src_t: &amp;str,         /* The source text */
+<t tx="vitalije.20190708103528.1">pub fn generate_delta&lt;T: AsRef&lt;[u8]&gt;, V: AsRef&lt;[u8]&gt;&gt;(
+    z_out_t: T,         /* The target text */
+    z_src_t: V,         /* The source text */
     z_delta: &amp;mut Vec&lt;u8&gt;, /* A string to hold the resulting delta */
 ) {
     z_delta.clear();
-    let z_src = z_src_t.as_bytes();
+    let z_src = z_src_t.as_ref();
     @others
 }
+
 </t>
 <t tx="vitalije.20190708105710.1">z_delta.extend_from_slice(b64str(z_out.len() as u32).as_bytes());
 z_delta.push(b'\n');
@@ -586,7 +604,7 @@ while base + NHASH &lt; z_out.len() {
 }
 </t>
 <t tx="vitalije.20190708130411.1"></t>
-<t tx="vitalije.20190708131459.1">let z_out = z_out_t.as_bytes();
+<t tx="vitalije.20190708131459.1">let z_out = z_out_t.as_ref();
 // match block backward
 let mb_backward = |i, j, n| {
     if i == 0 || j &lt;= n {
@@ -638,7 +656,7 @@ fn delta_gen() {
     let cur = include_str!("test-data/file-b.txt");
     let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
     let mut d = Vec::new();
-    generate_delta(cur, old, &amp;mut d);
+    generate_delta(&amp;cur, &amp;old, &amp;mut d);
     assert_eq!(d.as_slice(), d1);
 }
 </t>
@@ -655,22 +673,72 @@ fn test_hash_update() {
 </t>
 <t tx="vitalije.20190708180426.1">/// Creates delta and returns it as a String
 /// see [`generate_delta`]
-pub fn delta(a: &amp;str, b: &amp;str) -&gt; Vec&lt;u8&gt; {
-    let mut d = Vec::with_capacity(b.len() + 60);
+pub fn delta&lt;T: AsRef&lt;[u8]&gt;, V: AsRef&lt;[u8]&gt;&gt;(a: T, b: V) -&gt; Vec&lt;u8&gt; {
+    let mut d = Vec::with_capacity(b.as_ref().len() + 60);
     generate_delta(a, b, &amp;mut d);
     d
 }
+
+pub fn apply&lt;T: AsRef&lt;[u8]&gt;, V: AsRef&lt;[u8]&gt;&gt;(source: T, delta: V) -&gt; Result&lt;Vec&lt;u8&gt;, Error&gt; {
+    let source = source.as_ref();
+    let mut total = 0;
+    let source_length = source.len();
+    let (total_length, mut delta) = b64int_read(&amp;delta);
+    let mut output = Vec::with_capacity(total_length);
+
+    delta = &amp;delta[1..];
+    while delta.len() &gt; 0 {
+        let (cnt, delta_read) = b64int_read(delta);
+        match delta_read[0] {
+            b'@' =&gt; {
+                total += cnt;
+                let (offset, delta_read) = b64int_read(&amp;delta_read[1..]);
+                if total &gt; total_length {
+                    return Err(Error::CopyExceedsSize);
+                }
+                if offset + cnt &gt; source_length {
+                    return Err(Error::CopyExtendsPasteEndOfInput);
+                }
+                output.extend_from_slice(&amp;source[offset..(offset + cnt)]);
+                delta = &amp;delta_read[1..];
+            }
+            b':'=&gt; {
+                total += cnt;
+                let i = delta.len() - delta_read.len() + 1;
+                if total &gt; total_length {
+                    return Err(Error::CopyExceedsSize);
+                }
+                output.extend_from_slice(&amp;delta[i..(cnt + i)]);
+                delta = &amp;delta_read[(1 + cnt)..];
+            }
+            b';' =&gt; {
+                if cnt != checksum(&amp;output).try_into().unwrap() {
+                    return Err(Error::BadChecksum);
+                }
+                return Ok(output);
+            }
+            c =&gt; {
+                return Err(Error::UnexpectedCharacter(c));
+            }
+        }
+    }
+    
+    Ok(output)
+}
+
 </t>
 <t tx="vitalije.20190708183210.1">/// Given the current version of text value `b_txt` and delta value as `d_txt`
 /// this function returns the previous version of text b_txt.
-pub fn deltainv(b_txt: &amp;str, d_txt: &amp;[u8]) -&gt; String {
-    let (total_length, mut d_src) = b64int_read(d_txt);
+pub fn deltainv&lt;T: AsRef&lt;[u8]&gt;, V: AsRef&lt;[u8]&gt;&gt;(b_txt: T, d_txt: V) -&gt; Vec&lt;u8&gt; {
+    let (total_length, mut d_src) = b64int_read(&amp;d_txt);
 
     let mut a_res = Vec::with_capacity(total_length);
-    let b_bytes = b_txt.as_bytes();
+    let b_txt = b_txt.as_ref();
+    let b_bytes = b_txt;
+    let d_txt = d_txt.as_ref();
     d_src = &amp;d_src[1..];
     while d_src.len() &gt; 0 {
-        let (cnt, d1_src) = b64int_read(&amp;d_src);
+        let (cnt, d1_src) = b64int_read(d_src);
         match d1_src[0] {
             b'@' =&gt; {
                 let (ofst, d1_src) = b64int_read(&amp;d1_src[1..]);
@@ -682,11 +750,11 @@ pub fn deltainv(b_txt: &amp;str, d_txt: &amp;[u8]) -&gt; String {
                 a_res.extend_from_slice(&amp;d_txt[i..(cnt + i)]);
                 d_src = &amp;d1_src[(1 + cnt)..];
             }
-            b';' =&gt; return String::from_utf8(a_res).unwrap(),
+            b';' =&gt; return a_res,
             _ =&gt; {
                 let msg = format!(
                     r#"Error in applying delta
-        txt: {}
+        txt: {:?}
         -----------------------------
         delta: {:?}
         =============================
@@ -696,19 +764,29 @@ pub fn deltainv(b_txt: &amp;str, d_txt: &amp;[u8]) -&gt; String {
                     d_txt,
                     d_txt.len() - d1_src.len()
                 );
-                panic!(msg)
+                panic!("{}", msg)
             }
         }
     }
-    String::from_utf8(a_res).unwrap()
-}</t>
+    a_res
+}
+
+</t>
 <t tx="vitalije.20190708190730.1">#[test]
 fn test_deltainv() {
-    let old = include_str!("test-data/file-a.txt");
-    let cur = include_str!("test-data/file-b.txt");
+    let old = include_bytes!("test-data/file-a.txt");
+    let cur = include_bytes!("test-data/file-b.txt");
     let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
     let res = deltainv(cur, d1);
     assert_eq!(&amp;res[..30], &amp;old[..30]);
+}
+#[test] 
+fn apply_test() {
+    let old = include_str!("test-data/file-a.txt");
+    let cur = include_str!("test-data/file-b.txt");
+    let d1: &amp;[u8] = include_bytes!("test-data/file-delta.txt");
+    let out = apply(&amp;old, &amp;d1).unwrap();
+    assert_eq!(cur, String::from_utf8_lossy(&amp;out));
 }
 </t>
 <t tx="vitalije.20190709081959.1"></t>
@@ -721,7 +799,7 @@ members = [
 ]</t>
 <t tx="vitalije.20190709083222.1">[package]
 name = "py-fossil-delta"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "Provides functions for calculating differences between strings and applying calculated deltas"
@@ -740,11 +818,12 @@ crate-type = ["cdylib"]
 cbindgen = "0.5.2"
 
 [dependencies]
-fossil-delta = { path="../fossil-delta", version="0.1.6"}
+fossil-delta = { path="../fossil-delta", version="0.2.0"}
 
 [dependencies.pyo3]
 version = "0.8.4"
-features = ["extension-module"]</t>
+features = ["extension-module"]
+</t>
 <t tx="vitalije.20190709083254.1">use fossil_delta::{delta, deltainv};
 use pyo3::prelude::*;
 
@@ -770,8 +849,8 @@ fn fossil_delta(_py: Python, m: &amp;PyModule) -&gt; PyResult&lt;()&gt; {
     #[pyfn(m, "deltainv")]
     fn py_deltainv(py: Python, b: &amp;str, d: PyObject) -&gt; PyResult&lt;String&gt; {
         let dv: Vec&lt;u8&gt; = d.extract(py).unwrap();
-        let res = deltainv(b, &amp;dv);
-        Ok(res)
+        String::from_utf8(deltainv(b, &amp;dv))
+            .map_err(|e| e.into())
     }
     Ok(())
 }
@@ -875,7 +954,7 @@ fn main() {
 </t>
 <t tx="vitalije.20190709160800.1">[package]
 name = "leo-ver-serv"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["vitalije &lt;vitalije@kviziracija.net&gt;"]
 edition = "2018"
 description = "A web server which accepts snapshots from Leo, and serves web application for browsing history of known Leo files."
@@ -891,16 +970,17 @@ categories = ["command-line-utilities", "compression", "web-programming::http-se
 actix-web = "1.0"
 actix-files = "0.1.3"
 chrono = "0.4.7"
-fossil-delta = {version="0.1.6", path="../fossil-delta"}
+fossil-delta = {version="0.2.0", path="../fossil-delta"}
 serde = "1.0.97"
 serde_json = "1.0.40"
 
 [dependencies.rusqlite]
 version = "0.19.0"
-features = ["bundled"]</t>
+features = ["bundled"]
+</t>
 <t tx="vitalije.20190709214611.1">#[test]
 fn round_trip_test() {
-    let a = r#"line 1
+    let a = b"line 1
         yet another (a bit longer) line 2
         yet another (a bit longer) line 3
         yet another (a bit longer) line 4
@@ -909,8 +989,8 @@ fn round_trip_test() {
         yet another (a bit longer) line 7
         yet another (a bit longer) line 8
         yet another (a bit longer) line 9
-        yet another (a bit longer) line 10"#;
-    let b = r#"line 1
+        yet another (a bit longer) line 10";
+    let b = b"line 1
         yet another (a bit longer) line 2
         yet another (a bit longer) line 3
         yet another (a bit longer) line 4
@@ -920,7 +1000,7 @@ fn round_trip_test() {
         yet another (a bit longer) line 7
         yet another (a bit longer) line 8
         yet another (a bit longer) line 9
-        and finally last line 10"#;
+        and finally last line 10";
     let d = delta(a, b);
     println!("delta:{:?}", &amp;d);
     let s = deltainv(b, &amp;d);
@@ -930,8 +1010,8 @@ fn round_trip_test() {
 </t>
 <t tx="vitalije.20190709214622.1">#[test]
 fn round_trip_test2() {
-    let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
-    let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#;
+    let a = r#"def do_Expression(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#.as_bytes();
+    let b = r#"sion(self, node):\n    '''An inner expression'''\n    self.visit(node.body)\n"#.as_bytes();
     println!(
         "a.len={}, b.len={}, b64={}",
         a.len(),
@@ -946,7 +1026,7 @@ fn round_trip_test2() {
 </t>
 <t tx="vitalije.20190711104435.1">#[test]
 fn empty_txt() {
-    let a = "";
+    let a = "".as_bytes();
     let b = r#"line 1
   yet another (a bit longer) line 2
   yet another (a bit longer) line 3
@@ -957,7 +1037,7 @@ fn empty_txt() {
   yet another (a bit longer) line 7
   yet another (a bit longer) line 8
   yet another (a bit longer) line 9
-  and finally last line 10"#;
+  and finally last line 10"#.as_bytes();
     let d = delta(b, a);
     println!("empty delta:{:?}", &amp;d);
     let s = deltainv(a, &amp;d);
@@ -966,10 +1046,10 @@ fn empty_txt() {
 </t>
 <t tx="vitalije.20190711122248.1">#[test]
 fn test_bug_001() {
-    let a="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
-    let b="send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+    let a=b"send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
+    let b=b"send-snap\nimport zmq\n#c.user_dict.pop('sendsnap', None)\n@others\nmsg = \"snapshot %s\"% snap()\n\nsend(msg)\n#msg = \"getat 2019-07-11 10:06:21\"\n#res = send(msg, True)\n#with open('/tmp/proba', 'w') as out:\n#    out.write(res)\ng.es('ok')\n";
     let d = b"3a\n1S@0,29@1T,31_Pqh;";
-    let d1 = delta(a, b);
+    let d1 = delta(&amp;a, &amp;b);
     assert_eq!(&amp;d1, &amp;d);
     let s = deltainv(b, &amp;d1);
     assert_eq!(&amp;s, a);
@@ -1205,7 +1285,8 @@ fn favicon() -&gt; impl Responder {
             let gnx: String = row.get(0)?;
             let d: Vec&lt;u8&gt; = row.get(1)?;
             if let Some(b) = nodes.get_mut(&amp;gnx) {
-                *b = deltainv(b, &amp;d);
+                let x = deltainv(&amp;b, &amp;d);
+                *b = String::from_utf8(x).expect("deltainv must produce utf8");
             }
         }
     }
@@ -1251,7 +1332,8 @@ fn favicon() -&gt; impl Responder {
             return Ok(hb);
         }
         let d: Vec&lt;u8&gt; = row.get(1)?;
-        hb = deltainv(&amp;hb, &amp;d);
+        hb = String::from_utf8(deltainv(&amp;hb, &amp;d))
+            .expect("deltainv must produce utf8");
     }
     Ok(hb)
 }</t>
@@ -1282,7 +1364,8 @@ fn favicon() -&gt; impl Responder {
     let mut i = num;
     while let Some(row) = rows.next()? {
         let d: Vec&lt;u8&gt; = row.get(0)?;
-        hb = deltainv(&amp;hb, &amp;d);
+        hb = String::from_utf8(deltainv(&amp;hb, &amp;d))
+                .expect("deltainv must produce utf8");
         i -= 1;
         if i == 0 {
             tstamp = row.get(1)?;
@@ -1314,7 +1397,8 @@ fn favicon() -&gt; impl Responder {
             let gnx: String = row.get(0)?;
             let d: Vec&lt;u8&gt; = row.get(1)?;
             if let Some(b) = nodes.get_mut(&amp;gnx) {
-                *b = deltainv(b, &amp;d);
+                let x = deltainv(&amp;b, &amp;d);
+                *b = String::from_utf8(x).expect("deltainv must produce utf8");
             }
             i += 1;
             if i == rev {
@@ -2073,7 +2157,7 @@ if __name__ == '__main__':
 fn test_bug_002() {
     let a="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Функција ради коректно\")\n";
     let b="from student import moja_tajna_funkcija\n\ndef check(a, b):\n    assert moja_tajna_funkcija(a, b) == a + b, \"Функција не даје добар резултат за аргументе: %r и %r\"%(a, b)\n\nif __name__ == '__main__':\n    for x in range(-100, 101):\n        for y in range(-100, 101):\n            check(x, y)\n    print(\"Није пронађена грешка у твом програму.\")\n";
-    let d = delta(b, a);
+    let d = delta(&amp;b, &amp;a);
     let mut d1 = Vec::new();
     d1.extend_from_slice(b"6P\n5H@0,18:\x9d\xd0\xb8\xd1\x98\xd0\xb5 \xd0\xbf\xd1\x80\xd0\xbe\xd0\xbd\xd0\xb0\xd1\x92\xd0\xb5\xd0\xbd\xd0\xb0 \xd0\xb3\xd1\x80\xd0\xb5\xd1\x88\xd0\xba\xd0\xb0 \xd1\x83 \xd1\x82\xd0\xb2\xd0\xbe\xd0\xbc \xd0\xbf\xd1\x80\xd0\xbe\xd0\xb3\xd1\x80\xd0\xb0\xd0\xbc\xd1\x83.\")\n2mdlCq;");
     assert_eq!(d, d1);

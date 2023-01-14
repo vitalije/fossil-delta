@@ -115,7 +115,8 @@ pub fn get_all_at(conn: &Connection, tstamp: &str) -> Result<String> {
             let gnx: String = row.get(0)?;
             let d: Vec<u8> = row.get(1)?;
             if let Some(b) = nodes.get_mut(&gnx) {
-                *b = deltainv(b, &d);
+                let x = deltainv(&b, &d);
+                *b = String::from_utf8(x).expect("deltainv must produce utf8");
             }
         }
     }
@@ -148,7 +149,8 @@ pub fn get_all_revision(conn: &Connection, rev: usize) -> Result<String> {
             let gnx: String = row.get(0)?;
             let d: Vec<u8> = row.get(1)?;
             if let Some(b) = nodes.get_mut(&gnx) {
-                *b = deltainv(b, &d);
+                let x = deltainv(&b, &d);
+                *b = String::from_utf8(x).expect("deltainv must produce utf8");
             }
             i += 1;
             if i == rev {
@@ -184,7 +186,8 @@ pub fn get_node_at(conn: &Connection, gnx: &str, tstamp: &str) -> Result<String>
             return Ok(hb);
         }
         let d: Vec<u8> = row.get(1)?;
-        hb = deltainv(&hb, &d);
+        hb = String::from_utf8(deltainv(&hb, &d))
+            .expect("deltainv must produce utf8");
     }
     Ok(hb)
 }
@@ -215,7 +218,8 @@ pub fn get_node_revision(conn: &Connection, gnx: &str, num: usize) -> Result<Str
     let mut i = num;
     while let Some(row) = rows.next()? {
         let d: Vec<u8> = row.get(0)?;
-        hb = deltainv(&hb, &d);
+        hb = String::from_utf8(deltainv(&hb, &d))
+                .expect("deltainv must produce utf8");
         i -= 1;
         if i == 0 {
             tstamp = row.get(1)?;

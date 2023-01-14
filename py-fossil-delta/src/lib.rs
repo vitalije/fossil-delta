@@ -23,8 +23,8 @@ fn fossil_delta(_py: Python, m: &PyModule) -> PyResult<()> {
     #[pyfn(m, "deltainv")]
     fn py_deltainv(py: Python, b: &str, d: PyObject) -> PyResult<String> {
         let dv: Vec<u8> = d.extract(py).unwrap();
-        let res = deltainv(b, &dv);
-        Ok(res)
+        String::from_utf8(deltainv(b, &dv))
+            .map_err(|e| e.into())
     }
     Ok(())
 }

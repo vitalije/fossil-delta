@@ -4,7 +4,7 @@
 This algorithm is used in [fossil](https://fossil-scm.org) where it has been implemented in C-99.
 This crate contains the same algorithm implemented in Rust.
 
-It exports two functions: `delta(a:&str, b:&str) -> String` and `deltainv(b:&str, d:&str) -> String`.
+It exports two functions: `delta(a:AsRef<[u8]>, b:AsRef<[u8]>) -> Vec<u8>` and `deltainv(b:AsRef<[u8]>, d:AsRef<[u8]>) -> Vec<8>`.
 
 ```
 // creating delta between a and its next version b
@@ -22,7 +22,7 @@ the new text value `b`. If later user wants to see the previous version of text,
 we can use `deltainv(b, d)` to get the previous value `a`. If we keep all consequtive deltas
 we can use `deltainv` multiple times to get any of the earlier text versions.
 
-The delta value calculated between two utf-8 encoded strings is itself utf-8 encoded string.
+The delta value calculated between two utf-8 encoded might not be valid utf-8.
 
 The algorithm is very well described
 [here](https://fossil-scm.org/home/doc/trunk/www/delta_encoder_algorithm.wiki) in the fossil wiki.
@@ -38,3 +38,4 @@ snapshots from Leo, calculates the delta form the previous snapshot and stores a
 in a database. On the other side, this server serves a small web application which allows
 user to browse history of known Leo files.
 
+Thanks to [Vincent Néel](https://github.com/pikanezi), functions `delta` and `deltainv` now accept both binary and text arguments.
